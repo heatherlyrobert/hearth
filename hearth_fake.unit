@@ -1,0 +1,77 @@
+#!/usr/local/bin/koios
+#   koios-polos (north star) -- customized c unit testing meta-program and mini-language
+#   program under test  : hearth_fake 
+#   auto-generated script file converted from a previous script version
+#   updated to the most recent version (v21)
+
+
+
+#23456789-12  123  123456789-123456789-123456789-12345  123456789-123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-  123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-  -  123456789-123456789- 
+#==(verb)===  ver  ===========(description)===========  =====(function)=====  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
+PREP          v21  include the prototype headers                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+   incl       v21  include public header                hearth.h              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+
+
+#23456789-12  123  123456789-123456789-123456789-12345  123456789-123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-  123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-  -  123456789-123456789- 
+#==(verb)===  ver  ===========(description)===========  =====(function)=====  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
+SCRP          v21  (FAKE  ) test input collection from buffer                   FAKE_collect                                                            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  verify program setup                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  setup the program                    PROG_testquiet                                                                                i_equal     0                                                                                                    
+     code     v21  create an input string               - - - - - - - - - -   char    x_input     [100] = "";                                                                                                                                                              
+     code     v21  create an input string               - - - - - - - - - -   char    x_expect    [100] = "";                                                                                                                                                              
+     code     v21  create an hint string                - - - - - - - - - -   char    x_hint      [100] = "";                                                                                                                                                              
+
+   GROUP      v21  basic testing                                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  check basic success                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , "one¶"                       , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "one"                        , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_equal     0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   COND       v21  too many characters                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , "onetwothree¶"               , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "((error))"                  , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_lesser    0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   COND       v21  escape out                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , "one¥"                       , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "((error))"                  , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_lesser    0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   GROUP      v21  illegal arguments                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   GROUP      v21  just a empty string                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , ""                           , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "((error))"                  , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_lesser    0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   GROUP      v21  short string with no return                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , "one"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "((error))"                  , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_lesser    0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   GROUP      v21  empty input with just return                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_input  , "n/a"                        , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_hint   , "¶"                          , LEN_RECD );                                                                                                                               
+     code     v21  assign the label                     - - - - - - - - - -   strlcpy (x_expect , "((error))"                  , LEN_RECD );                                                                                                                               
+     exec     v21  run collect                          FAKE_collect          FAKE_TEST        , x_input                         , x_hint             i_lesser    0                                                                                                    
+     echo     v21  get output record                    - - - - - - - - - -   x_input                                                                 s_equal     [[ x_expect ]]                                                                                       
+
+   GROUP      v21  complete                                                     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  verify program teardown                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.041))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  wrap-up the program                  PROG_testend                                                                                  i_equal     0                                                                                                    
+
+
