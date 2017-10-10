@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0a"
-#define     VER_TXT          "break out of hestia into separate program"
+#define     VER_NUM          "2.0b"
+#define     VER_TXT          "user tested fake collect and fake tarpit functions"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -164,6 +164,7 @@
 #define     LEN_DESC    100
 #define     LEN_LABEL   20
 
+typedef unsigned char    uchar;
 typedef struct tm        tTIME;
 typedef struct stat      tSTAT;
 typedef struct passwd    tPASSWD;
@@ -176,9 +177,10 @@ typedef struct spwd      tSHADOW;
 #define     K_SPACE       32
 #define     K_NULL         0
 
-#define     FAKE_TEST    '-'
-#define     FAKE_USER    'i'
-#define     FAKE_HINT    'h'
+#define     FAKE_TEST    't'    /* unit test mode                             */
+#define     FAKE_SILENT  's'    /* ncurses mode, but no screen output/waits   */
+#define     FAKE_USER    'i'    /* ncurses mode, with screen output           */
+#define     FAKE_HINT    'h'    /* FAKE_USER plus display a hint              */
 
 
 
@@ -229,9 +231,10 @@ extern int         left2;
 extern int         x_knock2;
 extern char        ctitle;
 extern char        ntitle;
-extern char        host_name   [50];
 
 struct cACCESSOR {
+   /*---(fake)-------------------*/
+   char        host_name   [50];
    /*---(veil)-------------------*/
    char        magicnum    [20];       /* magic number used on this getty     */
    char        show_butterfly;
@@ -299,6 +302,7 @@ char        VEIL_butterfly       (int a_x, int a_y);
 char        VEIL_tty             (int a_x, int a_y);
 
 char        FAKE_collect         (char a_mode, char *a_input, char *a_key);
+char        FAKE_tarpit          (char a_mode, char *a_input, int *a_points);
 
 int         audit_find         (char *a_dev, int  a_pid, int *a_pos);
 char        audit_login        (char *a_dev, char *a_user, int a_rpid);

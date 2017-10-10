@@ -18,37 +18,37 @@ main               (int a_argc, char **a_argv)
    if (rc >= 0)  rc = PROG_args    (a_argc, a_argv);
    if (rc >= 0)  rc = PROG_begin   ();
    --rce;  if (rc <  0) {
-      yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
       PROG_end ();
       return rce;
    }
    /*---(check fake door)----------------*/
    if (rc == 0)  rc = FAKE_door   ();
    --rce;  if (rc != 0) {
-      yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
       PROG_end    ();
       return rce;
    }
    /*---(input)--------------------------*/
-   yLOG_note   ("begin prompt/input cycle");
+   DEBUG_TOPS   yLOG_note   ("begin prompt/input cycle");
    while (1) {
       magic  ();
       prompt (0);
       refresh();
       ri = get_login ();
       if (ri <= 0) break;
-      yLOG_note   ("refresh");
+      DEBUG_TOPS   yLOG_note   ("refresh");
    }
    PROG_end    ();
-   yLOG_note   ("done entry processing");
-   yLOG_value  ("entry ri"  , ri);
+   DEBUG_TOPS   yLOG_note   ("done entry processing");
+   DEBUG_TOPS   yLOG_value  ("entry ri"  , ri);
    /*---(processing)---------------------*/
    if (ri == 0) {
-      yLOG_note   ("handle successful login");
+      DEBUG_TOPS   yLOG_note   ("handle successful login");
       /*---(log)-------------------------*/
-      yLOG_note   ("write utmp entry");
-      yLOG_note   ("calling shell");
-      yLOG_exit   (__FUNCTION__);
+      DEBUG_TOPS   yLOG_note   ("write utmp entry");
+      DEBUG_TOPS   yLOG_note   ("calling shell");
+      DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
       /*---(detach)----------------------*/
       ioctl (0, TIOCNOTTY, NULL);    /* detach, from login.c                  */
       setsid();                      /* start new session                     */
@@ -56,29 +56,29 @@ main               (int a_argc, char **a_argv)
       /*---(launch)----------------------*/
       rpid = yEXEC_run   (EXEC_FILE, "launching tty", user, "/bin/bash", yEXEC_BASH, yEXEC_NORM, yEXEC_FORK);
       rc = ySEC_login  (dev + 5, entry.user_fix, rpid);
-      yLOG_value   ("rc"     , rc);
+      DEBUG_TOPS   yLOG_value   ("rc"     , rc);
       /*---(done)------------------------*/
       while (1) {
          ++count;
-         if ((count % 720) == 0)  yLOG_sync ();
+         if ((count % 720) == 0)  DEBUG_TOPS   yLOG_sync ();
          sleep (5);
          ri = yEXEC_check ("wait for done", rpid);
-         yLOG_pair   (count, ri);
+         DEBUG_TOPS   yLOG_pair   (count, ri);
          if (ri == 0) {
-            yLOG_info   ("shell_exit", dev);
+            DEBUG_TOPS   yLOG_info   ("shell_exit", dev);
             break;
          }
       }
    } else {
-      yLOG_note   ("handle FAILED login");
-      yLOG_info   ("login_fail", dev);
+      DEBUG_TOPS   yLOG_note   ("handle FAILED login");
+      DEBUG_TOPS   yLOG_info   ("login_fail", dev);
    }
    /*---(complete)-----------------------*/
    audit_logout(dev, veil_rpid, ri);
    ySEC_logout (dev + 5,  "", rpid);
-   yLOG_exit   (__FUNCTION__);
-   yLOG_value  ("returning" , ri);
-   yLOG_end    ();
+   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_value  ("returning" , ri);
+   DEBUG_TOPS   yLOG_end    ();
    return ri;
 }
 

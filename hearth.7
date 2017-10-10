@@ -15,7 +15,7 @@ login services are used by interactive users to request, validate, and
 establish a new session with the system -- traditionally requiring only a
 user name and password from the user.
 
-.B WTF (W).   
+.B wtf (W).   
 no one in their right mind rebuilds a well-tested, fundamental system.  well,
 i want to learn this critical area.  i actually feel login has squashed
 creativity by being so steady and good.
@@ -23,12 +23,12 @@ creativity by being so steady and good.
 .B value (V).   
 most linux systems are only guarded by physical/electronic access and login
 serices.  the importance of a strong, flexible, and adaptive login system
-can not be overstated.
+can not be overstated.  time to improve.
 
 .B complication (C).   
 traditional login services have been a mainstay in security, but have not
-been updated with new thinking and theories, mainly due to user complaints
-about any additional work.
+been updated with new thinking and theories, sometimes due to users refusing
+to do additional input/work.
 
 .B answer (A).   
 i will build a fully custom, very specific login services system to test any
@@ -39,18 +39,31 @@ robots, and, well, anyone but me.
 very technical, well-versed, power user.
 
 .B drawbacks...
-   -- replacing a tried, tested, and working system
+   -- replacing a tried, tested, and working system -- dumb
    -- must become knowledgeable on digital security systems
    -- may introduce explotable bugs along the way
    -- one more thing i need to maintain
-   -- nobody else will ever want such a thing
+   -- user base of one -- nobody else will ever want such a thing
 
 .B benefits...
+   -- great chance to measure up against the programming gods ;)
    -- develop a bigger knowledge base in this critical area
    -- pressure me to create more stable programs (reduce maintenance)
-   -- make my systems much more defensable that the next guy
+   -- make my systems much more defensable than the next guy
    -- get rid of dependence on other people's login systems
    -- experiment like crazy and find new great methods
+
+.B requirements drawn from existing systems
+   -- runs as a single daemon, like ngetty
+
+.B requirements or limits i am imposing
+   -- will run with ncurses as i want complex user presentation
+
+.B requirements refused from existing systems
+   -- no specialty terminal types, only vt102 (xterm, aterm, eterm)
+   -- will not use /etc/issue or -f <issue_file>
+   -- will not use /etc/ttys, /etc/gettydefs, /etc/gettytab
+   -- will not change the login program using "-l <login_program>"
 
 .B known experiments...
    -- two-factor authentication

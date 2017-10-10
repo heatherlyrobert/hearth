@@ -61,11 +61,11 @@ char
 text_show          (char *a_font, char a_num, char a_row, char a_col, char a_off)
 {
    /*---(header)-------------------------*/
-   yLOG_senter (__FUNCTION__);
-   yLOG_sinfo  ("font      ", a_font);
-   yLOG_svalue ("entry     ", a_num);
-   yLOG_svalue ("row       ", a_row);
-   yLOG_svalue ("col       ", a_col);
+   DEBUG_GRAF   yLOG_senter (__FUNCTION__);
+   DEBUG_GRAF   yLOG_sinfo  ("font      ", a_font);
+   DEBUG_GRAF   yLOG_svalue ("entry     ", a_num);
+   DEBUG_GRAF   yLOG_svalue ("row       ", a_row);
+   DEBUG_GRAF   yLOG_svalue ("col       ", a_col);
    /*---(locals)-----------+-----------+-*/
    char        l;
    int         i           = 0;
@@ -97,15 +97,15 @@ text_show          (char *a_font, char a_num, char a_row, char a_col, char a_off
    if (r == 'n') {
       i = a_num;
       if (i < 0 || i > 9) {
-         yLOG_snote  ("num out of range (0-9)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("num out of range (0-9)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -1;
       }
    } else if (r == 'a') {
       i = tolower (a_num);
       if ((i < 'a' || i > 'z') && i != ' ') {
-         yLOG_snote  ("letter out of range (a-z)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("letter out of range (a-z)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
       if (i == ' ') i = 'z' + 1;
@@ -113,8 +113,8 @@ text_show          (char *a_font, char a_num, char a_row, char a_col, char a_off
    } else if (r == 'f') {
       i = tolower (a_num);
       if ((i < 'a' || i > 'z') && (i < '0' || i > '9')) {
-         yLOG_snote  ("char out of range (a-z0-9)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("char out of range (a-z0-9)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
       if (i >= 'a' && i <= 'z')  i = i - 'a';
@@ -124,13 +124,13 @@ text_show          (char *a_font, char a_num, char a_row, char a_col, char a_off
       if (a_num == ' ') i = 0;
       if (a_num == '.') i = 1;
       if (i <  0  || i >  1 ) {
-         yLOG_snote  ("binary out of range (0-1)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("binary out of range (0-1)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
    } else {
-      yLOG_snote  ("font type unknown (a,n)");
-      yLOG_sexit  (__FUNCTION__);
+      DEBUG_GRAF   yLOG_snote  ("font type unknown (a,n)");
+      DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
       return -3;
    }
    /*---(update issue)-------------------*/
@@ -142,7 +142,7 @@ text_show          (char *a_font, char a_num, char a_row, char a_col, char a_off
       }
    }
    /*---(complete)-----------------------*/
-   yLOG_sexit  (__FUNCTION__);
+   DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
    return 0;
 }
 
@@ -150,11 +150,11 @@ char
 text_show_xy       (char *a_font, char a_num, int a_y, int a_x)
 {
    /*---(header)-------------------------*/
-   yLOG_senter (__FUNCTION__);
-   yLOG_sinfo  ("font      ", a_font);
-   yLOG_svalue ("entry     ", a_num);
-   yLOG_svalue ("x         ", a_x);
-   yLOG_svalue ("y         ", a_y);
+   DEBUG_GRAF   yLOG_senter (__FUNCTION__);
+   DEBUG_GRAF   yLOG_sinfo  ("font      ", a_font);
+   DEBUG_GRAF   yLOG_svalue ("entry     ", a_num);
+   DEBUG_GRAF   yLOG_svalue ("x         ", a_x);
+   DEBUG_GRAF   yLOG_svalue ("y         ", a_y);
    /*---(locals)-----------+-----------+-*/
    char        l;
    int         i           = 0;
@@ -186,15 +186,15 @@ text_show_xy       (char *a_font, char a_num, int a_y, int a_x)
    if (r == 'n') {
       i = a_num;
       if (i < 0 || i > 9) {
-         yLOG_snote  ("num out of range (0-9)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("num out of range (0-9)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -1;
       }
    } else if (r == 'a') {
       i = tolower (a_num);
       if ((i < 'a' || i > 'z') && i != ' ') {
-         yLOG_snote  ("letter out of range (a-z)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("letter out of range (a-z)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
       if (i == ' ') i = 'z' + 1;
@@ -202,8 +202,8 @@ text_show_xy       (char *a_font, char a_num, int a_y, int a_x)
    } else if (r == 'f') {
       i = tolower (a_num);
       if ((i < 'a' || i > 'z') && (i < '0' || i > '9')) {
-         yLOG_snote  ("char out of range (a-z0-9)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("char out of range (a-z0-9)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
       if (i >= 'a' && i <= 'z')  i = i - 'a';
@@ -213,13 +213,13 @@ text_show_xy       (char *a_font, char a_num, int a_y, int a_x)
       if (a_num == ' ') i = 0;
       if (a_num == '.') i = 1;
       if (i <  0  || i >  1 ) {
-         yLOG_snote  ("binary out of range (0-1)");
-         yLOG_sexit  (__FUNCTION__);
+         DEBUG_GRAF   yLOG_snote  ("binary out of range (0-1)");
+         DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
          return -2;
       }
    } else {
-      yLOG_snote  ("font type unknown (a,n)");
-      yLOG_sexit  (__FUNCTION__);
+      DEBUG_GRAF   yLOG_snote  ("font type unknown (a,n)");
+      DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
       return -3;
    }
    /*---(update issue)-------------------*/
@@ -232,6 +232,6 @@ text_show_xy       (char *a_font, char a_num, int a_y, int a_x)
       }
    }
    /*---(complete)-----------------------*/
-   yLOG_sexit  (__FUNCTION__);
+   DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
    return 0;
 }

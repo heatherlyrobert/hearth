@@ -22,7 +22,6 @@ int         left              =  0;
 int         left2             =  0;
 int         x_knock2;   /* left of right knock     */
 
-char        host_name [50];
 char        ctitle   =  0;
 char        ntitle   = 14;
 
@@ -89,13 +88,13 @@ PROG_init            (int   a_argc , char *a_argv[])
    int         i           = 0;
    char        rc          = 0;
    /*---(logger)-------------------------*/
-   logger = yLOG_begin ("hearth", yLOG_SYSTEM, yLOG_NOISE);
-   yLOG_enter  (__FUNCTION__);
-   yLOG_info   ("logger"    , "logger openned successfully");
-   yLOG_info   ("purpose"   , "light, clean, and customized getty replacement");
-   yLOG_info   ("namesake"  , "hestia, goddess of hearth and home");
-   yLOG_info   ("ver_num"   , VER_NUM);
-   yLOG_info   ("ver_txt"   , VER_TXT);
+   DEBUG_TOPS   logger = yLOG_lognum ();
+   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
+   DEBUG_TOPS   yLOG_info   ("logger"    , "logger openned successfully");
+   DEBUG_TOPS   yLOG_info   ("purpose"   , "light, clean, and customized getty replacement");
+   DEBUG_TOPS   yLOG_info   ("namesake"  , "hestia, goddess of hearth and home");
+   DEBUG_TOPS   yLOG_info   ("ver_num"   , VER_NUM);
+   DEBUG_TOPS   yLOG_info   ("ver_txt"   , VER_TXT);
    /*---(close extrainuous files)--------*/
    for (i = 3; i < 256; ++i) {
       if (i == logger) continue;
@@ -118,9 +117,9 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.show_login      = 'y';
    my.show_status     = 'y';
    /*---(signals)------------------------*/
-   rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);
+   /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/
    /*---(complete)-----------------------*/
-   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return 0;
 }
 
@@ -195,17 +194,17 @@ char
 PROG_args            (int a_argc, char **a_argv)
 {
    /*---(begin)------------+-----------+-*/
-   yLOG_enter  (__FUNCTION__);
+   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
    /*---(locals)-------------------------*/
    int         i           = 0;             /* loop iterator -- arguments     */
    char       *a           = NULL;          /* current argument               */
    int         len         = 0;             /* argument length                */
    /*---(process args)-------------------*/
-   yLOG_value  ("a_argc"      , a_argc);
+   DEBUG_ARGS   yLOG_value  ("a_argc"      , a_argc);
    for (i = 1; i < a_argc; ++i) {
       a   = a_argv[i];
       len = strlen(a);
-      yLOG_bullet (i           , a);
+      DEBUG_ARGS   yLOG_bullet (i           , a);
       /*---(skip debugging)--------------*/
       if      (a[0] == '@')                     continue;
       /*---(interactive)-----------------*/
@@ -241,7 +240,7 @@ PROG_args            (int a_argc, char **a_argv)
       /*---(complex)---------------------*/
       else if (strcmp(a, "--hostname"    ) == 0) {
          if (i + 1 < a_argc) {
-            strcpy (host_name, a_argv[i + 1]);
+            strcpy (my.host_name, a_argv[i + 1]);
             ++i;
          }
       }
@@ -257,7 +256,7 @@ PROG_args            (int a_argc, char **a_argv)
          if (a[5] == 'p')  ttytyp = '0';
          else              ttytyp = '1';
          strcpy (dev, a);
-         yLOG_info   ("tty"       , dev);
+         DEBUG_ARGS   yLOG_info   ("tty"       , dev);
          dev_num = ttynum - '0';
       }
    }  /*---(done)------------------------*/
@@ -270,7 +269,7 @@ PROG_args            (int a_argc, char **a_argv)
     *>    printf ("\n");                                                                     <* 
     *> }                                                                                     <*/
    /*---(complete)-----------------------*/
-   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return 0;
 }
 
@@ -278,19 +277,19 @@ char
 PROG_begin         (void)
 {
    /*---(begin)------------+-----------+-*/
-   yLOG_enter  (__FUNCTION__);
+   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
    char        rc          = 0;
    tSTAT       s;
    /*---(randomizer)---------------------*/
-   yLOG_note   ("preparing randomizer seed");
+   DEBUG_PROG   yLOG_note   ("preparing randomizer seed");
    srand (time(NULL));
    /*---(test dev)-----------------------*/
    rc = lstat (dev, &s);
    if  (rc < 0) {
-      yLOG_info   ("device"    , "FATAL, device does not exist");
-      yLOG_exit   (__FUNCTION__);
+      DEBUG_PROG   yLOG_info   ("device"    , "FATAL, device does not exist");
+      DEBUG_PROG   yLOG_exit   (__FUNCTION__);
       return -1;
    }
    /*---(fonts)--------------------------*/
@@ -304,7 +303,7 @@ PROG_begin         (void)
    /*---(curses)-------------------------*/
    CURS_init  ();
    /*---(complete)-----------------------*/
-   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return   0;
 }
 
@@ -312,10 +311,11 @@ char
 PROG_end           (void)
 {
    /*---(begin)------------+-----------+-*/
-   yLOG_enter  (__FUNCTION__);
+   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
    CURS_wrap   ();
    /*---(complete)-----------------------*/
-   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
+   DEBUG_TOPS   yLOG_end     ();
    return 0;
 } /*======================================================*/
 
@@ -323,7 +323,7 @@ PROG_end           (void)
 char       /*----: set up programgents/debugging -----------------------------*/
 PROG_testquiet     (void)
 {
-   char       *x_args [1]  = { "hestia" };
+   char       *x_args [1]  = { "hearth" };
    yURG_logger (1, x_args);
    PROG_init   (1, x_args);
    yURG_urgs   (1, x_args);
@@ -335,7 +335,7 @@ PROG_testquiet     (void)
 char       /*----: set up programgents/debugging -----------------------------*/
 PROG_testloud      (void)
 {
-   char       *x_args [2]  = { "hestia_unit", "@@kitchen"    };
+   char       *x_args [2]  = { "hearth_unit", "@@kitchen"    };
    yURG_logger (2, x_args);
    PROG_init   (2, x_args);
    yURG_urgs   (2, x_args);

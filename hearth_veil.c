@@ -428,8 +428,8 @@ prompt             (char  a_tty)
       attron (COLOR_PAIR(14));
       mvprintw ( bottom - 12, x_knock2 - 30,  "%-12.12s                   " , " ");
       mvprintw ( bottom - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, dev_num);
-      mvprintw ( bottom - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , host_name[1], host_name[2]);
-      mvprintw ( bottom -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , host_name + 4);
+      mvprintw ( bottom - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , my.host_name[1], my.host_name[2]);
+      mvprintw ( bottom -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , my.host_name + 4);
       mvprintw ( bottom -  8, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].date);
       mvprintw ( bottom -  7, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].host);
       mvprintw ( bottom -  6, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].user);
