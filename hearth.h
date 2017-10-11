@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0b"
-#define     VER_TXT          "user tested fake collect and fake tarpit functions"
+#define     VER_NUM          "2.0c"
+#define     VER_TXT          "moved much of font, time to start unit testing"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -177,11 +177,6 @@ typedef struct spwd      tSHADOW;
 #define     K_SPACE       32
 #define     K_NULL         0
 
-#define     FAKE_TEST    't'    /* unit test mode                             */
-#define     FAKE_SILENT  's'    /* ncurses mode, but no screen output/waits   */
-#define     FAKE_USER    'i'    /* ncurses mode, with screen output           */
-#define     FAKE_HINT    'h'    /* FAKE_USER plus display a hint              */
-
 
 
 void             /* [------] receive signals ---------------------------------*/
@@ -191,26 +186,23 @@ PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada);
 /*---(fonts)------------------------------------------------------------------*/
 struct cFONT {
    char        name        [20];
-   char        r;
-   char        array       [20];
-   char       *p;
-   char        v, vo;
-   char        h, hs, ho;
+   char        range;
+   char       *ptr;
+   char        tall;
+   char        yoff;
+   char        wide;
+   char        xoff;
+   char        gap;
 };
 
 extern char        hosties     [MAX_HOST][20];
 extern char        butterfly   [40] [MAX_ROW] [MAX_COL];
-extern char        chunky      [10] [300];
-extern char        chunky_full [10] [300];
-extern char        alligator   [10] [300];
-extern char        goofy       [10] [300];
-extern char        binary      [10] [300];
-extern char        dots        [10] [300];
-extern char        basic       [10] [300];
 
-struct cFONT       font [50];
-extern int         nfont;
-extern int         cfont;
+
+
+struct cFONT       g_fonts     [50];
+extern int         g_nfont;
+extern int         g_cfont;
 
 
 
@@ -219,8 +211,6 @@ extern int         logger;
 extern char        ttynum;
 extern char        ttytyp;
 extern char        dev         [30];
-extern int         dev_num;
-extern char        user        [30];
 extern char        shell       [30];
 extern int         veil_rpid;
 extern int         bottom;
@@ -232,9 +222,41 @@ extern int         x_knock2;
 extern char        ctitle;
 extern char        ntitle;
 
+
+
+/*---(run modes)------------*/
+char        g_modes      [20];  /* valid run modes                            */
+#define     RUN_UNIT     'u'    /* unit test mode                             */
+#define     RUN_QUIET    'q'    /* ncurses mode, but no screen output/waits   */
+#define     RUN_FORCE    'f'    /* ncurses mode, but feed input as string     */
+#define     RUN_USER     'i'    /* ncurses mode, with screen output           */
+#define     RUN_HINT     'h'    /* FAKE_USER plus display a hint              */
+/*---(fake modes)-----------*/
+
+#define     IF_RUN_SILENT      if (a_mode == RUN_UNIT || a_mode == RUN_QUIET)
+#define     IF_RUN_REAL        if (a_mode != RUN_UNIT && a_mode != RUN_QUIET)
+#define     IF_RUN_STRING      if (a_mode == RUN_UNIT || a_mode == RUN_FORCE)
+
+
+#define     FAKE_TEST    't'    /* unit test mode                             */
+#define     FAKE_SILENT  's'    /* ncurses mode, but no screen output/waits   */
+#define     FAKE_USER    'i'    /* ncurses mode, with screen output           */
+#define     FAKE_HINT    'h'    /* FAKE_USER plus display a hint              */
+
+#define     RUN_TEST        if (my.run_mode      == 't')
+#define     RUN_REAL        if (my.run_mode      == 'r')
+#define     SHOW_COUNTERS   if (my.show_counters == 'y')
+
+
 struct cACCESSOR {
+   /*---(mode)-------------------*/
+   char        run_mode;               /* indicate test vs real               */
    /*---(fake)-------------------*/
-   char        host_name   [50];
+   int         dev_num;                /* terminal device number              */
+   char        host_name   [50];       /* host number and name string         */
+   int         cluster;
+   char        fake_user   [50];
+   char        show_counters;          /* show counters on screen             */
    /*---(veil)-------------------*/
    char        magicnum    [20];       /* magic number used on this getty     */
    char        show_butterfly;
@@ -250,6 +272,7 @@ struct cACCESSOR {
    char        show_binary;
    char        show_login;
    char        show_status;
+   char        user_name   [30];
 };
 extern    struct cACCESSOR my;
 
@@ -300,9 +323,17 @@ char        CURS_wrap            (void);
 
 char        VEIL_butterfly       (int a_x, int a_y);
 char        VEIL_tty             (int a_x, int a_y);
-
+/*---(fake)--------------------*/
+char        FAKE_init            (char a_mode, char *a_user);
 char        FAKE_collect         (char a_mode, char *a_input, char *a_key);
-char        FAKE_tarpit          (char a_mode, char *a_input, int *a_points);
+char        FAKE_check           (             char *a_input, char *a_key);
+char        FAKE_tarpit          (char a_mode, char *a_input, int  *a_pts);
+char        FAKE_door            (void);
+
+/*---(font)--------------------*/
+char        FONT_init            (void);
+char        FONT_find            (char *a_font);
+char        FONT_letter          (char *a_font, char a_num, int a_y, int a_x);
 
 int         audit_find         (char *a_dev, int  a_pid, int *a_pos);
 char        audit_login        (char *a_dev, char *a_user, int a_rpid);
@@ -314,7 +345,6 @@ char*       unit_accessor      (char*, int);
 
 
 extern char        dev         [30];
-extern char        user        [30];
 extern char        shell       [30];
 extern int         veil_rpid;
 extern int         rpid;

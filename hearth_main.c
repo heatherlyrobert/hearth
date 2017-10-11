@@ -6,11 +6,11 @@ int         rpid;
 int              /* [------] driver for hearth -------------------------------*/
 main               (int a_argc, char **a_argv)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rce;                    /* return code for errors              */
-   char        rc;                     /* return code as char                 */
-   int         ri;                     /* return code as integer              */
-   int         count = 0;              /* check cycle counter                 */
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;     /* return code for errors              */
+   char        rc          =    0;     /* return code as char                 */
+   int         ri          =    0;     /* return code as integer              */
+   int         count       =    0;     /* check cycle counter                 */
    /*---(initialize)---------------------*/
    if (rc >= 0)  rc = yURG_logger  (a_argc, a_argv);
    if (rc >= 0)  rc = PROG_init    (a_argc, a_argv);
@@ -23,12 +23,19 @@ main               (int a_argc, char **a_argv)
       return rce;
    }
    /*---(check fake door)----------------*/
-   if (rc == 0)  rc = FAKE_door   ();
+   if (rc == 0)  rc = FAKE_door    ();
    --rce;  if (rc != 0) {
       DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
       PROG_end    ();
       return rce;
    }
+
+
+   PROG_end    ();
+   return 0;
+
+
+
    /*---(input)--------------------------*/
    DEBUG_TOPS   yLOG_note   ("begin prompt/input cycle");
    while (1) {
@@ -54,7 +61,7 @@ main               (int a_argc, char **a_argv)
       setsid();                      /* start new session                     */
       ioctl (0, TIOCSCTTY,    1);
       /*---(launch)----------------------*/
-      rpid = yEXEC_run   (EXEC_FILE, "launching tty", user, "/bin/bash", yEXEC_BASH, yEXEC_NORM, yEXEC_FORK);
+      rpid = yEXEC_run   (EXEC_FILE, "launching tty", my.user_name, "/bin/bash", yEXEC_BASH, yEXEC_NORM, yEXEC_FORK);
       rc = ySEC_login  (dev + 5, entry.user_fix, rpid);
       DEBUG_TOPS   yLOG_value   ("rc"     , rc);
       /*---(done)------------------------*/

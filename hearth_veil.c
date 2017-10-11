@@ -91,15 +91,15 @@ show_left          (int a_x, int a_y)
          if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));
          else                   attron (COLOR_PAIR(12));
          if (i ==  count_a &&  j ==  1) {
-            text_show_xy ( "alligator", entry.prefix [0] - '0', count_a * 7,  1 * 10);
+            FONT_letter ( "alligator", entry.prefix [0] - '0', count_a * 7,  1 * 10);
             x_done = 'y';
          }
          if (i ==  0 &&  j ==  1) {
-            text_show_xy ( "alligator", entry.prefix [1] - '0', 0       * 7,  1 * 10);
+            FONT_letter ( "alligator", entry.prefix [1] - '0', 0       * 7,  1 * 10);
             x_done = 'y';
          }
          if (i ==  mid_a &&  j ==  0) {
-            text_show_xy ( "alligator", entry.infix  [0] - '0', mid_a   * 7,  0 * 10);
+            FONT_letter ( "alligator", entry.infix  [0] - '0', mid_a   * 7,  0 * 10);
             x_done = 'y';
          }
          if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));
@@ -107,7 +107,7 @@ show_left          (int a_x, int a_y)
          if (x_done == 'y')  continue;
          /*---(normal)----------------*/
          attron (COLOR_PAIR(12));
-         text_show_xy ( "alligator", rand () % 10, i * 7, j * 10);
+         FONT_letter ( "alligator", rand () % 10, i * 7, j * 10);
          attroff(COLOR_PAIR(12));
          /*---(done)------------------*/
       }
@@ -125,9 +125,9 @@ VEIL_tty           (int a_x, int a_y)
    if (my.show_tty    != 'y')  return 0;
    /*---(show terminal number)-----------*/
    attron (COLOR_PAIR(12));
-   text_show_xy ( "dots"     , ttytyp  - '0', 10, center - 11);
-   text_show_xy ( "alligator", ttynum  - '0', 10, center -  5);
-   text_show_xy ( "dots"     , ttytyp  - '0', 14, center +  6);
+   FONT_letter ( "dots"     , ttytyp  - '0', 10, center - 11);
+   FONT_letter ( "alligator", ttynum  - '0', 10, center -  5);
+   FONT_letter ( "dots"     , ttytyp  - '0', 14, center +  6);
    attroff(COLOR_PAIR(12));
    /*---(external indicator)-------------*/
    if (my.show_external == 'y')      x_type = 'e';
@@ -139,7 +139,7 @@ VEIL_tty           (int a_x, int a_y)
    mvprintw (20, center - 1,  "%c", x_type);
    mvprintw (20, center + 1,  "%c", x_type);
    mvprintw (21, center    ,  "%c", x_type);
-   /*> text_show_xy ( "basic"    , x_type, middle + 10, x_mid);                       <*/
+   /*> FONT_letter ( "basic"    , x_type, middle + 10, x_mid);                       <*/
    attroff(COLOR_PAIR(12));
    /*---(complete)-----------------------*/
    return 0;
@@ -174,13 +174,13 @@ show_knock         (int a_x, int a_y)
       if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));
       else                   attron (COLOR_PAIR(12));
       if (i ==  4) {
-         text_show_xy ( "dots"     , entry.knock [0],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock1);
-         text_show_xy ( "dots"     , entry.knock [1],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock2);
+         FONT_letter ( "dots"     , entry.knock [0],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock1);
+         FONT_letter ( "dots"     , entry.knock [1],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock2);
          x_done = 'y';
       }
       if (i ==  8) {
-         text_show_xy ( "dots"     , entry.knock [2],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock2);
-         text_show_xy ( "dots"     , entry.knock [3],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock1);
+         FONT_letter ( "dots"     , entry.knock [2],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock2);
+         FONT_letter ( "dots"     , entry.knock [3],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock1);
          x_done = 'y';
       }
       if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));
@@ -188,8 +188,8 @@ show_knock         (int a_x, int a_y)
       if (x_done == 'y')  continue;
       /*---(normal)-------------------*/
       attron (COLOR_PAIR(12));
-      text_show_xy ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock1);
-      text_show_xy ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock2);
+      FONT_letter ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock1);
+      FONT_letter ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock2);
       attroff(COLOR_PAIR(12));
       /*---(done)---------------------*/
    }
@@ -227,11 +227,11 @@ show_chunky        (int a_x, int a_y)
          if (my.show_hint   == 'y' || my.show_hint   == 's') attron (COLOR_PAIR( 1));
          else                                        attron (COLOR_PAIR( 9));
          if (i ==  0 && j == 2) {
-            text_show_xy ( "chunky", entry.rot     [0] - '0',  middle, x_mid + (8 * 2));
+            FONT_letter ( "chunky", entry.rot     [0] - '0',  middle, x_mid + (8 * 2));
             x_done = 'y';
          }
          if (i ==  0 && j == x_max - 3) {
-            text_show_xy ( "chunky", entry.pointer [0] - '0',  middle, x_mid + (x_max - 3) * 8);
+            FONT_letter ( "chunky", entry.pointer [0] - '0',  middle, x_mid + (x_max - 3) * 8);
             x_done = 'y';
          }
          if (my.show_hint   == 'y' || my.show_hint   == 's') attroff(COLOR_PAIR( 1));
@@ -239,7 +239,7 @@ show_chunky        (int a_x, int a_y)
          if (x_done == 'y')  continue;
          /*---(normal)-------------------*/
          attron (COLOR_PAIR( 9));
-         text_show_xy ( "chunky", rand () % 10, i * 4 + middle, x_mid + (j * 8));
+         FONT_letter ( "chunky", rand () % 10, i * 4 + middle, x_mid + (j * 8));
          attroff(COLOR_PAIR( 9));
          /*---(done)---------------------*/
       }
@@ -280,7 +280,7 @@ show_grid          (int a_x, int a_y)
          if (count % 2 == 0)  letter =  rand () % 26 + 'a';
          else                 letter =  rand () % 10 + '0';
          attron (COLOR_PAIR( 9));
-         text_show_xy ( "chunky_full", letter, i * 5 + middle +  4, x_mid + (j * 7));
+         FONT_letter ( "chunky_full", letter, i * 5 + middle +  4, x_mid + (j * 7));
          attroff(COLOR_PAIR( 9));
          /*---(done)---------------------*/
          ++count;
@@ -305,14 +305,14 @@ show_binary        (int a_x, int a_y)
    attron (COLOR_PAIR(14));
    for (i =  0; i <  3; ++i) {
       for (j =  0 ; j < 3; ++j) {
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 +  6);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 14);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 22);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 30);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 38);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 46);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 54);
-         text_show_xy ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 62);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 +  6);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 14);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 22);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 30);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 38);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 46);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 54);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 62);
       }
    }
    attroff(COLOR_PAIR(14));
@@ -347,9 +347,9 @@ show_right         (int a_x, int a_y)
          if (my.show_hint   == 'y' || my.show_hint   == 's') attron (COLOR_PAIR( 1));
          else                                        attron (COLOR_PAIR(12));
          if (i ==  entry.pointer[0] - '0' + 1) {
-            text_show_xy ( "goofy", entry.suffix [0] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (0 * 8));
-            text_show_xy ( "goofy", entry.suffix [1] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (1 * 8));
-            text_show_xy ( "goofy", entry.suffix [2] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (2 * 8));
+            FONT_letter ( "goofy", entry.suffix [0] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (0 * 8));
+            FONT_letter ( "goofy", entry.suffix [1] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (1 * 8));
+            FONT_letter ( "goofy", entry.suffix [2] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (2 * 8));
             j = 10;
             x_done = 'y';
          }
@@ -358,7 +358,7 @@ show_right         (int a_x, int a_y)
          if (x_done == 'y')  continue;
          /*---(normal)----------------*/
          attron (COLOR_PAIR(12));
-         text_show_xy ( "goofy"    , rand () % 10, i * 5,  x_right + (j * 8));
+         FONT_letter ( "goofy"    , rand () % 10, i * 5,  x_right + (j * 8));
          attroff(COLOR_PAIR(12));
          /*---(done)------------------*/
       }
@@ -427,7 +427,7 @@ prompt             (char  a_tty)
    if (my.show_login     == 'y') {
       attron (COLOR_PAIR(14));
       mvprintw ( bottom - 12, x_knock2 - 30,  "%-12.12s                   " , " ");
-      mvprintw ( bottom - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, dev_num);
+      mvprintw ( bottom - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, my.dev_num);
       mvprintw ( bottom - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , my.host_name[1], my.host_name[2]);
       mvprintw ( bottom -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , my.host_name + 4);
       mvprintw ( bottom -  8, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].date);
@@ -508,19 +508,19 @@ get_login          (void)
       if (my.show_timer == 'y') {
          if        (secs <=   30) {
             attron (COLOR_PAIR(11));
-            text_show_xy ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -   0));
+            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -   0));
             attroff(COLOR_PAIR(11));
          } else if (secs <=  60) {
             attron (COLOR_PAIR(11));
-            text_show_xy ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  30));
+            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  30));
             attroff(COLOR_PAIR(11));
          } else if (secs <=  90) {
             attron (COLOR_PAIR(11));
-            text_show_xy ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -  60));
+            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -  60));
             attroff(COLOR_PAIR(11));
          } else if (secs <= 120) {
             attron (COLOR_PAIR(11));
-            text_show_xy ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  90));
+            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  90));
             attroff(COLOR_PAIR(11));
          }
       }
@@ -530,17 +530,17 @@ get_login          (void)
          x_mid = center - ((x_max / 2.0) * 8) - 2;
          attron (COLOR_PAIR(12));
          for (i = 0; i < x_max; ++i) {
-            text_show_xy ( "basic"    , rand() % 25 + 'b' ,   0,  x_mid + (i * 8));
+            FONT_letter ( "basic"    , rand() % 25 + 'b' ,   0,  x_mid + (i * 8));
          }
          attroff(COLOR_PAIR(12));
          if (my.show_hint   == 'y' || my.show_hint == 's') attron (COLOR_PAIR( 1));
          else                                      attron (COLOR_PAIR(12));
          i = x_mid + ((count % x_max) * 8);
-         text_show_xy ( "basic"    , status ,   0,  i);
+         FONT_letter ( "basic"    , status ,   0,  i);
          if (my.show_hint   == 'y' || my.show_hint == 's') attroff(COLOR_PAIR( 1));
          else                                      attroff(COLOR_PAIR(12));
          /*> attron (COLOR_PAIR(12));                                                                   <* 
-          *> text_show_xy ( "basic"    , toupper(part) ,   0 * 7,  (((count - 1) % 20) + 4) * 8 + 5);   <* 
+          *> FONT_letter ( "basic"    , toupper(part) ,   0 * 7,  (((count - 1) % 20) + 4) * 8 + 5);   <* 
           *> attroff(COLOR_PAIR(12));                                                                   <*/
          count_save = count;
       }
@@ -862,7 +862,7 @@ get_login          (void)
    chown (dev, pw->pw_uid, 0);
    chmod (dev, 0700);
    /*---(save key information)-----------*/
-   strcpy (user , entry.user_fix);
+   strcpy (my.user_name, entry.user_fix);
    strcpy (shell, pw->pw_shell);
    /*---(message)------------------------*/
    free (password);

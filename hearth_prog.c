@@ -5,12 +5,12 @@
 
 struct cACCESSOR my;
 
+char        g_modes     [20] = "uqfih";   /* valid fake_door modes                 */
 
 int         logger   = -1;
 char        ttynum   = '0';
 char        ttytyp   = '0';
 char        dev         [30];
-int         dev_num     = 0;
 char        user        [30];
 char        shell       [30];
 int         veil_rpid;
@@ -101,8 +101,17 @@ PROG_init            (int   a_argc , char *a_argv[])
       close (i);
    }
    /*---(initial settings)---------------*/
-   ttynum  = '0';
-   ttytyp  = '0';
+   /*---(mode)---------------------------*/
+   my.run_mode        = RUN_USER;
+   /*---(fake)---------------------------*/
+   my.dev_num         =   0;
+   strlcpy (my.host_name, "", LEN_DESC);
+   my.cluster         =   0;
+   strlcpy (my.fake_user, "", LEN_DESC);
+   /*---(veil)---------------------------*/
+   ttynum             = '0';
+   ttytyp             = '0';
+   my.show_counters   = '-';
    my.show_butterfly  = 'y';
    my.show_tty        = 'y';
    my.show_external   = 'y';
@@ -208,45 +217,46 @@ PROG_args            (int a_argc, char **a_argv)
       /*---(skip debugging)--------------*/
       if      (a[0] == '@')                     continue;
       /*---(interactive)-----------------*/
-      else if (strcmp(a, "--version"     ) == 0) {
-         printf ("hearth (%s/%s) %s\n", VER_NUM, __DATE__, VER_TXT);
+      if      (strcmp (a, "--version"     ) == 0) {
+         /*> printf ("hearth (%s/%s) %s\n", VER_NUM, __DATE__, VER_TXT);              <*/
          exit (0);
       }
       /*---(visual options)--------------*/
-      else if (strcmp(a, "--external"    ) == 0)  my.show_external  = 'y';
-      else if (strcmp(a, "--internal"    ) == 0)  my.show_external  = 'n';
-      else if (strcmp(a, "--butterfly"   ) == 0)  my.show_butterfly = 'y';
-      else if (strcmp(a, "--nobutterfly" ) == 0)  my.show_butterfly = 'n';
-      else if (strcmp(a, "--status"      ) == 0)  my.show_status    = 'y';
-      else if (strcmp(a, "--nostatus"    ) == 0)  my.show_status    = 'n';
-      else if (strcmp(a, "--timer"       ) == 0)  my.show_timer     = 'y';
-      else if (strcmp(a, "--notimer"     ) == 0)  my.show_timer     = 'n';
-      else if (strcmp(a, "--tty"         ) == 0)  my.show_tty       = 'y';
-      else if (strcmp(a, "--notty"       ) == 0)  my.show_tty       = 'n';
-      else if (strcmp(a, "--knock"       ) == 0)  my.show_knock     = 'y';
-      else if (strcmp(a, "--noknock"     ) == 0)  my.show_knock     = 'n';
-      else if (strcmp(a, "--left"        ) == 0)  my.show_left      = 'y';
-      else if (strcmp(a, "--noleft"      ) == 0)  my.show_left      = 'n';
-      else if (strcmp(a, "--right"       ) == 0)  my.show_right     = 'y';
-      else if (strcmp(a, "--noright"     ) == 0)  my.show_right     = 'n';
-      else if (strcmp(a, "--judgement"   ) == 0)  my.show_judgement = 'y';
-      else if (strcmp(a, "--nojudgement" ) == 0)  my.show_judgement = 'n';
-      else if (strcmp(a, "--hint"        ) == 0)  my.show_hint      = 'y';
-      else if (strcmp(a, "--shint"       ) == 0)  my.show_hint      = 's';
-      else if (strcmp(a, "--nohint"      ) == 0)  my.show_hint      = 'n';
+      else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
+      else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
+      else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = 'n';
+      else if (strcmp (a, "--butterfly"   ) == 0)  my.show_butterfly = 'y';
+      else if (strcmp (a, "--nobutterfly" ) == 0)  my.show_butterfly = 'n';
+      else if (strcmp (a, "--status"      ) == 0)  my.show_status    = 'y';
+      else if (strcmp (a, "--nostatus"    ) == 0)  my.show_status    = 'n';
+      else if (strcmp (a, "--timer"       ) == 0)  my.show_timer     = 'y';
+      else if (strcmp (a, "--notimer"     ) == 0)  my.show_timer     = 'n';
+      else if (strcmp (a, "--tty"         ) == 0)  my.show_tty       = 'y';
+      else if (strcmp (a, "--notty"       ) == 0)  my.show_tty       = 'n';
+      else if (strcmp (a, "--knock"       ) == 0)  my.show_knock     = 'y';
+      else if (strcmp (a, "--noknock"     ) == 0)  my.show_knock     = 'n';
+      else if (strcmp (a, "--left"        ) == 0)  my.show_left      = 'y';
+      else if (strcmp (a, "--noleft"      ) == 0)  my.show_left      = 'n';
+      else if (strcmp (a, "--right"       ) == 0)  my.show_right     = 'y';
+      else if (strcmp (a, "--noright"     ) == 0)  my.show_right     = 'n';
+      else if (strcmp (a, "--judgement"   ) == 0)  my.show_judgement = 'y';
+      else if (strcmp (a, "--nojudgement" ) == 0)  my.show_judgement = 'n';
+      else if (strcmp (a, "--hint"        ) == 0)  my.show_hint      = 'y';
+      else if (strcmp (a, "--shint"       ) == 0)  my.show_hint      = 's';
+      else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint      = 'n';
       /*---(usage/help)------------------*/
-      else if (strcmp(a, "-h"            ) == 0)  PROG_usage ();
-      else if (strcmp(a, "--help"        ) == 0)  PROG_usage ();
+      else if (strcmp (a, "-h"            ) == 0)  PROG_usage ();
+      else if (strcmp (a, "--help"        ) == 0)  PROG_usage ();
       /*---(complex)---------------------*/
-      else if (strcmp(a, "--hostname"    ) == 0) {
+      else if (strcmp (a, "--hostname"    ) == 0) {
          if (i + 1 < a_argc) {
             strcpy (my.host_name, a_argv[i + 1]);
             ++i;
          }
       }
-      else if (strcmp(a, "--cluster"     ) == 0) {
-         /* not used at this time   */
+      else if (strcmp (a, "--cluster"     ) == 0) {
          if (i + 1 < a_argc) {
+            my.cluster = atoi (a_argv [i + 1]);
             ++i;
          }
       }
@@ -256,18 +266,35 @@ PROG_args            (int a_argc, char **a_argv)
          if (a[5] == 'p')  ttytyp = '0';
          else              ttytyp = '1';
          strcpy (dev, a);
-         DEBUG_ARGS   yLOG_info   ("tty"       , dev);
-         dev_num = ttynum - '0';
+         DEBUG_ARGS   yLOG_info    ("tty"       , dev);
+         my.dev_num = ttynum - '0';
+      }
+      /*---(user name)-------------------*/
+      else if (a [0] != '-') {
+         strcpy (my.fake_user, a_argv[i]);
       }
    }  /*---(done)------------------------*/
-   /*> /+---(show args)----------------------+/                                              <* 
-    *> DEBUG_ARGS  {                                                                         <* 
-    *>    printf ("arguments are...\n");                                                     <* 
-    *>    printf ("   --butterfly      %c   show butterfly image\n"  , my.show_butterfly);   <* 
-    *>    printf ("   --status         %c   show upper status line\n", my.show_status);      <* 
-    *>    printf ("   --timer          %c   show timer countdown\n"  , my.show_timer);       <* 
-    *>    printf ("\n");                                                                     <* 
-    *> }                                                                                     <*/
+   /*---(show args)----------------------*/
+   DEBUG_ARGS   yLOG_char    ("run_mode"  , my.run_mode);
+   DEBUG_ARGS   yLOG_value   ("dev_num"   , my.dev_num);
+   DEBUG_ARGS   yLOG_info    ("host_name" , my.host_name);
+   DEBUG_ARGS   yLOG_info    ("fake_user" , my.fake_user);
+   DEBUG_ARGS   yLOG_value   ("cluster"   , my.cluster);
+   DEBUG_ARGS   yLOG_char    ("counters"  , my.show_counters);
+   DEBUG_ARGS   yLOG_char    ("external"  , my.show_external);
+   DEBUG_ARGS   yLOG_char    ("butterfly" , my.show_butterfly);
+   DEBUG_ARGS   yLOG_char    ("status"    , my.show_status);
+   DEBUG_ARGS   yLOG_char    ("timer"     , my.show_timer);
+   DEBUG_ARGS   yLOG_char    ("tty"       , my.show_tty);
+   DEBUG_ARGS   yLOG_char    ("knock"     , my.show_knock);
+   DEBUG_ARGS   yLOG_char    ("left"      , my.show_left);
+   DEBUG_ARGS   yLOG_char    ("right"     , my.show_right);
+   DEBUG_ARGS   yLOG_char    ("middle"    , my.show_middle);
+   DEBUG_ARGS   yLOG_char    ("judgement" , my.show_judgement);
+   DEBUG_ARGS   yLOG_char    ("hint"      , my.show_hint);
+   DEBUG_ARGS   yLOG_char    ("binary"    , my.show_binary);
+   DEBUG_ARGS   yLOG_char    ("login"     , my.show_login);
+   DEBUG_ARGS   yLOG_char    ("status"    , my.show_status);
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return 0;
@@ -286,22 +313,17 @@ PROG_begin         (void)
    DEBUG_PROG   yLOG_note   ("preparing randomizer seed");
    srand (time(NULL));
    /*---(test dev)-----------------------*/
-   rc = lstat (dev, &s);
-   if  (rc < 0) {
-      DEBUG_PROG   yLOG_info   ("device"    , "FATAL, device does not exist");
-      DEBUG_PROG   yLOG_exit   (__FUNCTION__);
-      return -1;
+   RUN_REAL {
+      rc = lstat (dev, &s);
+      if  (rc < 0) {
+         DEBUG_PROG   yLOG_info   ("device"    , "FATAL, device does not exist");
+         DEBUG_PROG   yLOG_exit   (__FUNCTION__);
+         return -1;
+      }
    }
-   /*---(fonts)--------------------------*/
-   font [0].p  = &alligator;
-   font [1].p  = &chunky;
-   font [2].p  = &goofy;
-   font [3].p  = &binary;
-   font [4].p  = &basic;
-   font [5].p  = &dots;
-   font [6].p  = &chunky_full;
-   /*---(curses)-------------------------*/
+   /*---(curses/fonts)-------------------*/
    CURS_init  ();
+   FONT_init  ();
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return   0;
