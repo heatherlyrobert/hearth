@@ -17,6 +17,7 @@ main               (int a_argc, char **a_argv)
    if (rc >= 0)  rc = yURG_urgs    (a_argc, a_argv);
    if (rc >= 0)  rc = PROG_args    (a_argc, a_argv);
    if (rc >= 0)  rc = PROG_begin   ();
+   if (rc >= 0)  rc = PROG_final   ();
    --rce;  if (rc <  0) {
       DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
       PROG_end ();

@@ -4,6 +4,9 @@
 
 
 struct cACCESSOR my;
+char          unit_answer [LEN_UNIT];
+
+
 
 char        g_modes     [20] = "uqfih";   /* valid fake_door modes                 */
 
@@ -27,9 +30,6 @@ char        ntitle   = 14;
 
 
 
-#define   DEBUG     if (0 == 0) 
-#define   NORMAL    if (0 == 1) 
-/*> "-----------------------------------------------------------|-----------------------------------------------------------",   <*/
 
 
 
@@ -104,6 +104,7 @@ PROG_init            (int   a_argc , char *a_argv[])
    /*---(mode)---------------------------*/
    my.run_mode        = RUN_USER;
    /*---(fake)---------------------------*/
+   my.use_fake        = 'y';
    my.dev_num         =   0;
    strlcpy (my.host_name, "", LEN_DESC);
    my.cluster         =   0;
@@ -222,6 +223,7 @@ PROG_args            (int a_argc, char **a_argv)
          exit (0);
       }
       /*---(visual options)--------------*/
+      else if (strcmp (a, "--nofake"      ) == 0)  my.use_fake       = '-';
       else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
       else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
       else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = 'n';
@@ -322,11 +324,17 @@ PROG_begin         (void)
       }
    }
    /*---(curses/fonts)-------------------*/
-   CURS_init  ();
    FONT_init  ();
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return   0;
+}
+
+char
+PROG_final         (void)
+{
+   CURS_init  ();
+   return 0;
 }
 
 char

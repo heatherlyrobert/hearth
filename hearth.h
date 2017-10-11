@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0c"
-#define     VER_TXT          "moved much of font, time to start unit testing"
+#define     VER_NUM          "2.0d"
+#define     VER_TXT          "font up and unit tested"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -160,9 +160,23 @@
 #define     MAX_ROW     64
 #define     MAX_COL     180
 #define     MAX_HOST    500
-#define     LEN_RECD    2000
+
+/*---(string length)------------------*/
+#define     LEN_RECD    4000
+#define     LEN_UNIT    500
+#define     LEN_STR     500
 #define     LEN_DESC    100
 #define     LEN_LABEL   20
+#define     LEN_ABBR    10
+/*---(font constants)-------*/
+#define     MAX_FONT       50
+#define     MAX_WIDTH     400
+#define     MAX_HEIGHT    400
+#define     FONT_FULL      'f'       /* [a-z][0-9] */
+#define     FONT_ALPHA     'a'       /* [a-z]      */
+#define     FONT_NUMS      'n'       /* [0-9]      */
+#define     FONT_BINARY    'b'       /* [0-1]      */
+
 
 typedef unsigned char    uchar;
 typedef struct tm        tTIME;
@@ -193,6 +207,7 @@ struct cFONT {
    char        wide;
    char        xoff;
    char        gap;
+   char        empty;
 };
 
 extern char        hosties     [MAX_HOST][20];
@@ -233,9 +248,12 @@ char        g_modes      [20];  /* valid run modes                            */
 #define     RUN_HINT     'h'    /* FAKE_USER plus display a hint              */
 /*---(fake modes)-----------*/
 
-#define     IF_RUN_SILENT      if (a_mode == RUN_UNIT || a_mode == RUN_QUIET)
-#define     IF_RUN_REAL        if (a_mode != RUN_UNIT && a_mode != RUN_QUIET)
-#define     IF_RUN_STRING      if (a_mode == RUN_UNIT || a_mode == RUN_FORCE)
+#define     IF_RUN_SILENT        if (my.run_mode == RUN_UNIT || my.run_mode == RUN_QUIET)
+#define     IF_RUN_REAL          if (my.run_mode != RUN_UNIT && my.run_mode != RUN_QUIET)
+
+#define     IF_A_RUN_SILENT      if (a_mode == RUN_UNIT || a_mode == RUN_QUIET)
+#define     IF_A_RUN_REAL        if (a_mode != RUN_UNIT && a_mode != RUN_QUIET)
+#define     IF_A_RUN_STRING      if (a_mode == RUN_UNIT || a_mode == RUN_FORCE)
 
 
 #define     FAKE_TEST    't'    /* unit test mode                             */
@@ -252,6 +270,7 @@ struct cACCESSOR {
    /*---(mode)-------------------*/
    char        run_mode;               /* indicate test vs real               */
    /*---(fake)-------------------*/
+   char        use_fake;               /* display and use fake (y/-)          */
    int         dev_num;                /* terminal device number              */
    char        host_name   [50];       /* host number and name string         */
    int         cluster;
@@ -313,6 +332,7 @@ char        PROG_urgs            (int   a_argc , char *a_argv[]);
 char        PROG_args            (int   a_argc , char *a_argv[]);
 char        PROG_usage           (void);
 char        PROG_begin           (void);
+char        PROG_final           (void);
 
 char        PROG_testloud        (void);
 char        PROG_testquiet       (void);
@@ -332,8 +352,10 @@ char        FAKE_door            (void);
 
 /*---(font)--------------------*/
 char        FONT_init            (void);
-char        FONT_find            (char *a_font);
+char        FONT__find           (char *a_font);
+char        FONT__index          (char a_range, int a_letter);
 char        FONT_letter          (char *a_font, char a_num, int a_y, int a_x);
+char*       FONT__unit           (char *a_question, int a_num);
 
 int         audit_find         (char *a_dev, int  a_pid, int *a_pos);
 char        audit_login        (char *a_dev, char *a_user, int a_rpid);
@@ -350,6 +372,8 @@ extern int         veil_rpid;
 extern int         rpid;
 
 
+
+extern      char          unit_answer [LEN_UNIT];
 
 
 #endif

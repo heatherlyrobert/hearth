@@ -47,7 +47,7 @@ FAKE_init            (char a_mode, char *a_user)
       strlcpy (my.host_name, "#96.chess_master", LEN_DESC);
       DEBUG_INPT   yLOG_info    ("host_name" , my.host_name);
    }
-   IF_RUN_REAL {
+   IF_A_RUN_REAL {
       DEBUG_INPT   yLOG_note    ("showing prompt in real mode");
       sprintf  (x_prompt, "cluster (%02d) host <%s> login: %s", 42, my.host_name, s_blocked);
       mvprintw ( 0,  0,  "%s", x_prompt);
@@ -104,7 +104,7 @@ FAKE_collect         (char a_mode, char *a_input, char *a_hint)
       DEBUG_INPT   yLOG_value   ("x_loop"    , x_loop);
       /*---(get character)---------------*/
       if (x_rc >= 0) {
-         IF_RUN_STRING {
+         IF_A_RUN_STRING {
             DEBUG_INPT   yLOG_note    ("test mode, get character from input string");
             x_ch = a_hint [x_loop];
          } else {
@@ -304,7 +304,7 @@ FAKE_tarpit          (char a_mode, char *a_input, int *a_pts)
       DEBUG_INPT   yLOG_value   ("x_tries"   , x_tries);
       ++x_loop;
       /*---(prompt)-------------------------*/
-      IF_RUN_REAL  FAKE_prompt (x_tries, x_loop, x_chars);
+      IF_A_RUN_REAL  FAKE_prompt (x_tries, x_loop, x_chars);
       /*---(timeout)---------------------*/
       if (x_loop > s_max) {
          DEBUG_INPT   yLOG_note    ("x_loop > s_max, done");
@@ -312,7 +312,7 @@ FAKE_tarpit          (char a_mode, char *a_input, int *a_pts)
          break;
       }
       /*---(get character)---------------*/
-      IF_RUN_STRING {
+      IF_A_RUN_STRING {
          DEBUG_INPT   yLOG_note    ("unit/force mode, no input collected");
          if (x_loop <= x_len)  x_ch = a_input [x_loop - 1];
          else                  x_ch = ' ';
@@ -322,7 +322,7 @@ FAKE_tarpit          (char a_mode, char *a_input, int *a_pts)
       }
       if (x_ch == -1) {
          DEBUG_INPT   yLOG_note    ("no input, short sleep");
-         IF_RUN_REAL  usleep ( 100000);
+         IF_A_RUN_REAL  usleep ( 100000);
          continue;
       }
       /*---(check special chars)---------*/
@@ -332,14 +332,14 @@ FAKE_tarpit          (char a_mode, char *a_input, int *a_pts)
             DEBUG_INPT   yLOG_note    ("escape, exit before completion");
             if (x_rc == 0)  x_rc = rce - 1;
             if (x_tries <= 5)  ++x_tries;
-            IF_RUN_REAL   sleep (1);
+            IF_A_RUN_REAL   sleep (1);
             s_match = 0;
          }
          if (x_ch   == K_RETURN) {
             DEBUG_INPT   yLOG_note    ("return, input complete");
             if (x_rc == 0)  x_rc = rce - 2;
             if (x_tries <= 5)  ++x_tries;
-            IF_RUN_REAL   sleep (1);
+            IF_A_RUN_REAL   sleep (1);
             s_match = 0;
          }
       }
