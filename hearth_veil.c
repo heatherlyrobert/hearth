@@ -283,9 +283,9 @@ VEIL_tty           (int a_x, int a_y)
    if (my.show_tty    != 'y')  return 0;
    /*---(show terminal number)-----------*/
    attron (COLOR_PAIR(12));
-   FONT_letter ( "dots"     , ttytyp  - '0', 10, s_cen - 11);
-   FONT_letter ( "alligator", ttynum  - '0', 10, s_cen -  5);
-   FONT_letter ( "dots"     , ttytyp  - '0', 14, s_cen +  6);
+   FONT_letter ( "dots"     , my.tty_type, 10, s_cen - 11);
+   FONT_letter ( "alligator", ttynum, 10, s_cen -  5);
+   FONT_letter ( "dots"     , my.tty_type, 14, s_cen +  6);
    attroff(COLOR_PAIR(12));
    /*---(external indicator)-------------*/
    if (my.show_external == 'y')      x_type = 'e';
@@ -382,71 +382,37 @@ VEIL_middle          (void)
    return 0;
 }
 
-char             /* [------] show grid information ---------------------------*/
-show_grid          (int a_x, int a_y)
-{
-   /*---(design notes)-------------------*/
-   /*
-    *  these numbers must be printed in perfect order so a clever hacker
-    *  can not analyze the order of the printing or overprinting for meaning.
-    */
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columnns         */
-   int         x_max       = 0;
-   int         x_mid       = 0;
-   int         x_knock1;                  /* left of left knock               */
-   int         x_knock2;                  /* left of right knock              */
-   char        x_done      = 'n';             /* flag -- already handled      */
-   char        letter      = 0;
-   int         count       = 0;
-   /*---(prepare)------------------------*/
-   x_knock1  = ((10 * 2) - 1);
-   x_knock2  = (a_x - (8 * 3)) - 5;
-   x_max = (x_knock2 - x_knock1 - 5) / 7;
-   x_mid = s_cen - ((x_max / 2.0) * 7) - 2;
-   /*---(output)-------------------------*/
-   for (i = 0; i <  1; ++i) {
-      for (j = 0; j < x_max; ++j) {
-         /*---(prepare)------------------*/
-         x_done = 'n';
-         /*---(normal)-------------------*/
-         if (count % 2 == 0)  letter =  rand () % 26 + 'a';
-         else                 letter =  rand () % 10 + '0';
-         attron (COLOR_PAIR( 9));
-         FONT_letter ( "chunky_full", letter, i * 5 + s_mid +  4, x_mid + (j * 7));
-         attroff(COLOR_PAIR( 9));
-         /*---(done)---------------------*/
-         ++count;
-      }
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
 char             /* [------] show binary numbers at bottom -------------------*/
-show_binary        (int a_x, int a_y)
+VEIL_binary          (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;               /* iterator -- rows             */
    int         j           = 0;               /* iterator -- columnns         */
-   int         x_knock1;                  /* left of left knock               */
+   int         k           = 0;               /* iterator -- blocks           */
+   int         x_top       = 0;
+   int         x_left      = 0;           /* left of left knock               */
+   char        x_letter    = ' ';
    /*---(defense)------------------------*/
    if (my.show_binary    != 'y')   return 0;
    /*---(prepare)------------------------*/
-   x_knock1  = ((10 * 2) - 1);
+   x_top     = s_bot - 12;
+   x_left    = FONT_wide ("alligator") * 2 + 8;
    /*---(output)-------------------------*/
    attron (COLOR_PAIR(14));
-   for (i =  0; i <  3; ++i) {
-      for (j =  0 ; j < 3; ++j) {
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 +  6);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 14);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 22);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 30);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 38);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 46);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 54);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 62);
+   for (i =  0; i <  8; i += 2) {
+      for (j =  0 ; j < 8; j += 2) {
+         for (k =  0 ; k < 80; k += 10) {
+            x_letter = rand () % 10 + '0';
+            FONT_letter ("binary", x_letter, i + x_top, j + x_left + k);
+            /*> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 +  6);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 14);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 22);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 30);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 38);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 46);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 54);   <* 
+             *> FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 62);   <*/
+         }
       }
    }
    attroff(COLOR_PAIR(14));
@@ -528,7 +494,7 @@ prompt             (char  a_tty)
    VEIL_right     ();
    VEIL_tty       (x, y);
    VEIL_knocks    ();
-   show_binary    (x, y);
+   VEIL_binary    ();
    /*> show_grid      (x, y);                                                         <*/
    /*---(signin)-------------------------*/
    ctitle = rand () % ntitle;

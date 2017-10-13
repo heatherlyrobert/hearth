@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0g"
-#define     VER_TXT          "middle working great with hints/counters"
+#define     VER_NUM          "2.0h"
+#define     VER_TXT          "binary working now"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -224,7 +224,6 @@ extern int         g_cfont;
 
 extern int         logger;
 extern char        ttynum;
-extern char        ttytyp;
 extern char        dev         [30];
 extern char        shell       [30];
 extern int         veil_rpid;
@@ -275,6 +274,7 @@ struct cACCESSOR {
    int         dev_num;                /* terminal device number              */
    char        host_name   [50];       /* host number and name string         */
    int         cluster;
+   char        tty_type;
    char        fake_user   [50];
    char        show_counters;          /* show counters on screen             */
    /*---(veil)-------------------*/

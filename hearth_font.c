@@ -57,7 +57,7 @@ char        goofy  [MAX_HEIGHT][MAX_WIDTH] = {
 
 char        binary   [MAX_HEIGHT][MAX_WIDTH] = {
    "-- -* -- -* -- -* -- -* *- ** ",
-   "-- -* -* *- *- ** ** -- -- ",
+   "-- -* -* *- *- ** ** -- -- ** ",
 };
 
 char        dots     [MAX_HEIGHT][MAX_WIDTH] = {

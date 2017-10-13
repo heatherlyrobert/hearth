@@ -41,12 +41,7 @@ FAKE_init            (char a_mode, char *a_user)
          ungetch (a_user [i]);
       }
    }
-   /*---(check host name)----------------*/
-   DEBUG_INPT   yLOG_info    ("host_name" , my.host_name);
-   if (strcmp (my.host_name, "") == 0) {
-      strlcpy (my.host_name, "#96.chess_master", LEN_DESC);
-      DEBUG_INPT   yLOG_info    ("host_name" , my.host_name);
-   }
+   /*---(initial prompt)-----------------*/
    IF_A_RUN_REAL {
       DEBUG_INPT   yLOG_note    ("showing prompt in real mode");
       sprintf  (x_prompt, "cluster (%02d) host <%s> login: %s", 42, my.host_name, s_blocked);

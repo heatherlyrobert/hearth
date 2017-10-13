@@ -12,7 +12,6 @@ char        g_modes     [20] = "uqfih";   /* valid fake_door modes              
 
 int         logger   = -1;
 char        ttynum   = '0';
-char        ttytyp   = '0';
 char        dev         [30];
 char        user        [30];
 char        shell       [30];
@@ -111,7 +110,7 @@ PROG_init            (int   a_argc , char *a_argv[])
    strlcpy (my.fake_user, "", LEN_DESC);
    /*---(veil)---------------------------*/
    ttynum             = '0';
-   ttytyp             = '0';
+   my.tty_type        = ' ';
    my.show_butterfly  = 'y';
    my.show_tty        = 'y';
    my.show_external   = 'y';
@@ -266,8 +265,8 @@ PROG_args            (int a_argc, char **a_argv)
       /*---(device)----------------------*/
       else if (a [0] == '/') {
          ttynum  = a[strlen (a) - 1];
-         if (a[5] == 'p')  ttytyp = '0';
-         else              ttytyp = '1';
+         if (a[5] == 'p')  my.tty_type = ' ';
+         else              my.tty_type = '.';
          strcpy (dev, a);
          DEBUG_ARGS   yLOG_info    ("tty"       , dev);
          my.dev_num = ttynum - '0';
@@ -277,6 +276,12 @@ PROG_args            (int a_argc, char **a_argv)
          strcpy (my.fake_user, a_argv[i]);
       }
    }  /*---(done)------------------------*/
+   /*---(host name)----------------------*/
+   DEBUG_INPT   yLOG_info    ("host_name" , my.host_name);
+   if (strcmp (my.host_name, "") == 0) {
+      strlcpy (my.host_name, "#96.chess_master", LEN_DESC);
+      DEBUG_INPT   yLOG_info    ("host_name" , my.host_name);
+   }
    /*---(show args)----------------------*/
    DEBUG_ARGS   yLOG_char    ("run_mode"  , my.run_mode);
    DEBUG_ARGS   yLOG_value   ("dev_num"   , my.dev_num);
