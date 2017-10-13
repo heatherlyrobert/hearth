@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0e"
-#define     VER_TXT          "added a lot of new fonts to increase my flexibility"
+#define     VER_NUM          "2.0f"
+#define     VER_TXT          "veil left and right working great with hints/counters"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -264,6 +264,7 @@ char        g_modes      [20];  /* valid run modes                            */
 #define     RUN_TEST        if (my.run_mode      == 't')
 #define     RUN_REAL        if (my.run_mode      == 'r')
 #define     SHOW_COUNTERS   if (my.show_counters == 'y')
+#define     SHOW_HINTS      if (my.show_hint     == 'y')
 
 
 struct cACCESSOR {

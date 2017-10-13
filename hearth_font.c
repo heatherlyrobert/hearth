@@ -2,17 +2,11 @@
 #include    "hearth.h"
 
 
-/*> extern char        chunky      [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        chunky_full [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        alligator   [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        goofy       [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        binary      [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        dots        [MAX_HEIGHT] [MAX_WIDTH];                          <* 
- *> extern char        basic       [MAX_HEIGHT] [MAX_WIDTH];                          <*/
 
 /* to be useful, all fonts need to be monospaced so they can be arranged into
  * lines, columns, blocks, and other shapes without giving away any information
  */
+
 
 
 /*---(font constants)-------*/
@@ -287,7 +281,7 @@ tFONT       g_fonts [MAX_FONT] = {
    { "chunky_full"  , FONT_FULL   , &chunky_full ,  5 ,  7 ,  0 ,  0 ,  0 , ' ' },
    { "chunky"       , FONT_NUMS   , &chunky      ,  4 ,  8 ,  0 ,  0 ,  0 , ' ' },
    { "alligator"    , FONT_NUMS   , &alligator2  ,  7 , 10 ,  0 ,  0 ,  2 , ' ' },
-   { "goofy"        , FONT_NUMS   , &goofy       ,  5 ,  8 ,  0 ,  4 ,  0 , ' ' },
+   { "goofy"        , FONT_NUMS   , &goofy       ,  5 ,  8 ,  0 ,  0 ,  4 , ' ' },
    { "binary"       , FONT_NUMS   , &binary      ,  2 ,  2 ,  1 ,  1 ,  1 , ' ' },
    { "basic"        , FONT_FULL   , &basic       ,  6 ,  8 ,  1 ,  0 ,  0 , '-' },
    { "dots"         , FONT_BINARY , &dots        ,  3 ,  5 ,  1 ,  0 ,  0 , ' ' },

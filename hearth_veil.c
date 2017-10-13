@@ -74,7 +74,64 @@ VEIL_butterfly     (int a_x, int a_y)
 }
 
 char             /* [------] show left column of numbers ---------------------*/
-show_left          (int a_x, int a_y)
+VEIL_left            (void)
+{
+   /*---(design notes)-------------------*/
+   /*
+    *  these numbers must be printed in perfect order so a clever hacker
+    *  can not analyze the order of the printing or overprinting for meaning.
+    */
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_row       =    0;               /* iterator -- rows             */
+   int         x_col       =    0;               /* iterator -- columns          */
+   int         x_tall      =    0;     /* height of letters                   */
+   int         x_wide      =    0;     /* height of letters                   */
+   int         x_nrow      =    0;     /* number of rows to fill screen       */
+   char        x_letter    =  '-';
+   char        x_text      [LEN_DESC] = "";
+   /*---(defense)------------------------*/
+   yLOG_char   ("my.show_left"    , my.show_left       );
+   if (my.show_left      != 'y')  return 0;
+   /*---(get max characters)----------*/
+   x_tall  = FONT_tall ("alligator");
+   x_nrow  = trunc (s_bot / x_tall);
+   x_wide  = FONT_wide ("alligator");
+   /*---(show table of numbers)-------*/
+   for (x_row = 0; x_row < (x_nrow + 1); ++x_row) {
+      for (x_col =  0; x_col <  2; ++x_col) {
+         x_letter = rand () % 10 + '0';
+         SHOW_HINTS   attron (COLOR_PAIR( 1));
+         else         attron (COLOR_PAIR(12));
+         if      (x_col == 1 && x_row == 0         )  entry.prefix [0] = my.magic_num [ 0] =  x_letter;
+         else if (x_col == 1 && x_row == x_nrow - 1)  entry.prefix [1] = my.magic_num [ 1] =  x_letter;
+         else if (x_col == 0 && x_row == 4         )  entry.infix  [0] = my.magic_num [ 2] =  x_letter;
+         else {
+            attrset (0);
+            attron (COLOR_PAIR(12));
+         }
+         FONT_letter ( "alligator", x_letter, x_row * x_tall, x_col * x_wide);
+         attrset (0);
+      }
+   }
+   /*---(show counters)------------------*/
+   SHOW_COUNTERS {
+      mvprintw ( 12,   3,  ".-------------.", x_text);
+      sprintf (x_text, "| x_tall = %2d |", x_tall);
+      mvprintw ( 13,   3,  "%s", x_text);
+      sprintf (x_text, "| x_wide = %2d |", x_wide);
+      mvprintw ( 14,   3,  "%s", x_text);
+      sprintf (x_text, "| x_nrow = %2d |", x_nrow);
+      mvprintw ( 15,   3,  "%s", x_text);
+      sprintf (x_text, "| ptr    = %2d |", 4);
+      mvprintw ( 16,   3,  "%s", x_text);
+      mvprintw ( 17,   3,  "'-------------'", x_text);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char             /* [------] show right column of numbers --------------------*/
+VEIL_right           (void)
 {
    /*---(design notes)-------------------*/
    /*
@@ -82,46 +139,51 @@ show_left          (int a_x, int a_y)
     *  can not analyze the order of the printing or overprinting for meaning.
     */
    /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columns          */
-   char        x_done      = 'n';             /* flag -- already handled      */
-   int         count_a;                       /* count of aligator rows       */
-   int         mid_a;                         /* middle of aligator rows      */
+   int         x_row       =    0;               /* iterator -- rows             */
+   int         x_col       =    0;               /* iterator -- columns          */
+   int         x_tall      =    0;     /* height of letters                   */
+   int         x_wide      =    0;     /* height of letters                   */
+   int         x_nrow      =    0;     /* number of rows to fill screen       */
+   int         x_right     =    0;
+   char        x_letter    =  '-';
+   char        x_text      [LEN_DESC] = "";
    /*---(defense)------------------------*/
-   yLOG_char   ("my.show_left"    , my.show_left       );
-   if (my.show_left      != 'y')  return 0;
+   yLOG_char   ("my.show_right"   , my.show_right      );
+   if (my.show_right     != 'y')  return 0;
+   /*---(get max characters)----------*/
+   x_tall  = FONT_tall ("goofy");
+   x_nrow  = trunc (s_bot / x_tall);
+   x_wide  = FONT_wide ("goofy");
    /*---(calculate locations)---------*/
-   count_a = trunc (a_y / 7) - 1;
-   mid_a   = count_a / 2;
-   /*---(show table of numbers)-------*/
-   for (i = 0; i <  15; ++i) {
-      for (j =  0; j <  2; ++j) {
-         /*> /+---(reset)-----------------+/                                                <* 
-          *> x_done = 'n';                                                                  <* 
-          *> /+---(check for hinting)-----+/                                                <* 
-          *> if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));                            <* 
-          *> else                   attron (COLOR_PAIR(12));                                <* 
-          *> if (i ==  count_a &&  j ==  1) {                                               <* 
-          *>    FONT_letter ( "alligator", entry.prefix [0] - '0', count_a * 7,  1 * 10);   <* 
-          *>    x_done = 'y';                                                               <* 
-          *> }                                                                              <* 
-          *> if (i ==  0 &&  j ==  1) {                                                     <* 
-          *>    FONT_letter ( "alligator", entry.prefix [1] - '0', 0       * 7,  1 * 10);   <* 
-          *>    x_done = 'y';                                                               <* 
-          *> }                                                                              <* 
-          *> if (i ==  mid_a &&  j ==  0) {                                                 <* 
-          *>    FONT_letter ( "alligator", entry.infix  [0] - '0', mid_a   * 7,  0 * 10);   <* 
-          *>    x_done = 'y';                                                               <* 
-          *> }                                                                              <* 
-          *> if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));                            <* 
-          *> else                   attroff(COLOR_PAIR(12));                                <* 
-          *> if (x_done == 'y')  continue;                                                  <*/
-         /*---(normal)----------------*/
-         attron (COLOR_PAIR(12));
-         FONT_letter ( "alligator", rand () % 10 + '0', i * 7 - 4, j * 10);
-         attroff(COLOR_PAIR(12));
-         /*---(done)------------------*/
+   x_right = (s_rig - (x_wide * 3));
+   /*---(output)----------------------*/
+   for (x_row = 0; x_row < (x_nrow + 1); ++x_row) {
+      for (x_col = 0; x_col < 3; ++x_col) {
+         x_letter = rand () % 10 + '0';
+         SHOW_HINTS   attron (COLOR_PAIR( 1));
+         else         attron (COLOR_PAIR(12));
+         if (x_row ==  entry.pointer[0] - '0' + 1) {
+            entry.suffix [x_col] = my.magic_num [ 9 + x_col] = x_letter;
+         } else {
+            attrset (0);
+            attron (COLOR_PAIR(12));
+         }
+         FONT_letter ( "goofy", x_letter, x_row * x_tall, x_right + (x_col * x_wide));
+         attrset (0);
       }
+   }
+   /*---(show counters)------------------*/
+   SHOW_COUNTERS {
+      mvprintw ( 12, x_right + 5,  ".-------------.", x_text);
+      sprintf (x_text, "| x_tall = %2d |", x_tall);
+      mvprintw ( 13, x_right + 5,  "%s", x_text);
+      sprintf (x_text, "| x_wide = %2d |", x_wide);
+      mvprintw ( 14, x_right + 5,  "%s", x_text);
+      sprintf (x_text, "| x_nrow = %2d |", x_nrow);
+      mvprintw ( 15, x_right + 5,  "%s", x_text);
+      sprintf (x_text, "| ptr    = %2d |", entry.pointer [0] - '0' + 1);
+      mvprintw ( 16, x_right + 5,  "%s", x_text);
+      mvprintw ( 17, x_right + 5,  "'-------------'", x_text);
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -360,67 +422,21 @@ show_binary        (int a_x, int a_y)
    return 0;
 }
 
-char             /* [------] show right column of numbers --------------------*/
-show_right         (int a_x, int a_y)
-{
-   /*---(design notes)-------------------*/
-   /*
-    *  these numbers must be printed in perfect order so a clever hacker
-    *  can not analyze the order of the printing or overprinting for meaning.
-    */
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columns          */
-   char        x_done      = 'n';             /* flag -- already handled      */
-   int         x_right     = 0;
-   /*---(defense)------------------------*/
-   yLOG_char   ("my.show_right"   , my.show_right      );
-   if (my.show_right     != 'y')  return 0;
-   /*---(calculate locations)---------*/
-   x_right   = (a_x - (8 * 3));
-   /*---(output)----------------------*/
-   for (i = 0; i <  15; ++i) {
-      for (j = 0; j < 3; ++j) {
-         /*---(prepare)---------------*/
-         x_done = 'n';
-         /*---(hinting)---------------*/
-         if (my.show_hint   == 'y' || my.show_hint   == 's') attron (COLOR_PAIR( 1));
-         else                                        attron (COLOR_PAIR(12));
-         if (i ==  entry.pointer[0] - '0' + 1) {
-            FONT_letter ( "goofy", entry.suffix [0] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (0 * 8));
-            FONT_letter ( "goofy", entry.suffix [1] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (1 * 8));
-            FONT_letter ( "goofy", entry.suffix [2] - '0',  (entry.pointer [0] - '0' + 1) * 5, x_right + (2 * 8));
-            j = 10;
-            x_done = 'y';
-         }
-         if (my.show_hint   == 'y' || my.show_hint   == 's') attroff(COLOR_PAIR( 1));
-         else                                        attroff(COLOR_PAIR(12));
-         if (x_done == 'y')  continue;
-         /*---(normal)----------------*/
-         attron (COLOR_PAIR(12));
-         FONT_letter ( "goofy"    , rand () % 10, i * 5,  x_right + (j * 8));
-         attroff(COLOR_PAIR(12));
-         /*---(done)------------------*/
-      }
-
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
 char
 VEIL_counters        (void)
 {
    char        x_text      [LEN_DESC] = "";
    SHOW_COUNTERS {
-      sprintf (x_text, "s_rig    = %3d", s_rig);
+      mvprintw (  7,  60,  ".-------------.");
+      sprintf (x_text, "| s_rig = %3d |", s_rig);
+      mvprintw (  8,  60,  "%s", x_text);
+      sprintf (x_text, "| s_cen = %3d |", s_cen);
+      mvprintw (  9,  60,  "%s", x_text);
+      sprintf (x_text, "| s_bot = %3d |", s_bot);
       mvprintw ( 10,  60,  "%s", x_text);
-      sprintf (x_text, "s_cen    = %3d", s_cen);
+      sprintf (x_text, "| s_mid = %3d |", s_mid);
       mvprintw ( 11,  60,  "%s", x_text);
-      sprintf (x_text, "s_bot    = %3d", s_bot);
-      mvprintw ( 12,  60,  "%s", x_text);
-      sprintf (x_text, "s_mid    = %3d", s_mid);
-      mvprintw ( 13,  60,  "%s", x_text);
+      mvprintw ( 12,  60,  ".-------------.");
    }
    return 0;
 }
@@ -475,13 +491,13 @@ prompt             (char  a_tty)
    yLOG_value  ("count_c"     , count_c        );
    /*---(show sections)------------------*/
    VEIL_butterfly (x, 0);
-   show_left      (x, y);
+   VEIL_left      ();
+   VEIL_right     ();
    VEIL_tty       (x, y);
    VEIL_knocks    ();
    show_chunky    (x, y);
    show_binary    (x, y);
    show_grid      (x, y);
-   show_right     (x, y);
    /*---(signin)-------------------------*/
    ctitle = rand () % ntitle;
    if (my.show_login     == 'y') {

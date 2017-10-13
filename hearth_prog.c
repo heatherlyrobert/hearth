@@ -112,7 +112,6 @@ PROG_init            (int   a_argc , char *a_argv[])
    /*---(veil)---------------------------*/
    ttynum             = '0';
    ttytyp             = '0';
-   my.show_counters   = '-';
    my.show_butterfly  = 'y';
    my.show_tty        = 'y';
    my.show_external   = 'y';
@@ -122,10 +121,12 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.show_right      = 'y';
    my.show_middle     = 'y';
    my.show_judgement  = 'y';
-   my.show_hint       = 'y';
    my.show_binary     = 'y';
    my.show_login      = 'y';
    my.show_status     = 'y';
+   /*---(extra info)---------------------*/
+   my.show_counters   = 'y';
+   my.show_hint       = 'y';
    /*---(signals)------------------------*/
    /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/
    /*---(complete)-----------------------*/
