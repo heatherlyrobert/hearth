@@ -102,8 +102,8 @@ VEIL_left            (void)
          x_letter = rand () % 10 + '0';
          SHOW_HINTS   attron (COLOR_PAIR( 1));
          else         attron (COLOR_PAIR(12));
-         if      (x_col == 1 && x_row == 0         )  entry.prefix [0] = my.magic_num [ 0] =  x_letter;
-         else if (x_col == 1 && x_row == x_nrow - 1)  entry.prefix [1] = my.magic_num [ 1] =  x_letter;
+         if      (x_col == 1 && x_row == 0         )  entry.prefix [1] = my.magic_num [ 1] =  x_letter;
+         else if (x_col == 1 && x_row == x_nrow - 1)  entry.prefix [0] = my.magic_num [ 0] =  x_letter;
          else if (x_col == 0 && x_row == 4         )  entry.infix  [0] = my.magic_num [ 2] =  x_letter;
          else {
             attrset (0);
@@ -162,7 +162,7 @@ VEIL_right           (void)
          x_letter = rand () % 10 + '0';
          SHOW_HINTS   attron (COLOR_PAIR( 1));
          else         attron (COLOR_PAIR(12));
-         if (x_row ==  entry.pointer[0] - '0' + 1) {
+         if (x_row ==  entry.pointer[0] - '0') {
             entry.suffix [x_col] = my.magic_num [ 9 + x_col] = x_letter;
          } else {
             attrset (0);
@@ -181,9 +181,94 @@ VEIL_right           (void)
       mvprintw ( 14, x_right + 5,  "%s", x_text);
       sprintf (x_text, "| x_nrow = %2d |", x_nrow);
       mvprintw ( 15, x_right + 5,  "%s", x_text);
-      sprintf (x_text, "| ptr    = %2d |", entry.pointer [0] - '0' + 1);
+      sprintf (x_text, "| ptr    = %2d |", entry.pointer [0] - '0');
       mvprintw ( 16, x_right + 5,  "%s", x_text);
       mvprintw ( 17, x_right + 5,  "'-------------'", x_text);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+VEIL_knock_place     (char a_letter, int a_col, int a_row)
+{
+   char        rce         =  -10;
+   int         x_xpos      =    0;
+   int         x_tall      =    0;
+   int         x_ygap      =    4;
+   int         x_ybeg      =    0;
+   int         x_ypos      =    0;
+   /*---(x-coord)------------------------*/
+   --rce;  switch (a_col) {
+   case  0 :  x_xpos = ((FONT_wide ("alligator") * 2) + 0);       break;
+   case  1 :  x_xpos = (s_rig - (FONT_wide ("goofy") * 3)) - 5;   break;
+   default :  return rce;
+   }
+   /*---(y-coord)------------------------*/
+   x_tall = FONT_tall ("dots");
+   x_ybeg = s_mid - ((7 * (x_tall + x_ygap)) / 2.0);
+   x_ypos = x_ybeg + (a_row * (x_tall + x_ygap));
+   /*---(display)------------------------*/
+   FONT_letter ( "dots", a_letter, x_ypos, x_xpos);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char             /* [------] show knock dots ---------------------------------*/
+VEIL_knocks        (void)
+{
+   /*---(design notes)-------------------*/
+   /*
+    *  these numbers must be printed in perfect order so a clever hacker
+    *  can not analyze the order of the printing or overprinting for meaning.
+    */
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;               /* iterator -- rows             */
+   int         knock_spacing;
+   char        x_knocks    [15]  = "";
+   char        x_letter    = ' ';
+   int         x_tall      =    0;
+   int         x_wide      =    0;
+   char        x_text      [LEN_DESC] = "";
+   /*---(defense)------------------------*/
+   if (my.show_knock  != 'y')  return 0;
+   /*---(prepare)------------------------*/
+   knock_spacing = 4;
+   if (s_mid <  20) knock_spacing = 3;
+   for (i = 0; i < 14; ++i) {
+      x_letter = rand () % 2;
+      switch (x_letter) {
+      case 0 : x_knocks [i] = ' ';   break;
+      case 1 : x_knocks [i] = '.';   break;
+      }
+      x_knocks [i + 1] = 0;
+   }
+   x_tall = FONT_tall ("dots");
+   x_wide = FONT_wide ("dots");
+   /*---(output)-------------------------*/
+   for (i = 0; i < 14; ++i) {
+      x_letter = x_knocks [i];
+      SHOW_HINTS   attron (COLOR_PAIR( 1));
+      else         attron (COLOR_PAIR(12));
+      if      (i ==  1)  entry.knock [0] = my.magic_num [ 3 + 0] = x_letter;
+      else if (i ==  8)  entry.knock [1] = my.magic_num [ 3 + 1] = x_letter;
+      else if (i == 12)  entry.knock [2] = my.magic_num [ 3 + 2] = x_letter;
+      else if (i ==  5)  entry.knock [3] = my.magic_num [ 3 + 3] = x_letter;
+      else {
+         attrset (0);
+         attron (COLOR_PAIR(12));
+      }
+      VEIL_knock_place (x_letter, trunc (i / 7), i % 7);
+      attrset (0);
+   }
+   /*---(show counters)------------------*/
+   SHOW_COUNTERS {
+      mvprintw ( 21, 25,  ".-------------.");
+      sprintf (x_text, "| x_tall = %2d |", x_tall);
+      mvprintw ( 22, 25,  "%s", x_text);
+      sprintf (x_text, "| x_wide = %2d |", x_wide);
+      mvprintw ( 23, 25,  "%s", x_text);
+      mvprintw ( 24, 25,  "'-------------'");
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -218,89 +303,8 @@ VEIL_tty           (int a_x, int a_y)
    return 0;
 }
 
-char
-VEIL_knock_place     (char a_letter, int a_col, int a_row)
-{
-   char        rce         =  -10;
-   int         x_xpos      =    0;
-   int         x_tall      =    0;
-   int         x_ygap      =    4;
-   int         x_ybeg      =    0;
-   int         x_ypos      =    0;
-   /*---(x-coord)------------------------*/
-   --rce;  switch (a_col) {
-   case  0 :  x_xpos = ((FONT_wide ("alligator") * 2) - 1);       break;
-   case  1 :  x_xpos = (s_rig - (FONT_wide ("goofy") * 3)) - 5;   break;
-   default :  return rce;
-   }
-   /*---(y-coord)------------------------*/
-   x_tall = FONT_tall ("dots");
-   x_ybeg = s_mid - ((7 * (x_tall + x_ygap)) / 2.0);
-   x_ypos = x_ybeg + (a_row * (x_tall + x_ygap));
-   /*---(display)------------------------*/
-   FONT_letter ( "dots", a_letter, x_ypos, x_xpos);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char             /* [------] show knock dots ---------------------------------*/
-VEIL_knocks        (void)
-{
-   /*---(design notes)-------------------*/
-   /*
-    *  these numbers must be printed in perfect order so a clever hacker
-    *  can not analyze the order of the printing or overprinting for meaning.
-    */
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         knock_spacing;
-   char        x_knocks    [15]  = "";
-   /*---(defense)------------------------*/
-   if (my.show_knock  != 'y')  return 0;
-   /*---(prepare)------------------------*/
-   knock_spacing = 4;
-   if (s_mid <  20) knock_spacing = 3;
-   for (i = 0; i < 14; ++i) {
-      switch (rand () % 2) {
-      case 0 : x_knocks [i] = ' ';   break;
-      case 1 : x_knocks [i] = '.';   break;
-      }
-      x_knocks [i + 1] = 0;
-   }
-   /*---(output)-------------------------*/
-   for (i = 0; i < 14; ++i) {
-      attron (COLOR_PAIR (12));
-      VEIL_knock_place (x_knocks [i], trunc (i / 7), i % 7);
-      attrset (0);
-      /*---(hinting)------------------*/
-      /*> if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));                                                                    <* 
-       *> else                       attron (COLOR_PAIR(12));                                                                    <* 
-       *> if (i ==  4) {                                                                                                         <* 
-       *>    FONT_letter ( "dots"     , entry.knock [0],  (s_mid - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock1);   <* 
-       *>    FONT_letter ( "dots"     , entry.knock [1],  (s_mid - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock2);   <* 
-       *>    x_done = 'y';                                                                                                       <* 
-       *> }                                                                                                                      <* 
-       *> if (i ==  8) {                                                                                                         <* 
-       *>    FONT_letter ( "dots"     , entry.knock [2],  (s_mid - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock2);   <* 
-       *>    FONT_letter ( "dots"     , entry.knock [3],  (s_mid - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock1);   <* 
-       *>    x_done = 'y';                                                                                                       <* 
-       *> }                                                                                                                      <* 
-       *> if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));                                                                    <* 
-       *> else                       attroff(COLOR_PAIR(12));                                                                    <* 
-       *> if (x_done == 'y')  continue;                                                                                          <*/
-      /*---(normal)-------------------*/
-      /*> VEIL_knock_place (rand () % 2, 0, i - 3);                                   <* 
-       *> VEIL_knock_place (rand () % 2, 1, i - 3);                                   <*/
-      /*> FONT_letter ( "dots"     , rand () % 2,  (s_mid - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock1);   <* 
-       *> FONT_letter ( "dots"     , rand () % 2,  (s_mid - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock2);   <*/
-      /*---(done)---------------------*/
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
 char             /* [------] show chunky numbers in middle -------------------*/
-show_chunky        (int a_x, int a_y)
+VEIL_middle          (void)
 {
    /*---(design notes)-------------------*/
    /*
@@ -308,43 +312,71 @@ show_chunky        (int a_x, int a_y)
     *  can not analyze the order of the printing or overprinting for meaning.
     */
    /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columnns         */
+   int         x_row       = 0;               /* iterator -- rows             */
+   int         x_col       = 0;               /* iterator -- columnns         */
    int         x_max       = 0;
    int         x_mid       = 0;
-   int         x_knock1;                  /* left of left knock               */
-   int         x_knock2;                  /* left of right knock              */
+   int         x_left      = 0;           /* left of left knock               */
+   int         x_right     = 0;           /* left of right knock              */
+   int         x_dist      = 0;
    char        x_done      = 'n';             /* flag -- already handled      */
+   int         x_tall      = 0;
+   int         x_wide      = 0;
+   char        x_letter    = ' ';
+   char        x_digit     = ' ';
+   char        x_text      [LEN_DESC] = "";
+   int         x_top       = 0;
    /*---(prepare)------------------------*/
-   x_knock1  = ((10 * 2) - 1);
-   x_knock2  = (a_x - (8 * 3)) - 5;
-   x_max = (x_knock2 - x_knock1 - 5) / 8;
-   x_mid = s_cen - ((x_max / 2.0) * 8) - 2;
-   /*---(output)-------------------------*/
-   for (i = 0; i <  1; ++i) {
-      for (j = 0; j < x_max; ++j) {
-         /*---(prepare)------------------*/
-         x_done = 'n';
-         /*---(hinting)------------------*/
-         if (my.show_hint   == 'y' || my.show_hint   == 's') attron (COLOR_PAIR( 1));
-         else                                        attron (COLOR_PAIR( 9));
-         if (i ==  0 && j == 2) {
-            FONT_letter ( "chunky", entry.rot     [0] - '0',  s_mid, x_mid + (8 * 2));
-            x_done = 'y';
+   x_tall    = FONT_tall ("chunky_full");
+   x_wide    = FONT_wide ("chunky_full");
+   x_left    = (FONT_wide ("alligator") * 2)       + FONT_wide ("dots");
+   x_right   = (s_rig - (FONT_wide ("goofy") * 3)) - FONT_wide ("dots");
+   x_dist    = x_right - x_left;
+   x_max     = (x_right - x_left) / x_wide;
+   x_max    += (x_max % 2);   /* make it even */
+   x_left    = x_left + (x_dist - (x_max * x_wide)) / 2;
+   x_top     = s_mid - x_tall / 2;
+   /*---(output)----------------------*/
+   for (x_row = 0; x_row <  2; ++x_row) {
+      for (x_col = 0; x_col < x_max; x_col += 2) {
+         x_letter = rand () % 26 + 'a';
+         x_digit  = rand () % 10 + '0';
+         SHOW_HINTS   attron (COLOR_PAIR( 1));
+         else         attron (COLOR_PAIR(12));
+         if (x_row == 0 && x_col == 2) {
+            entry.rot [0]     = my.magic_num [ 7] = x_digit;
+         } else if (x_row == 1 && x_col == x_max - 4) {
+            entry.pointer [0] = my.magic_num [ 8] = x_digit;
+         } else {
+            attrset (0);
+            attron (COLOR_PAIR(12));
          }
-         if (i ==  0 && j == x_max - 3) {
-            FONT_letter ( "chunky", entry.pointer [0] - '0',  s_mid, x_mid + (x_max - 3) * 8);
-            x_done = 'y';
-         }
-         if (my.show_hint   == 'y' || my.show_hint   == 's') attroff(COLOR_PAIR( 1));
-         else                                        attroff(COLOR_PAIR( 9));
-         if (x_done == 'y')  continue;
-         /*---(normal)-------------------*/
-         attron (COLOR_PAIR( 9));
-         FONT_letter ( "chunky", rand () % 10, i * 4 + s_mid, x_mid + (j * 8));
-         attroff(COLOR_PAIR( 9));
-         /*---(done)---------------------*/
+         FONT_letter ( "chunky_full", x_letter, x_top + x_row * x_tall, x_left + ((x_col + 0) * x_wide));
+         FONT_letter ( "chunky_full", x_digit , x_top + x_row * x_tall, x_left + ((x_col + 1) * x_wide));
+         attrset (0);
       }
+   }
+   /*---(show counters)------------------*/
+   SHOW_COUNTERS {
+      x_row = 45;
+      mvprintw (x_row++, x_left + 5,  ".---------------.");
+      sprintf (x_text, "| x_tall  = %3d |", x_tall);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| x_wide  = %3d |", x_wide);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| x_dist  = %3d |", x_dist);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| x_max   = %3d |", x_max);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| x_right = %3d |", x_right);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| x_left  = %3d |", x_left);
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| rot     = %3d |", entry.rot     [0] - '0');
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      sprintf (x_text, "| ptr     = %3d |", entry.pointer [0] - '0');
+      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_left + 5,  "'---------------'");
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -491,13 +523,13 @@ prompt             (char  a_tty)
    yLOG_value  ("count_c"     , count_c        );
    /*---(show sections)------------------*/
    VEIL_butterfly (x, 0);
+   VEIL_middle    ();
    VEIL_left      ();
    VEIL_right     ();
    VEIL_tty       (x, y);
    VEIL_knocks    ();
-   show_chunky    (x, y);
    show_binary    (x, y);
-   show_grid      (x, y);
+   /*> show_grid      (x, y);                                                         <*/
    /*---(signin)-------------------------*/
    ctitle = rand () % ntitle;
    if (my.show_login     == 'y') {
@@ -620,6 +652,11 @@ get_login          (void)
           *> FONT_letter ( "basic"    , toupper(part) ,   0 * 7,  (((count - 1) % 20) + 4) * 8 + 5);   <* 
           *> attroff(COLOR_PAIR(12));                                                                   <*/
          count_save = count;
+      }
+      SHOW_COUNTERS {
+         mvprintw (  7, s_cen - 8,  ".--------------.");
+         mvprintw (  8, s_cen - 8,  "| %s |", my.magic_num);
+         mvprintw (  9, s_cen - 8,  ".--------------.");
       }
       /*> mvprintw (s_bot  - 4, s_cen - 5, "%d", count);                             <* 
        *> mvprintw (s_bot  - 4, s_cen + 5, "%d", finish);                            <*/

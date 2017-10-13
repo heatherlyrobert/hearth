@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0f"
-#define     VER_TXT          "veil left and right working great with hints/counters"
+#define     VER_NUM          "2.0g"
+#define     VER_TXT          "middle working great with hints/counters"
 
 
 /* configuration files -------------------------------------------------------*/
