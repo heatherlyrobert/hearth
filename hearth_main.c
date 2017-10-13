@@ -24,23 +24,20 @@ main               (int a_argc, char **a_argv)
       return rce;
    }
    /*---(check fake door)----------------*/
-   if (rc == 0)  rc = FAKE_door    ();
-   --rce;  if (rc != 0) {
-      DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
-      PROG_end    ();
-      return rce;
+   if (my.use_fake == 'y') {
+      if (rc == 0)  rc = FAKE_door    ();
+      --rce;  if (rc != 0) {
+         DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
+         PROG_end    ();
+         return rce;
+      }
    }
-
-
-   PROG_end    ();
-   return 0;
-
 
 
    /*---(input)--------------------------*/
    DEBUG_TOPS   yLOG_note   ("begin prompt/input cycle");
    while (1) {
-      magic  ();
+      VEIL_init  ();
       prompt (0);
       refresh();
       ri = get_login ();

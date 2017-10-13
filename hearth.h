@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0d"
-#define     VER_TXT          "font up and unit tested"
+#define     VER_NUM          "2.0e"
+#define     VER_TXT          "added a lot of new fonts to increase my flexibility"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -199,15 +199,15 @@ PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada);
 
 /*---(fonts)------------------------------------------------------------------*/
 struct cFONT {
-   char        name        [20];
-   char        range;
-   char       *ptr;
-   char        tall;
-   char        yoff;
-   char        wide;
-   char        xoff;
-   char        gap;
-   char        empty;
+   char        name        [20];       /* name for lookup                     */
+   char        range;                  /* type of symbols, alpha, nums, ...   */
+   char       *ptr;                    /* pointer to font structure           */
+   char        tall;                   /* height of standard symbol           */
+   char        wide;                   /* width of standard symbol            */
+   char        yoff;                   /* space after a row, before next      */
+   char        xoff;                   /* space after a col, before next      */
+   char        gap;                    /* horizontal gap in data structure    */
+   char        empty;                  /* character used for empty space      */
 };
 
 extern char        hosties     [MAX_HOST][20];
@@ -277,7 +277,7 @@ struct cACCESSOR {
    char        fake_user   [50];
    char        show_counters;          /* show counters on screen             */
    /*---(veil)-------------------*/
-   char        magicnum    [20];       /* magic number used on this getty     */
+   char        magic_num    [20];       /* magic number used on this getty     */
    char        show_butterfly;
    char        show_tty;
    char        show_external;
@@ -341,6 +341,9 @@ char        PROG_testend         (void);
 char        CURS_init            (void);
 char        CURS_wrap            (void);
 
+char        VEIL_init            (void);
+char        VEIL_knocks          (void);
+char        VEIL_knock           (void);
 char        VEIL_butterfly       (int a_x, int a_y);
 char        VEIL_tty             (int a_x, int a_y);
 /*---(fake)--------------------*/
@@ -354,6 +357,8 @@ char        FAKE_door            (void);
 char        FONT_init            (void);
 char        FONT__find           (char *a_font);
 char        FONT__index          (char a_range, int a_letter);
+char        FONT_wide            (char *a_font);
+char        FONT_tall            (char *a_font);
 char        FONT_letter          (char *a_font, char a_num, int a_y, int a_x);
 char*       FONT__unit           (char *a_question, int a_num);
 

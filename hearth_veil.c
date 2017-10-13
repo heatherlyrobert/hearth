@@ -2,36 +2,47 @@
 #include    "hearth.h"
 
 
+int         s_top       =   0;
+int         s_mid       =   0;
+int         s_bot       =   0;
+
+int         s_lef       =   0;
+int         s_cen       =   0;
+int         s_rig       =   0;
 
 char             /* [------] create one-time login numbers -------------------*/
-magic              (void)
+VEIL_init            (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;        /* loop iterator                       */
+   /*---(header)-------------------------*/
+   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
    /*---(prefix)-------------------------*/
-   entry.prefix [0] = my.magicnum [ 0] =  '0' + rand () % 10;
-   entry.prefix [1] = my.magicnum [ 1] =  '0' + rand () % 10;
+   entry.prefix [0] = my.magic_num [ 0] =  '0' + rand () % 10;
+   entry.prefix [1] = my.magic_num [ 1] =  '0' + rand () % 10;
    entry.prefix [2] = '\0';
    /*---(infix)--------------------------*/
-   entry.infix  [0] = my.magicnum [ 2] =  '0' + rand () % 10;
+   entry.infix  [0] = my.magic_num [ 2] =  '0' + rand () % 10;
    entry.infix  [1] = '\0';
    /*---(knock)--------------------------*/
    for (i = 0; i < 4; ++i) {
-      entry.knock [i] = my.magicnum [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';
+      entry.knock [i] = my.magic_num [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';
    }
    entry.knock [4] = '\0';
    /*---(special)------------------------*/
-   entry.rot     [0] = my.magicnum [ 7] = '0' + rand () % 3 + 1;
-   entry.pointer [0] = my.magicnum [ 8] = '0' + rand () % 10;
+   entry.rot     [0] = my.magic_num [ 7] = '0' + rand () % 3 + 1;
+   entry.pointer [0] = my.magic_num [ 8] = '0' + rand () % 10;
    entry.rot     [1] = entry.pointer [1] = '\0';
    /*---(suffix)-------------------------*/
-   entry.suffix [0] = my.magicnum [ 9] = '0' + rand () % 10;
-   entry.suffix [1] = my.magicnum [10] = '0' + rand () % 10;
-   entry.suffix [2] = my.magicnum [11] = '0' + rand () % 10;
+   entry.suffix [0] = my.magic_num [ 9] = '0' + rand () % 10;
+   entry.suffix [1] = my.magic_num [10] = '0' + rand () % 10;
+   entry.suffix [2] = my.magic_num [11] = '0' + rand () % 10;
    entry.suffix [3] = '\0';
    /*---(wrap-up)------------------------*/
-   my.magicnum[12] = '\0';
+   my.magic_num[12] = '\0';
+   DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
    /*---(complete)-----------------------*/
+   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -85,29 +96,29 @@ show_left          (int a_x, int a_y)
    /*---(show table of numbers)-------*/
    for (i = 0; i <  15; ++i) {
       for (j =  0; j <  2; ++j) {
-         /*---(reset)-----------------*/
-         x_done = 'n';
-         /*---(check for hinting)-----*/
-         if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));
-         else                   attron (COLOR_PAIR(12));
-         if (i ==  count_a &&  j ==  1) {
-            FONT_letter ( "alligator", entry.prefix [0] - '0', count_a * 7,  1 * 10);
-            x_done = 'y';
-         }
-         if (i ==  0 &&  j ==  1) {
-            FONT_letter ( "alligator", entry.prefix [1] - '0', 0       * 7,  1 * 10);
-            x_done = 'y';
-         }
-         if (i ==  mid_a &&  j ==  0) {
-            FONT_letter ( "alligator", entry.infix  [0] - '0', mid_a   * 7,  0 * 10);
-            x_done = 'y';
-         }
-         if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));
-         else                   attroff(COLOR_PAIR(12));
-         if (x_done == 'y')  continue;
+         /*> /+---(reset)-----------------+/                                                <* 
+          *> x_done = 'n';                                                                  <* 
+          *> /+---(check for hinting)-----+/                                                <* 
+          *> if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));                            <* 
+          *> else                   attron (COLOR_PAIR(12));                                <* 
+          *> if (i ==  count_a &&  j ==  1) {                                               <* 
+          *>    FONT_letter ( "alligator", entry.prefix [0] - '0', count_a * 7,  1 * 10);   <* 
+          *>    x_done = 'y';                                                               <* 
+          *> }                                                                              <* 
+          *> if (i ==  0 &&  j ==  1) {                                                     <* 
+          *>    FONT_letter ( "alligator", entry.prefix [1] - '0', 0       * 7,  1 * 10);   <* 
+          *>    x_done = 'y';                                                               <* 
+          *> }                                                                              <* 
+          *> if (i ==  mid_a &&  j ==  0) {                                                 <* 
+          *>    FONT_letter ( "alligator", entry.infix  [0] - '0', mid_a   * 7,  0 * 10);   <* 
+          *>    x_done = 'y';                                                               <* 
+          *> }                                                                              <* 
+          *> if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));                            <* 
+          *> else                   attroff(COLOR_PAIR(12));                                <* 
+          *> if (x_done == 'y')  continue;                                                  <*/
          /*---(normal)----------------*/
          attron (COLOR_PAIR(12));
-         FONT_letter ( "alligator", rand () % 10, i * 7, j * 10);
+         FONT_letter ( "alligator", rand () % 10 + '0', i * 7 - 4, j * 10);
          attroff(COLOR_PAIR(12));
          /*---(done)------------------*/
       }
@@ -125,28 +136,53 @@ VEIL_tty           (int a_x, int a_y)
    if (my.show_tty    != 'y')  return 0;
    /*---(show terminal number)-----------*/
    attron (COLOR_PAIR(12));
-   FONT_letter ( "dots"     , ttytyp  - '0', 10, center - 11);
-   FONT_letter ( "alligator", ttynum  - '0', 10, center -  5);
-   FONT_letter ( "dots"     , ttytyp  - '0', 14, center +  6);
+   FONT_letter ( "dots"     , ttytyp  - '0', 10, s_cen - 11);
+   FONT_letter ( "alligator", ttynum  - '0', 10, s_cen -  5);
+   FONT_letter ( "dots"     , ttytyp  - '0', 14, s_cen +  6);
    attroff(COLOR_PAIR(12));
    /*---(external indicator)-------------*/
    if (my.show_external == 'y')      x_type = 'e';
    else                              x_type = 'i';
    attron (COLOR_PAIR(12));
-   mvprintw (19, center - 2,  "%c", x_type);
-   mvprintw (19, center    ,  "%c", x_type);
-   mvprintw (19, center + 2,  "%c", x_type);
-   mvprintw (20, center - 1,  "%c", x_type);
-   mvprintw (20, center + 1,  "%c", x_type);
-   mvprintw (21, center    ,  "%c", x_type);
-   /*> FONT_letter ( "basic"    , x_type, middle + 10, x_mid);                       <*/
+   mvprintw (19, s_cen - 2,  "%c", x_type);
+   mvprintw (19, s_cen    ,  "%c", x_type);
+   mvprintw (19, s_cen + 2,  "%c", x_type);
+   mvprintw (20, s_cen - 1,  "%c", x_type);
+   mvprintw (20, s_cen + 1,  "%c", x_type);
+   mvprintw (21, s_cen    ,  "%c", x_type);
+   /*> FONT_letter ( "basic"    , x_type, s_mid + 10, x_mid);                       <*/
    attroff(COLOR_PAIR(12));
    /*---(complete)-----------------------*/
    return 0;
 }
 
+char
+VEIL_knock_place     (char a_letter, int a_col, int a_row)
+{
+   char        rce         =  -10;
+   int         x_xpos      =    0;
+   int         x_tall      =    0;
+   int         x_ygap      =    4;
+   int         x_ybeg      =    0;
+   int         x_ypos      =    0;
+   /*---(x-coord)------------------------*/
+   --rce;  switch (a_col) {
+   case  0 :  x_xpos = ((FONT_wide ("alligator") * 2) - 1);       break;
+   case  1 :  x_xpos = (s_rig - (FONT_wide ("goofy") * 3)) - 5;   break;
+   default :  return rce;
+   }
+   /*---(y-coord)------------------------*/
+   x_tall = FONT_tall ("dots");
+   x_ybeg = s_mid - ((7 * (x_tall + x_ygap)) / 2.0);
+   x_ypos = x_ybeg + (a_row * (x_tall + x_ygap));
+   /*---(display)------------------------*/
+   FONT_letter ( "dots", a_letter, x_ypos, x_xpos);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char             /* [------] show knock dots ---------------------------------*/
-show_knock         (int a_x, int a_y)
+VEIL_knocks        (void)
 {
    /*---(design notes)-------------------*/
    /*
@@ -156,41 +192,45 @@ show_knock         (int a_x, int a_y)
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;               /* iterator -- rows             */
    int         knock_spacing;
-   int         x_knock1;                  /* left of left knock               */
-   int         x_knock2;                  /* left of right knock              */
-   char        x_done      = 'n';             /* flag -- already handled      */
+   char        x_knocks    [15]  = "";
    /*---(defense)------------------------*/
    if (my.show_knock  != 'y')  return 0;
    /*---(prepare)------------------------*/
    knock_spacing = 4;
-   if (middle <  20) knock_spacing = 3;
-   x_knock1  = ((10 * 2) - 1);
-   x_knock2  = (a_x - (8 * 3)) - 5;
+   if (s_mid <  20) knock_spacing = 3;
+   for (i = 0; i < 14; ++i) {
+      switch (rand () % 2) {
+      case 0 : x_knocks [i] = ' ';   break;
+      case 1 : x_knocks [i] = '.';   break;
+      }
+      x_knocks [i + 1] = 0;
+   }
    /*---(output)-------------------------*/
-   for (i = 3; i < 10; ++i) {
-      /*---(prepare)------------------*/
-      x_done = 'n';
+   for (i = 0; i < 14; ++i) {
+      attron (COLOR_PAIR (12));
+      VEIL_knock_place (x_knocks [i], trunc (i / 7), i % 7);
+      attrset (0);
       /*---(hinting)------------------*/
-      if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));
-      else                   attron (COLOR_PAIR(12));
-      if (i ==  4) {
-         FONT_letter ( "dots"     , entry.knock [0],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock1);
-         FONT_letter ( "dots"     , entry.knock [1],  (middle - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock2);
-         x_done = 'y';
-      }
-      if (i ==  8) {
-         FONT_letter ( "dots"     , entry.knock [2],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock2);
-         FONT_letter ( "dots"     , entry.knock [3],  (middle - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock1);
-         x_done = 'y';
-      }
-      if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));
-      else                   attroff(COLOR_PAIR(12));
-      if (x_done == 'y')  continue;
+      /*> if (my.show_hint   == 'y') attron (COLOR_PAIR( 1));                                                                    <* 
+       *> else                       attron (COLOR_PAIR(12));                                                                    <* 
+       *> if (i ==  4) {                                                                                                         <* 
+       *>    FONT_letter ( "dots"     , entry.knock [0],  (s_mid - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock1);   <* 
+       *>    FONT_letter ( "dots"     , entry.knock [1],  (s_mid - (6 * knock_spacing) - 1) + (4 * knock_spacing), x_knock2);   <* 
+       *>    x_done = 'y';                                                                                                       <* 
+       *> }                                                                                                                      <* 
+       *> if (i ==  8) {                                                                                                         <* 
+       *>    FONT_letter ( "dots"     , entry.knock [2],  (s_mid - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock2);   <* 
+       *>    FONT_letter ( "dots"     , entry.knock [3],  (s_mid - (6 * knock_spacing) - 1) + (8 * knock_spacing), x_knock1);   <* 
+       *>    x_done = 'y';                                                                                                       <* 
+       *> }                                                                                                                      <* 
+       *> if (my.show_hint   == 'y') attroff(COLOR_PAIR( 1));                                                                    <* 
+       *> else                       attroff(COLOR_PAIR(12));                                                                    <* 
+       *> if (x_done == 'y')  continue;                                                                                          <*/
       /*---(normal)-------------------*/
-      attron (COLOR_PAIR(12));
-      FONT_letter ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock1);
-      FONT_letter ( "dots"     , rand () % 2,  (middle - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock2);
-      attroff(COLOR_PAIR(12));
+      /*> VEIL_knock_place (rand () % 2, 0, i - 3);                                   <* 
+       *> VEIL_knock_place (rand () % 2, 1, i - 3);                                   <*/
+      /*> FONT_letter ( "dots"     , rand () % 2,  (s_mid - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock1);   <* 
+       *> FONT_letter ( "dots"     , rand () % 2,  (s_mid - (6 * knock_spacing) - 1) + (i * knock_spacing), x_knock2);   <*/
       /*---(done)---------------------*/
    }
    /*---(complete)-----------------------*/
@@ -217,7 +257,7 @@ show_chunky        (int a_x, int a_y)
    x_knock1  = ((10 * 2) - 1);
    x_knock2  = (a_x - (8 * 3)) - 5;
    x_max = (x_knock2 - x_knock1 - 5) / 8;
-   x_mid = center - ((x_max / 2.0) * 8) - 2;
+   x_mid = s_cen - ((x_max / 2.0) * 8) - 2;
    /*---(output)-------------------------*/
    for (i = 0; i <  1; ++i) {
       for (j = 0; j < x_max; ++j) {
@@ -227,11 +267,11 @@ show_chunky        (int a_x, int a_y)
          if (my.show_hint   == 'y' || my.show_hint   == 's') attron (COLOR_PAIR( 1));
          else                                        attron (COLOR_PAIR( 9));
          if (i ==  0 && j == 2) {
-            FONT_letter ( "chunky", entry.rot     [0] - '0',  middle, x_mid + (8 * 2));
+            FONT_letter ( "chunky", entry.rot     [0] - '0',  s_mid, x_mid + (8 * 2));
             x_done = 'y';
          }
          if (i ==  0 && j == x_max - 3) {
-            FONT_letter ( "chunky", entry.pointer [0] - '0',  middle, x_mid + (x_max - 3) * 8);
+            FONT_letter ( "chunky", entry.pointer [0] - '0',  s_mid, x_mid + (x_max - 3) * 8);
             x_done = 'y';
          }
          if (my.show_hint   == 'y' || my.show_hint   == 's') attroff(COLOR_PAIR( 1));
@@ -239,7 +279,7 @@ show_chunky        (int a_x, int a_y)
          if (x_done == 'y')  continue;
          /*---(normal)-------------------*/
          attron (COLOR_PAIR( 9));
-         FONT_letter ( "chunky", rand () % 10, i * 4 + middle, x_mid + (j * 8));
+         FONT_letter ( "chunky", rand () % 10, i * 4 + s_mid, x_mid + (j * 8));
          attroff(COLOR_PAIR( 9));
          /*---(done)---------------------*/
       }
@@ -270,7 +310,7 @@ show_grid          (int a_x, int a_y)
    x_knock1  = ((10 * 2) - 1);
    x_knock2  = (a_x - (8 * 3)) - 5;
    x_max = (x_knock2 - x_knock1 - 5) / 7;
-   x_mid = center - ((x_max / 2.0) * 7) - 2;
+   x_mid = s_cen - ((x_max / 2.0) * 7) - 2;
    /*---(output)-------------------------*/
    for (i = 0; i <  1; ++i) {
       for (j = 0; j < x_max; ++j) {
@@ -280,7 +320,7 @@ show_grid          (int a_x, int a_y)
          if (count % 2 == 0)  letter =  rand () % 26 + 'a';
          else                 letter =  rand () % 10 + '0';
          attron (COLOR_PAIR( 9));
-         FONT_letter ( "chunky_full", letter, i * 5 + middle +  4, x_mid + (j * 7));
+         FONT_letter ( "chunky_full", letter, i * 5 + s_mid +  4, x_mid + (j * 7));
          attroff(COLOR_PAIR( 9));
          /*---(done)---------------------*/
          ++count;
@@ -305,14 +345,14 @@ show_binary        (int a_x, int a_y)
    attron (COLOR_PAIR(14));
    for (i =  0; i <  3; ++i) {
       for (j =  0 ; j < 3; ++j) {
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 +  6);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 14);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 22);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 30);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 38);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 46);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 54);
-         FONT_letter ("binary",  rand () % 10, (i * 2) + bottom - 9, (j * 2) + x_knock1 + 62);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 +  6);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 14);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 22);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 30);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 38);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 46);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 54);
+         FONT_letter ("binary",  rand () % 10, (i * 2) + s_bot  - 9, (j * 2) + x_knock1 + 62);
       }
    }
    attroff(COLOR_PAIR(14));
@@ -368,6 +408,23 @@ show_right         (int a_x, int a_y)
    return 0;
 }
 
+char
+VEIL_counters        (void)
+{
+   char        x_text      [LEN_DESC] = "";
+   SHOW_COUNTERS {
+      sprintf (x_text, "s_rig    = %3d", s_rig);
+      mvprintw ( 10,  60,  "%s", x_text);
+      sprintf (x_text, "s_cen    = %3d", s_cen);
+      mvprintw ( 11,  60,  "%s", x_text);
+      sprintf (x_text, "s_bot    = %3d", s_bot);
+      mvprintw ( 12,  60,  "%s", x_text);
+      sprintf (x_text, "s_mid    = %3d", s_mid);
+      mvprintw ( 13,  60,  "%s", x_text);
+   }
+   return 0;
+}
+
 char             /* [------] print the /etc/issue file and login prompt ------*/
 prompt             (char  a_tty)
 {
@@ -393,9 +450,12 @@ prompt             (char  a_tty)
    char        x_done      = 'n';
    /*---(get dimensions)--------------*/
    getmaxyx (stdscr, y, x);
-   bottom    = y - 1;
-   center    = x / 2;
-   middle    = y / 2;
+   s_top       = 0;
+   s_mid       = y / 2;
+   s_bot       = y - 1;
+   s_lef       = 0;
+   s_cen       = x / 2;
+   s_rig       = x;
    /*---(set positions)---------------*/
    x_left    = 0;
    x_right   = (x - (8 * 3));
@@ -403,8 +463,8 @@ prompt             (char  a_tty)
    left      = x_knock1;
    left2     = x_right - 1;
    x_knock2  = x_right - 5;
-   left_c    = center - ((int) ((center - x_knock1) / 8) * 8);
-   count_c   = ((int) ((center - x_knock1) / 8) * 2);
+   left_c    = s_cen - ((int) ((s_cen - x_knock1) / 8) * 8);
+   count_c   = ((int) ((s_cen - x_knock1) / 8) * 2);
    yLOG_value  ("x_left"      , x_left         );
    yLOG_value  ("x_right"     , x_right        );
    yLOG_value  ("x_knock1"    , x_knock1       );
@@ -417,7 +477,7 @@ prompt             (char  a_tty)
    VEIL_butterfly (x, 0);
    show_left      (x, y);
    VEIL_tty       (x, y);
-   show_knock     (x, y);
+   VEIL_knocks    ();
    show_chunky    (x, y);
    show_binary    (x, y);
    show_grid      (x, y);
@@ -426,21 +486,22 @@ prompt             (char  a_tty)
    ctitle = rand () % ntitle;
    if (my.show_login     == 'y') {
       attron (COLOR_PAIR(14));
-      mvprintw ( bottom - 12, x_knock2 - 30,  "%-12.12s                   " , " ");
-      mvprintw ( bottom - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, my.dev_num);
-      mvprintw ( bottom - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , my.host_name[1], my.host_name[2]);
-      mvprintw ( bottom -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , my.host_name + 4);
-      mvprintw ( bottom -  8, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].date);
-      mvprintw ( bottom -  7, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].host);
-      mvprintw ( bottom -  6, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].user);
-      mvprintw ( bottom -  5, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].token);
-      mvprintw ( bottom -  4, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].password);
-      mvprintw ( bottom -  3, x_knock2 - 30,  "%-12.12s                   " , " ");
+      mvprintw ( s_bot  - 12, x_knock2 - 30,  "%-12.12s                   " , " ");
+      mvprintw ( s_bot  - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, my.dev_num);
+      mvprintw ( s_bot  - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , my.host_name[1], my.host_name[2]);
+      mvprintw ( s_bot  -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , my.host_name + 4);
+      mvprintw ( s_bot  -  8, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].date);
+      mvprintw ( s_bot  -  7, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].host);
+      mvprintw ( s_bot  -  6, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].user);
+      mvprintw ( s_bot  -  5, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].token);
+      mvprintw ( s_bot  -  4, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].password);
+      mvprintw ( s_bot  -  3, x_knock2 - 30,  "%-12.12s                   " , " ");
       attroff(COLOR_PAIR(14));
       attron (COLOR_PAIR(13));
-      mvprintw ( bottom -  8, x_knock2 - 16,  "               ");
+      mvprintw ( s_bot  -  8, x_knock2 - 16,  "               ");
       attroff(COLOR_PAIR(13));
    }
+   VEIL_counters ();
    /*---(complete)-----------------------*/
    yLOG_note   ("printed issue");
    yLOG_exit   (__FUNCTION__);
@@ -508,26 +569,26 @@ get_login          (void)
       if (my.show_timer == 'y') {
          if        (secs <=   30) {
             attron (COLOR_PAIR(11));
-            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -   0));
+            FONT_letter ( "dots"     , secs % 2,  s_bot  - 2, s_cen - 18 + (secs -   0));
             attroff(COLOR_PAIR(11));
          } else if (secs <=  60) {
             attron (COLOR_PAIR(11));
-            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  30));
+            FONT_letter ( "dots"     , secs % 2,  s_bot  - 2, s_cen + 14 - (secs -  30));
             attroff(COLOR_PAIR(11));
          } else if (secs <=  90) {
             attron (COLOR_PAIR(11));
-            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center - 18 + (secs -  60));
+            FONT_letter ( "dots"     , secs % 2,  s_bot  - 2, s_cen - 18 + (secs -  60));
             attroff(COLOR_PAIR(11));
          } else if (secs <= 120) {
             attron (COLOR_PAIR(11));
-            FONT_letter ( "dots"     , secs % 2,  bottom - 2, center + 14 - (secs -  90));
+            FONT_letter ( "dots"     , secs % 2,  s_bot  - 2, s_cen + 14 - (secs -  90));
             attroff(COLOR_PAIR(11));
          }
       }
       /*---(status)----------------------*/
       if (count != count_save && my.show_status == 'y') {
          x_max = (left2 - left - 2) / 8;
-         x_mid = center - ((x_max / 2.0) * 8) - 2;
+         x_mid = s_cen - ((x_max / 2.0) * 8) - 2;
          attron (COLOR_PAIR(12));
          for (i = 0; i < x_max; ++i) {
             FONT_letter ( "basic"    , rand() % 25 + 'b' ,   0,  x_mid + (i * 8));
@@ -544,8 +605,8 @@ get_login          (void)
           *> attroff(COLOR_PAIR(12));                                                                   <*/
          count_save = count;
       }
-      /*> mvprintw (bottom - 4, center - 5, "%d", count);                             <* 
-       *> mvprintw (bottom - 4, center + 5, "%d", finish);                            <*/
+      /*> mvprintw (s_bot  - 4, s_cen - 5, "%d", count);                             <* 
+       *> mvprintw (s_bot  - 4, s_cen + 5, "%d", finish);                            <*/
       /*---(timeout)---------------------*/
       ++loop;
       if (loop % 5 == 0) ++secs;
@@ -585,35 +646,35 @@ get_login          (void)
          attron (COLOR_PAIR(13));
          /*---(first line)---------------*/
          if (count >=  0 && count <  6) {
-            mvprintw (bottom - 8, x_knock2 - 16 + count -  0, "*");
+            mvprintw (s_bot  - 8, x_knock2 - 16 + count -  0, "*");
          }
          /*---(second line)--------------*/
          if (count >=  6 && count < 14) {
             if (count ==  6) {
-               mvprintw (bottom - 7, x_knock2 - 16, "               ");
+               mvprintw (s_bot  - 7, x_knock2 - 16, "               ");
             }
-            mvprintw (bottom - 7, x_knock2 - 16 + count -  6,  "*");
+            mvprintw (s_bot  - 7, x_knock2 - 16 + count -  6,  "*");
          }
          /*---(third line)---------------*/
          if (count >= 14 && count < 20) {
             if (count ==  14) {
-               mvprintw (bottom - 6, x_knock2 - 16, "               ");
+               mvprintw (s_bot  - 6, x_knock2 - 16, "               ");
             }
-            mvprintw (bottom - 6, x_knock2 - 16 + count - 14,  "*");
+            mvprintw (s_bot  - 6, x_knock2 - 16 + count - 14,  "*");
          }
          /*---(fourth line)--------------*/
          if (count >= 20 && count < 28) {
             if (count ==  20) {
-               mvprintw (bottom - 5, x_knock2 - 16, "               ");
+               mvprintw (s_bot  - 5, x_knock2 - 16, "               ");
             }
-            mvprintw (bottom - 5, x_knock2 - 16 + count - 20,  "*");
+            mvprintw (s_bot  - 5, x_knock2 - 16 + count - 20,  "*");
          }
          /*---(fifth line)---------------*/
          if (count >= 28 && count < 40) {
             if (count ==  28) {
-               mvprintw (bottom - 4, x_knock2 - 16, "               ");
+               mvprintw (s_bot  - 4, x_knock2 - 16, "               ");
             }
-            mvprintw (bottom - 4, x_knock2 - 16 + count - 28,  "*");
+            mvprintw (s_bot  - 4, x_knock2 - 16 + count - 28,  "*");
          }
          attroff(COLOR_PAIR(13));
       }
@@ -743,7 +804,7 @@ get_login          (void)
       strcpy (msg, "irrumabo vos fenestram lingent");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("timed out, login failed");
@@ -760,7 +821,7 @@ get_login          (void)
       strcpy (msg, "iterum, in confractione");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("triggered a screen refresh");
@@ -774,7 +835,7 @@ get_login          (void)
       strcpy (msg, "lo venne in loco d'ogne luce muto");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("login cancelled");
@@ -791,7 +852,7 @@ get_login          (void)
       strcpy (msg, "lasciate ogne speranza, voi ch'intrate");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("login failed");
@@ -809,7 +870,7 @@ get_login          (void)
       strcpy (msg, "lasciate ogne speranza, voi ch'intrate");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("can not find user name in password database");
@@ -826,7 +887,7 @@ get_login          (void)
       strcpy (msg, "lasciate ogne speranza, voi ch'intrate");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("can not find user name in shadow database");
@@ -845,7 +906,7 @@ get_login          (void)
       strcpy (msg, "lasciate ogne speranza, voi ch'intrate");
       len = strlen (msg);
       if (my.show_judgement == 'y') {
-         mvprintw ( bottom,  center - (len / 2), msg);
+         mvprintw ( s_bot ,  s_cen - (len / 2), msg);
          refresh ();
       }
       yLOG_note   ("password incorrect");
@@ -872,7 +933,7 @@ get_login          (void)
    strcpy (msg, "qui si convien lasciare ogne sospettoo");
    len = strlen (msg);
    if (my.show_judgement == 'y') {
-      mvprintw ( bottom,  center - (len / 2), msg);
+      mvprintw ( s_bot ,  s_cen - (len / 2), msg);
       refresh ();
    }
    yLOG_note   ("successful login");
