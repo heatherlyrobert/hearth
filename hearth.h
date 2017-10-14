@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0h"
-#define     VER_TXT          "binary working now"
+#define     VER_NUM          "2.0i"
+#define     VER_TXT          "reading hearth.conf to gather key data"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -278,7 +278,8 @@ struct cACCESSOR {
    char        fake_user   [50];
    char        show_counters;          /* show counters on screen             */
    /*---(veil)-------------------*/
-   char        magic_num    [20];       /* magic number used on this getty     */
+   char        use_timer;              /* time limiter                        */
+   char        magic_num    [20];      /* magic number used on this getty     */
    char        show_butterfly;
    char        show_tty;
    char        show_external;
@@ -345,7 +346,7 @@ char        CURS_wrap            (void);
 char        VEIL_init            (void);
 char        VEIL_knocks          (void);
 char        VEIL_knock           (void);
-char        VEIL_butterfly       (int a_x, int a_y);
+char        VEIL_butterfly       (void);
 char        VEIL_tty             (int a_x, int a_y);
 /*---(fake)--------------------*/
 char        FAKE_init            (char a_mode, char *a_user);

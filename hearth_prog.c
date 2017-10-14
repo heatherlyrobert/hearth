@@ -110,6 +110,7 @@ PROG_init            (int   a_argc , char *a_argv[])
    strlcpy (my.fake_user, "", LEN_DESC);
    /*---(veil)---------------------------*/
    ttynum             = '0';
+   my.use_timer       = 'y';
    my.tty_type        = ' ';
    my.show_butterfly  = 'y';
    my.show_tty        = 'y';
@@ -224,6 +225,7 @@ PROG_args            (int a_argc, char **a_argv)
       }
       /*---(visual options)--------------*/
       else if (strcmp (a, "--nofake"      ) == 0)  my.use_fake       = '-';
+      else if (strcmp (a, "--notimer"     ) == 0)  my.use_timer      = '-';
       else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
       else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
       else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = 'n';

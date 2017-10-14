@@ -346,6 +346,7 @@ FONT__find           (char *a_font)
    if (g_cfont >= 0 && g_cfont < g_nfont) {
       if (strcmp (a_font, g_fonts [g_cfont].name) == 0) {
          DEBUG_GRAF   yLOG_note    ("current matches, shortcut used");
+         DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
          return 1;
       }
    }
@@ -420,13 +421,15 @@ FONT__index          (char a_range, int a_letter)
       DEBUG_GRAF   yLOG_sexitr (__FUNCTION__, rce);
       return rce;
    }
-   /*---(full)---------------------------*/
+   /*---(binary)-------------------------*/
    --rce;  if (a_range == 'b') {
       DEBUG_GRAF   yLOG_snote  ("binary-type");
-      if (strchr (" .", x_letter) != NULL) {
+      if (strchr (" .01", x_letter) != NULL) {
          DEBUG_GRAF   yLOG_sint   (x_letter - '0');
-         if (x_letter == ' ')   return  0;
-         if (x_letter == '.')   return  1;
+         switch (x_letter) {
+         case ' ' : case '0' :   return 0;
+         case '.' : case '1' :   return 1;
+         }
       }
       DEBUG_GRAF   yLOG_snote  ("out of range [0-1]");
       DEBUG_GRAF   yLOG_sexitr (__FUNCTION__, rce);
@@ -515,7 +518,7 @@ FONT_letter          (char *a_font, char a_num, int a_y, int a_x)
       }
    }
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_sexit  (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit   (__FUNCTION__);
    return x_count;
 }
 
