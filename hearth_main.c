@@ -38,7 +38,7 @@ main               (int a_argc, char **a_argv)
    DEBUG_TOPS   yLOG_note   ("begin prompt/input cycle");
    while (1) {
       VEIL_init  ();
-      prompt (0);
+      VEIL_show  ();
       refresh();
       ri = get_login ();
       if (ri <= 0) break;

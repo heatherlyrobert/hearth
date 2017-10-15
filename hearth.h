@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0i"
-#define     VER_TXT          "reading hearth.conf to gather key data"
+#define     VER_NUM          "2.0j"
+#define     VER_TXT          "updated hearth.conf to handle multiple terminals in config"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -223,7 +223,6 @@ extern int         g_cfont;
 
 
 extern int         logger;
-extern char        ttynum;
 extern char        dev         [30];
 extern char        shell       [30];
 extern int         veil_rpid;
@@ -275,9 +274,11 @@ struct cACCESSOR {
    char        host_name   [50];       /* host number and name string         */
    int         cluster;
    char        tty_type;
+   char        tty_num;
    char        fake_user   [50];
    char        show_counters;          /* show counters on screen             */
    /*---(veil)-------------------*/
+   char        language;
    char        use_timer;              /* time limiter                        */
    char        magic_num    [20];      /* magic number used on this getty     */
    char        show_butterfly;
@@ -317,6 +318,7 @@ tENTRY      entry;
 typedef struct cTITLES tTITLES;
 struct    cTITLES {
    char     language    [20];
+   char     gmt_off;
    char     cluster     [20];
    char     seq         [20];
    char     date        [20];
@@ -325,8 +327,10 @@ struct    cTITLES {
    char     token       [20];
    char     password    [20];
    char     attempt     [20];
+   char     timer       [20];
+   char     passed      [90];
 };
-tTITLES     titles      [30];
+tTITLES     g_titles    [30];
 
 char        PROG_init            (int   a_argc , char *a_argv[]);
 char        PROG_urgsmass        (char  a_set  , char a_extra);

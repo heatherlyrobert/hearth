@@ -11,7 +11,6 @@ char          unit_answer [LEN_UNIT];
 char        g_modes     [20] = "uqfih";   /* valid fake_door modes                 */
 
 int         logger   = -1;
-char        ttynum   = '0';
 char        dev         [30];
 char        user        [30];
 char        shell       [30];
@@ -24,7 +23,6 @@ int         left              =  0;
 int         left2             =  0;
 int         x_knock2;   /* left of right knock     */
 
-char        ctitle   =  0;
 char        ntitle   = 14;
 
 
@@ -104,12 +102,12 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.run_mode        = RUN_USER;
    /*---(fake)---------------------------*/
    my.use_fake        = 'y';
+   my.tty_num         = '0';
    my.dev_num         =   0;
    strlcpy (my.host_name, "", LEN_DESC);
    my.cluster         =   0;
    strlcpy (my.fake_user, "", LEN_DESC);
    /*---(veil)---------------------------*/
-   ttynum             = '0';
    my.use_timer       = 'y';
    my.tty_type        = ' ';
    my.show_butterfly  = 'y';
@@ -266,12 +264,12 @@ PROG_args            (int a_argc, char **a_argv)
       }
       /*---(device)----------------------*/
       else if (a [0] == '/') {
-         ttynum  = a[strlen (a) - 1];
+         my.tty_num  = a[strlen (a) - 1];
          if (a[5] == 'p')  my.tty_type = ' ';
          else              my.tty_type = '.';
          strcpy (dev, a);
          DEBUG_ARGS   yLOG_info    ("tty"       , dev);
-         my.dev_num = ttynum - '0';
+         my.dev_num = my.tty_num - '0';
       }
       /*---(user name)-------------------*/
       else if (a [0] != '-') {

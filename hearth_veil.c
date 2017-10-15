@@ -20,7 +20,7 @@ int         s_rig       =   0;
 #define     COLOR_YELLOW     attron (COLOR_PAIR(12))
 #define     COLOR_BLUE       attron (COLOR_PAIR(14))
 
-int         s_conf  [9][2] =
+int         s_conf  [10][2] =
 {
    {  -1,  -1 },   /* knock  1 */
    {  -1,  -1 },   /* knock  2 */
@@ -31,6 +31,7 @@ int         s_conf  [9][2] =
    {  -1,  -1 },   /* rotation */
    {  -1,  -1 },   /* infix  1 */
    {  -1,  -1 },   /* pointer  */
+   {  -1,  -1 },   /* language */
 };
 
 #define     VEIL_CONF   "/etc/hearth.conf"
@@ -49,6 +50,7 @@ VEIL_conf            (void)
    int         x_count     =    0;
    int         x_row       =    0;
    char        x_text      [LEN_DESC] = "";
+   int         x_off       =    0;
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(open)---------------------------*/
@@ -62,6 +64,7 @@ VEIL_conf            (void)
       return rce;
    }
    /*---(read)---------------------------*/
+   x_off = (my.dev_num * 3) + 1;
    while (1) {
       /*---(get entry)-------------------*/
       fgets (x_recd, LEN_DESC, f);
@@ -80,7 +83,7 @@ VEIL_conf            (void)
       x_recd [--x_len] = '\0';
       DEBUG_INPT   yLOG_info    ("x_recd"    , x_recd);
       DEBUG_INPT   yLOG_value   ("x_len (2)" , x_len);
-      if (x_len != 2)  {
+      if (x_len <  x_off + 1)  {
          DEBUG_INPT  yLOG_note    ("entry is wrong length");
          break;
       }
@@ -90,15 +93,14 @@ VEIL_conf            (void)
        *> printf ("x_recd[0] = %c\n", x_recd[0]);                                     <* 
        *> printf ("x_recd[1] = %c\n", x_recd[1]);                                     <* 
        *> printf ("x_line    = %d\n", x_line);                                        <*/
-      if (strchr ("0123456789", x_recd[0]) != NULL) {
-         s_conf [x_line][0]  = x_recd [0] - '0';
+      if (strchr ("0123456789", x_recd[x_off + 0]) != NULL) {
+         s_conf [x_line][0]  = x_recd [x_off + 0] - '0';
          ++x_count;
       }
-      if (strchr ("0123456789", x_recd[1]) != NULL) {
-         s_conf [x_line][1]  = x_recd [1] - '0';
+      if (strchr ("0123456789", x_recd[x_off + 1]) != NULL) {
+         s_conf [x_line][1]  = x_recd [x_off + 1] - '0';
          ++x_count;
       }
-      printf ("past assignments\n");
       /*---(done)------------------------*/
       ++x_line;
    }
@@ -107,21 +109,28 @@ VEIL_conf            (void)
    fclose (f);
    /*---(check success)------------------*/
    DEBUG_INPT   yLOG_value   ("x_line"    , x_line);
-   --rce;  if (x_line != 9) {
+   --rce;  if (x_line != 10) {
       DEBUG_INPT   yLOG_note    ("not enough lines read");
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    DEBUG_INPT   yLOG_value   ("x_count"   , x_count);
-   --rce;  if (x_count != 18) {
+   --rce;  if (x_count != 20) {
       DEBUG_INPT   yLOG_note    ("not enough items read");
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(assign)-------------------------*/
+   my.language = s_conf [9][0];
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
+      COLOR_WHITE;
       x_row = 10;
       mvprintw (x_row++, 150,  ".------conf------.");
+      sprintf  (x_text, "| dev_num  = %-3d |", my.dev_num);
+      mvprintw (x_row++, 150,  "%s", x_text);
+      sprintf  (x_text, "| x_off    = %-3d |", x_off);
+      mvprintw (x_row++, 150,  "%s", x_text);
       sprintf  (x_text, "| knock1   = %d %d |", s_conf [0][0], s_conf [0][1]);
       mvprintw (x_row++, 150,  "%s", x_text);
       sprintf  (x_text, "| knock2   = %d %d |", s_conf [1][0], s_conf [1][1]);
@@ -140,7 +149,10 @@ VEIL_conf            (void)
       mvprintw (x_row++, 150,  "%s", x_text);
       sprintf  (x_text, "| pointer  = %d   |", s_conf [8][0]);
       mvprintw (x_row++, 150,  "%s", x_text);
+      sprintf  (x_text, "| lang     = %-3d |", s_conf [9][0]);
+      mvprintw (x_row++, 150,  "%s", x_text);
       mvprintw (x_row++, 150,  "'----------------'");
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
@@ -178,6 +190,8 @@ VEIL_init            (void)
    /*---(wrap-up)------------------------*/
    my.magic_num[12] = '\0';
    DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
+   /*---(language)-----------------------*/
+   my.language = rand () % ntitle;
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -233,7 +247,7 @@ VEIL_butterfly       (void)
          mvprintw (i, j + x_butter,  "%c", butterfly [b][i][j]);
       }
    }
-   attrset (0);
+   COLOR_OFF;
    SHOW_COUNTERS {
       COLOR_WHITE;
       mvprintw (  7,  60,  ".---overall---.");
@@ -246,7 +260,7 @@ VEIL_butterfly       (void)
       sprintf (x_text, "| s_mid = %3d |", s_mid);
       mvprintw ( 11,  60,  "%s", x_text);
       mvprintw ( 12,  60,  ".-------------.");
-      attrset (0);
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -287,15 +301,16 @@ VEIL_left            (void)
          else if (x_col == 1 && x_row == x_nrow - 1)  entry.prefix [0] = my.magic_num [ 0] =  x_letter;
          else if (x_col == 0 && x_row == 4         )  entry.infix  [0] = my.magic_num [ 2] =  x_letter;
          else {
-            attrset (0);
+            COLOR_OFF;
             COLOR_YELLOW;
          }
          FONT_letter ( "alligator", x_letter, x_row * x_tall, x_col * x_wide);
-         attrset (0);
+         COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
+      COLOR_WHITE;
       mvprintw ( 12,   3,  ".----left-----.", x_text);
       sprintf (x_text, "| x_tall = %2d |", x_tall);
       mvprintw ( 13,   3,  "%s", x_text);
@@ -306,6 +321,7 @@ VEIL_left            (void)
       sprintf (x_text, "| ptr    = %2d |", 4);
       mvprintw ( 16,   3,  "%s", x_text);
       mvprintw ( 17,   3,  "'-------------'", x_text);
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -346,15 +362,16 @@ VEIL_right           (void)
          if (x_row ==  entry.pointer[0] - '0') {
             entry.suffix [x_col] = my.magic_num [ 9 + x_col] = x_letter;
          } else {
-            attrset (0);
+            COLOR_OFF;
             COLOR_YELLOW;
          }
          FONT_letter ( "goofy", x_letter, x_row * x_tall, x_right + (x_col * x_wide));
-         attrset (0);
+         COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
+      COLOR_WHITE;
       mvprintw ( 12, x_right + 5,  ".----right----.", x_text);
       sprintf (x_text, "| x_tall = %2d |", x_tall);
       mvprintw ( 13, x_right + 5,  "%s", x_text);
@@ -365,6 +382,7 @@ VEIL_right           (void)
       sprintf (x_text, "| ptr    = %2d |", entry.pointer [0] - '0');
       mvprintw ( 16, x_right + 5,  "%s", x_text);
       mvprintw ( 17, x_right + 5,  "'-------------'", x_text);
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -415,7 +433,7 @@ VEIL_knocks        (void)
       else if (i == 12)  entry.knock [2] = my.magic_num [ 3 + 2] = x_letter;
       else if (i ==  5)  entry.knock [3] = my.magic_num [ 3 + 3] = x_letter;
       else {
-         attrset (0);
+         COLOR_OFF;
          COLOR_YELLOW;
       }
       switch ((int) trunc (i / 7)) {
@@ -425,16 +443,18 @@ VEIL_knocks        (void)
       x_ybeg = s_mid - ((7 * x_tall + 6 * x_ygap) / 2.0);
       x_ypos = x_ybeg + ((i % 7) * (x_tall + x_ygap));
       FONT_letter ( "dots", x_letter, x_ypos, x_xpos);
-      attrset (0);
+      COLOR_OFF;
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
+      COLOR_WHITE;
       mvprintw ( 21, 25,  ".----knock----.");
       sprintf (x_text, "| x_tall = %2d |", x_tall);
       mvprintw ( 22, 25,  "%s", x_text);
       sprintf (x_text, "| x_wide = %2d |", x_wide);
       mvprintw ( 23, 25,  "%s", x_text);
       mvprintw ( 24, 25,  "'-------------'");
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -450,7 +470,7 @@ VEIL_tty           (int a_x, int a_y)
    /*---(show terminal number)-----------*/
    COLOR_YELLOW;
    FONT_letter ( "dots"     , my.tty_type, 10, s_cen - 11);
-   FONT_letter ( "alligator", ttynum, 10, s_cen -  5);
+   FONT_letter ( "alligator", my.tty_num, 10, s_cen -  5);
    FONT_letter ( "dots"     , my.tty_type, 14, s_cen +  6);
    COLOR_OFF;
    /*---(external indicator)-------------*/
@@ -514,16 +534,17 @@ VEIL_middle          (void)
          } else if (x_row == 1 && x_col == x_max - 4) {
             entry.pointer [0] = my.magic_num [ 8] = x_digit;
          } else {
-            attrset (0);
+            COLOR_OFF;
             COLOR_YELLOW;
          }
          FONT_letter ( "chunky_full", x_letter, x_top + x_row * x_tall, x_left + ((x_col + 0) * x_wide));
          FONT_letter ( "chunky_full", x_digit , x_top + x_row * x_tall, x_left + ((x_col + 1) * x_wide));
-         attrset (0);
+         COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
+      COLOR_WHITE;
       x_row = 45;
       mvprintw (x_row++, x_left + 5,  ".----middle-----.");
       sprintf (x_text, "| x_tall  = %3d |", x_tall);
@@ -543,6 +564,7 @@ VEIL_middle          (void)
       sprintf (x_text, "| ptr     = %3d |", entry.pointer [0] - '0');
       mvprintw (x_row++, x_left + 5,  "%s", x_text);
       mvprintw (x_row++, x_left + 5,  "'---------------'");
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -579,70 +601,71 @@ VEIL_binary          (void)
 }
 
 char
-VEIL_counters        (void)
+VEIL_prompt          (void)
 {
    char        x_text      [LEN_DESC] = "";
+   int         x_left      = 0;
+   int         x_right     = 0;
+   int         x_row       = 0;
+   int         x_gmt_off   = 0;
+   x_right   = s_rigminus;
+   x_left    = x_right - 35;
+   yLOG_value  ("x_right"     , x_right);
+   yLOG_value  ("x_left"      , x_left );
+   if (my.show_login     != 'y') return 0;
+   x_row = s_bot - 13;
+   x_gmt_off = g_titles [my.language].gmt_off * 60 * 60;
+   strl4time (time (NULL) + x_gmt_off, x_text, 0, 'T', LEN_DESC);
+   COLOR_BLUE;
+   mvprintw (x_row++, x_left,  "%-12.12s                   " , " ");
+   mvprintw (x_row++, x_left,  "%-12.12s [%-15d     ]"            , g_titles [my.language].cluster , my.dev_num);
+   mvprintw (x_row++, x_left,  "%-12.12s [%c%c                  ]", g_titles [my.language].seq     , my.host_name[1], my.host_name[2]);
+   mvprintw (x_row++, x_left,  "%-12.12s [%-15.15s     ]"         , g_titles [my.language].host    , my.host_name + 4);
+   mvprintw (x_row++, x_left,  "%-12.12s [%-19.19s ] " , g_titles [my.language].date, x_text);
+   mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].user    );
+   mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].token   );
+   mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].password);
+   mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].attempt );
+   mvprintw (x_row++, x_left,  "%-12.12s                   " , " ");
+   COLOR_OFF;
+   /*> attron (COLOR_PAIR(13));                                                    <* 
+    *> mvprintw ( s_bot  -  8, x_left,  "               ");                        <* 
+    *> COLOR_OFF;                                                                  <*/
+   /*---(show counters)------------------*/
+   SHOW_COUNTERS {
+      COLOR_WHITE;
+      x_row = s_bot - 11;
+      mvprintw (x_row++, x_left - 35,  ".----prompt----------------------.");
+      sprintf (x_text, "| my.lang = %-3d                  |", my.language);
+      mvprintw (x_row++, x_left - 35,  "%s", x_text);
+      sprintf (x_text, "| name    = %-20.20s |", g_titles [my.language].language);
+      mvprintw (x_row++, x_left - 35,  "%s", x_text);
+      sprintf (x_text, "| gmt_off = %-3d                  |", g_titles [my.language].gmt_off);
+      mvprintw (x_row++, x_left - 35,  "%s", x_text);
+      mvprintw (x_row++, x_left - 35,  "'--------------------------------'");
+      COLOR_OFF;
+   }
    return 0;
 }
 
 char             /* [------] print the /etc/issue file and login prompt ------*/
-prompt             (char  a_tty)
+VEIL_show            (void)
 {
    yLOG_enter  (__FUNCTION__);
-   yLOG_value  ("tty"       , a_tty);
    /*---(locals)-----------+-----------+-*/
    char        rc          = 0;
-   int         i           = 0;
-   int         j           = 0;
-   int         c           = 0;
-   char        msg         [50] = " _____________________________";
-   int         x_left;     /* left of alligator       */
-   int         x_knock1;   /* left of left knock      */
-   int         x_right;    /* left of goofy           */
-   int         right;
-   int         x_max       = 0;
-   int         x_mid       = 0;
-   char        x_done      = 'n';
    /*---(set positions)---------------*/
    VEIL_sizing ();
-   x_right   = (s_lef - (8 * 3));
-   x_knock1  = ((10 * 2) - 1);
-   left      = x_knock1;
-   left2     = x_right - 1;
-   x_knock2  = x_right - 5;
-   yLOG_value  ("x_right"     , x_right        );
-   yLOG_value  ("x_knock1"    , x_knock1       );
-   yLOG_value  ("left"        , left           );
-   yLOG_value  ("left2"       , left2          );
-   yLOG_value  ("x_knock2"    , x_knock2       );
    /*---(show sections)------------------*/
-   VEIL_butterfly ();
+   rc = VEIL_butterfly ();
    rc = VEIL_conf      ();
-   VEIL_middle    ();
-   VEIL_left      ();
-   VEIL_right     ();
-   VEIL_tty       (0, 0);
-   VEIL_knocks    ();
-   VEIL_binary    ();
-   /*---(signin)-------------------------*/
-   ctitle = rand () % ntitle;
-   if (my.show_login     == 'y') {
-      COLOR_BLUE;
-      mvprintw ( s_bot  - 12, x_knock2 - 30,  "%-12.12s                   " , " ");
-      mvprintw ( s_bot  - 11, x_knock2 - 30,  "%-12.12s [%-15d]"            , titles[ctitle].cluster, my.dev_num);
-      mvprintw ( s_bot  - 10, x_knock2 - 30,  "%-12.12s [%c%c             ]", titles[ctitle].seq    , my.host_name[1], my.host_name[2]);
-      mvprintw ( s_bot  -  9, x_knock2 - 30,  "%-12.12s [%-15.15s]"         , titles[ctitle].host   , my.host_name + 4);
-      mvprintw ( s_bot  -  8, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].date);
-      mvprintw ( s_bot  -  7, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].host);
-      mvprintw ( s_bot  -  6, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].user);
-      mvprintw ( s_bot  -  5, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].token);
-      mvprintw ( s_bot  -  4, x_knock2 - 30,  "%-12.12s [               ] " , titles[ctitle].password);
-      mvprintw ( s_bot  -  3, x_knock2 - 30,  "%-12.12s                   " , " ");
-      COLOR_OFF;
-      attron (COLOR_PAIR(13));
-      mvprintw ( s_bot  -  8, x_knock2 - 16,  "               ");
-      COLOR_OFF;
-   }
+   rc = VEIL_middle    ();
+   rc = VEIL_left      ();
+   rc = VEIL_right     ();
+   rc = VEIL_tty       (0, 0);
+   rc = VEIL_knocks    ();
+   rc = VEIL_binary    ();
+   rc = VEIL_prompt    ();
    /*---(complete)-----------------------*/
    yLOG_note   ("printed issue");
    yLOG_exit   (__FUNCTION__);
@@ -685,7 +708,7 @@ VEIL_timer           (int a_secs)
    case 1 :  FONT_letter ( "dots", a_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
              break;
    }
-   attrset (0);
+   COLOR_OFF;
    /*---(display pass)-------------------*/
    COLOR_CYAN;
    switch (x_pass) {
@@ -694,7 +717,11 @@ VEIL_timer           (int a_secs)
    case 2 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen - 30);
    case 1 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen - 24);
    }
-   attrset (0);
+   COLOR_OFF;
+   /*---(display messeage)---------------*/
+   COLOR_CYAN;
+   mvprintw (s_bot - 3, s_cen - strlen (g_titles [my.language].timer) / 2,  "%s" , g_titles [my.language].timer );
+   COLOR_OFF;
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
@@ -707,7 +734,7 @@ VEIL_timer           (int a_secs)
       sprintf (x_text, "| x_pass  = %3d |", x_pass);
       mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
       mvprintw (x_row++, s_lefplus + 35,  "'---------------'");
-      attrset (0);
+      COLOR_OFF;
    }
    return 0;
 }
@@ -748,7 +775,7 @@ VEIL_status          (int a_count, char a_status, char a_part)
          COLOR_YELLOW;
       }
       FONT_letter ( "basic", x_letter,  0,  x_left + (x_col * x_wide));
-      attrset (0);
+      COLOR_OFF;
    }
    x_save = a_count;
    /*---(show counters)------------------*/
@@ -763,7 +790,14 @@ VEIL_status          (int a_count, char a_status, char a_part)
       sprintf (x_text, "| a_part  =  %c  |", a_part  );
       mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
       mvprintw (x_row++, s_lefplus + 5,  "'---------------'");
-      attrset (0);
+      COLOR_OFF;
+   }
+   SHOW_COUNTERS {
+      COLOR_WHITE;
+      mvprintw (  7, s_cen - 8,  ".--------------.");
+      mvprintw (  8, s_cen - 8,  "| %s |", my.magic_num);
+      mvprintw (  9, s_cen - 8,  ".--------------.");
+      COLOR_OFF;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -825,15 +859,9 @@ get_login          (void)
    while (1) {
       /*---(get next character)----------*/
       ch = getch ();
-      /*---(timer visual)----------------*/
+      /*---(update screen)---------------*/
       VEIL_timer (secs);
-      /*---(status)----------------------*/
       VEIL_status (x_count, x_status, part);
-      SHOW_COUNTERS {
-         mvprintw (  7, s_cen - 8,  ".--------------.");
-         mvprintw (  8, s_cen - 8,  "| %s |", my.magic_num);
-         mvprintw (  9, s_cen - 8,  ".--------------.");
-      }
       /*> mvprintw (s_bot  - 4, s_cen - 5, "%d", x_count);                             <* 
        *> mvprintw (s_bot  - 4, s_cen + 5, "%d", finish);                            <*/
       /*---(timeout)---------------------*/
