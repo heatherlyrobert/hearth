@@ -385,7 +385,7 @@ FONT__index          (char a_range, int a_letter)
    /*---(numeric)------------------------*/
    --rce;  if (a_range == FONT_NUMS) {
       DEBUG_GRAF   yLOG_snote  ("number-type");
-      if (strchr ("0123456789", x_letter) != NULL) {
+      if (strchr (G_TYPE_NUM  , x_letter) != NULL) {
          DEBUG_GRAF   yLOG_sint   (x_letter - '0');
          return x_letter - '0';
       }
@@ -396,7 +396,7 @@ FONT__index          (char a_range, int a_letter)
    /*---(alpha)--------------------------*/
    --rce;  if (a_range == FONT_ALPHA) {
       DEBUG_GRAF   yLOG_snote  ("alpha-type");
-      if (strchr ("abcdefghijklmnopqrstuvwxyz ", x_letter) != NULL) {
+      if (strchr (G_TYPE_ALPHA, x_letter) != NULL) {
          if (x_letter == ' ')  x_letter = 'z' + 1;
          DEBUG_GRAF   yLOG_sint   (x_letter - 'a');
          return x_letter - 'a';
@@ -408,12 +408,12 @@ FONT__index          (char a_range, int a_letter)
    /*---(full)---------------------------*/
    --rce;  if (a_range == FONT_FULL) {
       DEBUG_GRAF   yLOG_snote  ("full-type");
-      if (strchr ("abcdefghijklmnopqrstuvwxyz ", x_letter) != NULL) {
+      if (strchr (G_TYPE_ALPHA, x_letter) != NULL) {
          if (x_letter == ' ')  x_letter = 'z' + 1;
          DEBUG_GRAF   yLOG_sint   (x_letter - 'a');
          return x_letter - 'a';
       }
-      if (strchr ("0123456789", x_letter) != NULL) {
+      if (strchr (G_TYPE_NUM  , x_letter) != NULL) {
          DEBUG_GRAF   yLOG_sint   (x_letter - '0');
          return x_letter - '0' + 27;
       }
@@ -424,7 +424,7 @@ FONT__index          (char a_range, int a_letter)
    /*---(binary)-------------------------*/
    --rce;  if (a_range == 'b') {
       DEBUG_GRAF   yLOG_snote  ("binary-type");
-      if (strchr (" .01", x_letter) != NULL) {
+      if (strchr (G_TYPE_KNOCK, x_letter) != NULL) {
          DEBUG_GRAF   yLOG_sint   (x_letter - '0');
          switch (x_letter) {
          case ' ' : case '0' :   return 0;

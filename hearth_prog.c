@@ -331,6 +331,7 @@ PROG_begin         (void)
    }
    /*---(curses/fonts)-------------------*/
    FONT_init  ();
+   VEIL_init  ();
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
    return   0;

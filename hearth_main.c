@@ -37,12 +37,12 @@ main               (int a_argc, char **a_argv)
    /*---(input)--------------------------*/
    DEBUG_TOPS   yLOG_note   ("begin prompt/input cycle");
    while (1) {
-      VEIL_init  ();
       VEIL_show  ();
       refresh();
       ri = get_login ();
       if (ri <= 0) break;
       DEBUG_TOPS   yLOG_note   ("refresh");
+      VEIL_init  ();
    }
    PROG_end    ();
    DEBUG_TOPS   yLOG_note   ("done entry processing");

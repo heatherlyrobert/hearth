@@ -1,8 +1,6 @@
 /*============================[[    beg-code    ]]============================*/
 #include    "hearth.h"
 
-
-
 int         s_top       =   0;
 int         s_mid       =   0;
 int         s_bot       =   0;
@@ -12,6 +10,71 @@ int         s_lefplus   =   0;
 int         s_cen       =   0;
 int         s_rigminus  =   0;
 int         s_rig       =   0;
+
+/*  s_part     k    = knock
+ *             p    = prefix
+ *             u/I  = username       (I is tentative username done)
+ *             i    = infix
+ *             c/S  = code/password  (S is tentative password done)
+ *             s    = suffix
+ *             d    = done
+ *             T    = trailing characters
+ *
+ *  s_status   A    = good
+ *             F    = failed
+ *             Z    = timed out
+ *             R    = refresh request
+ *             B    = break/ctrl-c
+ */
+
+#define     STATUS_GOOD      'A'
+#define     STATUS_FAILED    'F'
+#define     STATUS_TIMEOUT   'Z'
+#define     STATUS_REFRESH   'R'
+#define     STATUS_BREAK     'B'
+
+#define     PART_KNOCK       'k'
+#define     PART_PREFIX      'p'
+#define     PART_USERNAME    'u'
+#define     PART_INFIX       'i'
+#define     PART_PASSWORD    'c'
+#define     PART_SUFFIX      's'
+#define     PART_DONE        'd'
+#define     PART_TRAILING    't'
+
+
+char        s_status    = STATUS_GOOD;
+char        s_cpart     = 'k';
+char        s_loop      =   0;
+char        s_secs      =   0;
+int         s_count     =   0;
+char        s_ch        =   0;
+
+
+#define     MAX_PART       10
+struct   cPARTS {
+   char        part;
+   char        beg;
+   char        cnt;
+   char        end;
+   char        valid       [100];
+   char       *check;
+   char        sign;
+   char        next;
+} s_parts      [MAX_PART] = {
+   { PART_KNOCK    ,  1,  4,  4,  G_TYPE_KNOCK    , entry.knock    , '#', PART_PREFIX   },
+   { PART_PREFIX   ,  5,  2,  6,  G_TYPE_NUM      , entry.prefix   , '#', PART_USERNAME },
+   { PART_USERNAME ,  7, -1,  0,  G_TYPE_ALNUM    , NULL           , ' ', PART_INFIX    },
+   { PART_INFIX    ,  0,  1,  0,  G_TYPE_NUM      , entry.infix    , '#', PART_PASSWORD },
+   { PART_PASSWORD ,  0, -1,  0,  G_TYPE_ALNUM    , NULL           , ' ', PART_SUFFIX   },
+   { PART_SUFFIX   ,  0,  3,  0,  G_TYPE_NUM      , entry.suffix   , '#', PART_DONE     },
+   { PART_DONE     ,  0,  1,  0,  G_TYPE_ESCAPE   , entry.done     , '#', PART_TRAILING },
+   { '-'           ,  0,  0,  0,  ""              , NULL           , '-', '-'           },
+   { '-'           ,  0,  0,  0,  ""              , NULL           , '-', '-'           },
+   { '-'           ,  0,  0,  0,  ""              , NULL           , '-', '-'           },
+};
+
+
 
 #define     COLOR_OFF        attrset (0);
 #define     COLOR_WHITE      attron (COLOR_PAIR( 1))
@@ -36,6 +99,48 @@ int         s_conf  [10][2] =
 
 #define     VEIL_CONF   "/etc/hearth.conf"
 
+
+char             /* [------] create one-time login numbers -------------------*/
+VEIL_init            (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;        /* loop iterator                       */
+   /*---(header)-------------------------*/
+   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
+   VEIL_reset    ();
+   /*---(prefix)-------------------------*/
+   entry.prefix  [0] = my.magic_num [ 0] =  '0' + rand () % 10;
+   entry.prefix  [1] = my.magic_num [ 1] =  '0' + rand () % 10;
+   entry.prefix  [2] = '\0';
+   /*---(infix)--------------------------*/
+   entry.infix   [0] = my.magic_num [ 2] =  '0' + rand () % 10;
+   entry.infix   [1] = '\0';
+   /*---(knock)--------------------------*/
+   for (i = 0; i < 4; ++i) {
+      entry.knock [i] = my.magic_num [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';
+   }
+   entry.knock [4] = '\0';
+   /*---(special)------------------------*/
+   entry.rot     [0] = my.magic_num [ 7] = '0' + rand () % 3 + 1;
+   entry.pointer [0] = my.magic_num [ 8] = '0' + rand () % 10;
+   entry.rot     [1] = entry.pointer [1] = '\0';
+   /*---(suffix)-------------------------*/
+   entry.suffix  [0] = my.magic_num [ 9] = '0' + rand () % 10;
+   entry.suffix  [1] = my.magic_num [10] = '0' + rand () % 10;
+   entry.suffix  [2] = my.magic_num [11] = '0' + rand () % 10;
+   entry.suffix  [3] = '\0';
+   /*---(done)---------------------------*/
+   entry.done    [0] = '\x1B';
+   entry.done    [1] = '\0';
+   /*---(wrap-up)------------------------*/
+   my.magic_num  [12] = '\0';
+   DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
+   /*---(language)-----------------------*/
+   my.language = rand () % ntitle;
+   /*---(complete)-----------------------*/
+   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 char         /*--> read positions from conf file ---------[ leaf   [ ------ ]-*/
 VEIL_conf            (void)
@@ -64,7 +169,7 @@ VEIL_conf            (void)
       return rce;
    }
    /*---(read)---------------------------*/
-   x_off = (my.dev_num * 3) + 1;
+   x_off = (my.dev_num * 3) + 11;
    while (1) {
       /*---(get entry)-------------------*/
       fgets (x_recd, LEN_DESC, f);
@@ -159,41 +264,15 @@ VEIL_conf            (void)
    return 0;
 }
 
-char             /* [------] create one-time login numbers -------------------*/
-VEIL_init            (void)
+char
+VEIL_reset           (void)
 {
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;        /* loop iterator                       */
-   /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
-   /*---(prefix)-------------------------*/
-   entry.prefix [0] = my.magic_num [ 0] =  '0' + rand () % 10;
-   entry.prefix [1] = my.magic_num [ 1] =  '0' + rand () % 10;
-   entry.prefix [2] = '\0';
-   /*---(infix)--------------------------*/
-   entry.infix  [0] = my.magic_num [ 2] =  '0' + rand () % 10;
-   entry.infix  [1] = '\0';
-   /*---(knock)--------------------------*/
-   for (i = 0; i < 4; ++i) {
-      entry.knock [i] = my.magic_num [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';
-   }
-   entry.knock [4] = '\0';
-   /*---(special)------------------------*/
-   entry.rot     [0] = my.magic_num [ 7] = '0' + rand () % 3 + 1;
-   entry.pointer [0] = my.magic_num [ 8] = '0' + rand () % 10;
-   entry.rot     [1] = entry.pointer [1] = '\0';
-   /*---(suffix)-------------------------*/
-   entry.suffix [0] = my.magic_num [ 9] = '0' + rand () % 10;
-   entry.suffix [1] = my.magic_num [10] = '0' + rand () % 10;
-   entry.suffix [2] = my.magic_num [11] = '0' + rand () % 10;
-   entry.suffix [3] = '\0';
-   /*---(wrap-up)------------------------*/
-   my.magic_num[12] = '\0';
-   DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
-   /*---(language)-----------------------*/
-   my.language = rand () % ntitle;
-   /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
+   s_status    = STATUS_GOOD;
+   s_cpart     = 'k';
+   s_loop      =   0;
+   s_secs      =   0;
+   s_count     =   0;
+   s_ch        =   0;
    return 0;
 }
 
@@ -607,17 +686,18 @@ VEIL_prompt          (void)
    int         x_left      = 0;
    int         x_right     = 0;
    int         x_row       = 0;
+   int         x_col       = 0;
    int         x_gmt_off   = 0;
+   int         i           = 0;
    x_right   = s_rigminus;
    x_left    = x_right - 35;
    yLOG_value  ("x_right"     , x_right);
    yLOG_value  ("x_left"      , x_left );
    if (my.show_login     != 'y') return 0;
-   x_row = s_bot - 13;
+   x_row = s_bot - 12;
    x_gmt_off = g_titles [my.language].gmt_off * 60 * 60;
    strl4time (time (NULL) + x_gmt_off, x_text, 0, 'T', LEN_DESC);
    COLOR_BLUE;
-   mvprintw (x_row++, x_left,  "%-12.12s                   " , " ");
    mvprintw (x_row++, x_left,  "%-12.12s [%-15d     ]"            , g_titles [my.language].cluster , my.dev_num);
    mvprintw (x_row++, x_left,  "%-12.12s [%c%c                  ]", g_titles [my.language].seq     , my.host_name[1], my.host_name[2]);
    mvprintw (x_row++, x_left,  "%-12.12s [%-15.15s     ]"         , g_titles [my.language].host    , my.host_name + 4);
@@ -625,12 +705,18 @@ VEIL_prompt          (void)
    mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].user    );
    mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].token   );
    mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].password);
-   mvprintw (x_row++, x_left,  "%-12.12s [                    ] " , g_titles [my.language].attempt );
-   mvprintw (x_row++, x_left,  "%-12.12s                   " , " ");
+   mvprintw (x_row++, x_left,  "%-12.12s [%1d                   ] " , g_titles [my.language].attempt, 0 );
    COLOR_OFF;
-   /*> attron (COLOR_PAIR(13));                                                    <* 
-    *> mvprintw ( s_bot  -  8, x_left,  "               ");                        <* 
-    *> COLOR_OFF;                                                                  <*/
+   /*---(fake input)------------------*/
+   COLOR_BLUE;
+   x_row = s_bot - 8;
+   x_col = x_left + 12 + 2;
+   for (i = 0; i < s_count; ++i) {
+      if      (i < 12)    mvprintw (x_row + 0, x_col + i -  0, "*");
+      else if (i < 18)    mvprintw (x_row + 1, x_col + i - 12, "*");
+      else if (i < 35)    mvprintw (x_row + 2, x_col + i - 18, "*");
+   }
+   COLOR_OFF;
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
@@ -672,8 +758,8 @@ VEIL_show            (void)
    return 0;
 }
 
-char
-VEIL_timer           (int a_secs)
+char         /*--> display timer -------------------------[ berry  [ ------ ]-*/
+VEIL_timer           (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_pass      = 0;
@@ -683,29 +769,29 @@ VEIL_timer           (int a_secs)
    /*---(defense)------------------------*/
    if (my.show_timer != 'y')  return 0;
    /*---(assign pass)--------------------*/
-   if        (a_secs <=   30) {
+   if        (s_secs <=   30) {
       x_pass  = 1;
-      x_secs  = a_secs;
-   } else if (a_secs <=  60) {
+      x_secs  = s_secs;
+   } else if (s_secs <=  60) {
       x_pass  = 2;
-      x_secs  = a_secs - 30;
-   } else if (a_secs <=  90) {
+      x_secs  = s_secs - 30;
+   } else if (s_secs <=  90) {
       x_pass  = 3;
-      x_secs  = a_secs - 60;
-   } else if (a_secs <= 120) {
+      x_secs  = s_secs - 60;
+   } else if (s_secs <= 120) {
       x_pass  = 4;
-      x_secs  = a_secs - 90;
+      x_secs  = s_secs - 90;
    }
    /*---(display marker)-----------------*/
    COLOR_CYAN;
    switch (x_pass) {
-   case 4 :  FONT_letter ( "dots", a_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
+   case 4 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
              break;
-   case 3 :  FONT_letter ( "dots", a_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
+   case 3 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
              break;
-   case 2 :  FONT_letter ( "dots", a_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
+   case 2 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
              break;
-   case 1 :  FONT_letter ( "dots", a_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
+   case 1 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
              break;
    }
    COLOR_OFF;
@@ -727,7 +813,7 @@ VEIL_timer           (int a_secs)
       COLOR_WHITE;
       x_row = s_bot - 4;
       mvprintw (x_row++, s_lefplus + 35,  ".-----timer-----.");
-      sprintf (x_text, "| a_secs  = %3d |", a_secs);
+      sprintf (x_text, "| s_secs  = %3d |", s_secs);
       mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
       sprintf (x_text, "| x_secs  = %3d |", x_secs);
       mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
@@ -740,7 +826,7 @@ VEIL_timer           (int a_secs)
 }
 
 char
-VEIL_status          (int a_count, char a_status, char a_part)
+VEIL_status          (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_col       = 0;               /* iterator -- columnns         */
@@ -756,7 +842,7 @@ VEIL_status          (int a_count, char a_status, char a_part)
    char        x_text      [LEN_DESC] = "";
    /*---(defense)------------------------*/
    if (my.show_status != 'y'   )   return 0;
-   if (a_count        == x_save)   return 0;
+   if (s_count        == x_save)   return 0;
    /*---(prepare)------------------------*/
    x_tall    = FONT_tall ("basic");
    x_wide    = FONT_wide ("basic");
@@ -768,26 +854,26 @@ VEIL_status          (int a_count, char a_status, char a_part)
    /*---(display)------------------------*/
    for (x_col = 0; x_col < x_max; ++x_col) {
       x_letter = rand () % 25 + 'b';
-      if (my.show_hint == 'y' && x_col == a_count) {
+      if (my.show_hint == 'y' && x_col == s_count) {
          COLOR_WHITE;
-         x_letter = a_status;
+         x_letter = s_status;
       } else {
          COLOR_YELLOW;
       }
       FONT_letter ( "basic", x_letter,  0,  x_left + (x_col * x_wide));
       COLOR_OFF;
    }
-   x_save = a_count;
+   x_save = s_count;
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
       x_row = s_top + x_tall + 1;
       mvprintw (x_row++, s_lefplus + 5,  ".-----status----.");
-      sprintf (x_text, "| a_count = %3d |", a_count);
+      sprintf (x_text, "| s_count = %3d |", s_count);
       mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
-      sprintf (x_text, "| a_status=  %c  |", a_status);
+      sprintf (x_text, "| s_status=  %c  |", s_status);
       mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
-      sprintf (x_text, "| a_part  =  %c  |", a_part  );
+      sprintf (x_text, "| s_cpart =  %c  |", s_cpart );
       mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
       mvprintw (x_row++, s_lefplus + 5,  "'---------------'");
       COLOR_OFF;
@@ -804,41 +890,271 @@ VEIL_status          (int a_count, char a_status, char a_part)
 }
 
 char
+VEIL_getchar         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         x_ch        =    0;
+   /*---(get character)---------------*/
+   while (1) {
+      /*---(timers)----------------------*/
+      ++s_loop;
+      if (my.use_timer == 'y' && s_loop % 5 == 0) ++s_secs;
+      /*---(timeout)---------------------*/
+      if (s_secs > 120) {
+         s_status = STATUS_TIMEOUT;
+         break;
+      }
+      /*---(always wait)-----------------*/
+      if (my.run_mode != RUN_UNIT)  usleep ( 100000);
+      /*---(get character)---------------*/
+      x_ch = getch ();
+      s_ch = x_ch;
+      /*> printf ("got a %3d = %c\n", x_ch, x_ch);                                    <*/
+      /*---(didn't get a character)------*/
+      if (x_ch == ERR)        continue;
+      ++s_count;
+      /*---(special keys)----------------*/
+      if (x_ch    ==  27 )  { /* escape          */
+         break;
+      }
+      if (x_ch    == '\n')  { /* enter           */
+         s_status = STATUS_FAILED;
+         break;
+      }
+      if (x_ch    ==   3 )  {  /* C-c quit         */
+         s_status = STATUS_BREAK;
+         break;
+      }
+      if (x_ch    ==  18 )  {  /* C-r refresh      */
+         s_status = STATUS_REFRESH;
+         break;
+      }
+      /*---(weird chars)-----------------*/
+      if (x_ch    <  32  || x_ch > 126) {
+         s_status = STATUS_FAILED;
+         break;
+      }
+      /*---(normal)----------------------*/
+      break;
+   }
+   /*---(error checking)-----------------*/
+   --rce;  if (s_status == STATUS_TIMEOUT)  return rce;
+   --rce;  if (s_status == STATUS_BREAK  )  return rce;
+   --rce;  if (s_status == STATUS_REFRESH)  return rce;
+   --rce;  if (s_status == STATUS_FAILED )  return rce;
+   /*---(complete)-----------------------*/
+   return x_ch;
+}
+
+char
+VEIL_check_user      (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   int         j           =    0;
+   int         x_len       =    0;
+   tPASSWD    *pw          = NULL;
+   tSHADOW    *spw         = NULL;
+   /*---(defense)---------------*/
+   x_len = strlen (entry.username);
+   --rce;  if (x_len < 4) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check for root)--------*/
+   --rce;  if (strcmp (entry.username, "root") == 0) {
+      strcpy (entry.user_fix, "(root)");
+      strcpy (entry.username, "(root)");
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   if (strcmp (entry.username, "kurios") == 0) {
+      strcpy (entry.user_fix, "root");
+      strcpy (entry.username, "root");
+   }
+   /*---(rotate)----------------*/
+   strcpy (entry.user_fix, "            ");
+   for (i = 0; i < x_len; ++i) {
+      j = i + (entry.rot[0] - '0');
+      if (j <  x_len) {
+         entry.user_fix [ j] = entry.username [i];
+      } else {
+         entry.user_fix [ j - x_len] = entry.username [i];
+      }
+   }
+   entry.user_fix [x_len] = '\0';
+   /*> strcpy (entry.user_fix, entry.username);                                       <*/
+   /*---(check)-----------------*/
+   pw  = getpwnam (entry.user_fix);
+   if (pw == NULL) {
+      s_status = STATUS_FAILED;
+   }
+   spw = getspnam (entry.user_fix);
+   if (spw == NULL) {
+      s_status = STATUS_FAILED;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+VEIL_check           (char a_count, char a_ch)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   char        x_part      =  '-';
+   char        x_pos       =    0;
+   static char x_curr      [20]        = "";
+   /*---(check part)---------------------*/
+   for (i = 0; i < MAX_PART; ++i) {
+      if (s_parts [i].part != s_cpart)  continue;
+      x_part = i;
+      break;
+   }
+   --rce;  if (x_part < 0) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check position)-----------------*/
+   --rce;  if (a_count < s_parts [x_part].beg) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (a_count > s_parts [x_part].end) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check validity)-----------------*/
+   --rce;  if (strchr (s_parts [x_part].valid, a_ch) == NULL) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   x_pos = a_count - s_parts [x_part].beg;
+   /*---(check bad part)-----------------*/
+   --rce;  if (s_parts [x_part].sign == '-') {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check instant)------------------*/
+   --rce;  if (s_parts [x_part].sign == '#') {
+      if (a_ch != s_parts [x_part].check[x_pos]) {
+         s_status = STATUS_FAILED;
+         return rce;
+      }
+      if (a_count == s_parts [x_part].end) {
+         s_cpart  = s_parts [x_part].next;
+         return 0;
+      }
+   }
+   /*---(check saved)--------------------*/
+   --rce;  if (s_parts [x_part].sign == ' ') {
+      if (x_pos > 10) {
+         s_status = STATUS_FAILED;
+         return rce;
+      }
+      if (s_cpart == PART_USERNAME) {
+         if (a_ch == ' ') {
+            rc = VEIL_check_user ();
+         }
+         entry.username [x_pos    ] = a_ch;
+         entry.username [x_pos + 1] = '\0';
+      }
+      if (s_cpart == PART_PASSWORD) {
+         if (a_ch == ' ') {
+         }
+         entry.password [x_pos    ] = a_ch;
+         entry.password [x_pos + 1] = '\0';
+      }
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+VEIL_check_knock     (char a_count, char a_ch)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   /*---(check basics)-------------------*/
+   --rce;  if (s_cpart  != PART_KNOCK) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (a_count > 4) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (strchr (" .", a_ch) == NULL) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check specific)-----------------*/
+   --rce;  if (a_ch != entry.knock [a_count - 1]) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check complete)-----------------*/
+   if (a_count == 4) {
+      s_cpart   = PART_PREFIX;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+VEIL_check_prefix    (char a_count, char a_ch)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   /*---(check basics)-------------------*/
+   --rce;  if (s_cpart  != PART_PREFIX) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (a_count <= 4 || a_count > 6) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (strchr ("0123456789", a_ch) == NULL) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check specific)-----------------*/
+   --rce;  if (a_ch != entry.prefix [a_count - 5]) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   /*---(check complete)-----------------*/
+   if (a_count == 6) {
+      s_cpart   = PART_USERNAME;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
 get_login          (void)
 {
    /*---(design notes)-------------------*/
    /*
-    *  part       k    = knock
-    *             p    = prefix
-    *             u/I  = username       (I is tentative username done)
-    *             i    = infix
-    *             c/S  = code/password  (S is tentative password done)
-    *             s    = suffix
-    *             d    = done
-    *             R    = refresh request
-    *             B    = break/ctrl-c
-    *             T    = trailing characters
-    *
-    *  status     A    = good
-    *             F    = failed
     *
     */
    /*---(begin)--------------------------*/
    yLOG_enter  (__FUNCTION__);
    /*---(locals)-----------+-----------+-*/
    char        input       [200] = "";
-   char        ch          = ' ';
+   char        x_ch        = ' ';
    int         x_count     = 0;
    int         count_save  = -1;
    int         finish      = -1;
-   int         loop        = 0;
-   int         secs        = 0;
    char        indicator   [5] = "#";
-   char        x_status    = 'A';
    int         len;
    int         clen;
    int         off         = 0;
-   char        part        = 'k';
    int         lknock      = 0;
    int         i           = 0;
    int         j           = 0;
@@ -857,116 +1173,48 @@ get_login          (void)
    yLOG_note   ("beginning normal key processing");
    /*---(loop through input)-------------*/
    while (1) {
-      /*---(get next character)----------*/
-      ch = getch ();
       /*---(update screen)---------------*/
-      VEIL_timer (secs);
-      VEIL_status (x_count, x_status, part);
-      /*> mvprintw (s_bot  - 4, s_cen - 5, "%d", x_count);                             <* 
-       *> mvprintw (s_bot  - 4, s_cen + 5, "%d", finish);                            <*/
-      /*---(timeout)---------------------*/
-      ++loop;
-      if (my.use_timer == 'y' && loop % 5 == 0) ++secs;
-      if ( secs > 120) {
-         part = 'Z';
+      rc   = VEIL_timer     ();
+      rc   = VEIL_status    ();
+      x_ch = VEIL_getchar   ();
+      rc   = VEIL_prompt    ();
+      /*---(check major changes)---------*/
+      if (s_status == STATUS_FAILED)   continue;
+      if (s_status == STATUS_TIMEOUT)  break;
+      if (s_status == STATUS_REFRESH)  break;
+      if (s_status == STATUS_BREAK)    break;
+      /*---(check parts)-----------------*/
+      switch (s_cpart) {
+      case PART_KNOCK   :
+         rc   = VEIL_check_knock   (s_count, x_ch);
          break;
-      }
-      /*---(didn't get a character)------*/
-      if (ch == ERR) {
-         usleep ( 100000);
-         refresh();
-         continue;
-      }
-      /*---(final escape)----------------*/
-      if (ch    == 27)  {
-         if (x_count != finish) {
-            part   = 'T';
-            x_status = 'F';
-         }
+      case PART_PREFIX  :
+         /*> rc   = VEIL_check_prefix  (s_count, x_ch);                               <*/
          break;
-      }
-      /*---(enter key)-------------------*/
-      /*> if (x_count == 0 && ch == 12) continue;       /+ intial cr/nl             +/   <* 
-       *> if (x_count == 0 && ch == 10) continue;       /+ intial cr/nl             +/   <*/
-      if (ch    == '\n')  {
-         part   = 'T';
-         x_status = 'F';
-         break;
-      }
-      /*---(special requests)------------*/
-      if (ch    == 3 )            { part = 'B'; break; }  /* C-c quit         */
-      if (ch    == 18)            { part = 'R'; break; }  /* C-r refresh      */
-      /*---(defense)---------------------*/
-      if (ch    <  32  || ch > 126)   continue;   /* weird characters         */
-      /*---(fake input)------------------*/
-      if (my.show_login == 'y') {
-         attron (COLOR_PAIR(13));
-         /*---(first line)---------------*/
-         if (x_count >=  0 && x_count <  6) {
-            mvprintw (s_bot  - 8, x_knock2 - 16 + x_count -  0, "*");
-         }
-         /*---(second line)--------------*/
-         if (x_count >=  6 && x_count < 14) {
-            if (x_count ==  6) {
-               mvprintw (s_bot  - 7, x_knock2 - 16, "               ");
-            }
-            mvprintw (s_bot  - 7, x_knock2 - 16 + x_count -  6,  "*");
-         }
-         /*---(third line)---------------*/
-         if (x_count >= 14 && x_count < 20) {
-            if (x_count ==  14) {
-               mvprintw (s_bot  - 6, x_knock2 - 16, "               ");
-            }
-            mvprintw (s_bot  - 6, x_knock2 - 16 + x_count - 14,  "*");
-         }
-         /*---(fourth line)--------------*/
-         if (x_count >= 20 && x_count < 28) {
-            if (x_count ==  20) {
-               mvprintw (s_bot  - 5, x_knock2 - 16, "               ");
-            }
-            mvprintw (s_bot  - 5, x_knock2 - 16 + x_count - 20,  "*");
-         }
-         /*---(fifth line)---------------*/
-         if (x_count >= 28 && x_count < 40) {
-            if (x_count ==  28) {
-               mvprintw (s_bot  - 4, x_knock2 - 16, "               ");
-            }
-            mvprintw (s_bot  - 4, x_knock2 - 16 + x_count - 28,  "*");
-         }
-         attroff(COLOR_PAIR(13));
-      }
-      /*---(check knock)-----------------*/
-      if (x_status != 'F' && part == 'k' ) {
-         if (x_count <  lknock) {
-            if (ch != entry.knock  [x_count])  x_status = 'F';
-         } else {
-            part = 'p';
-            off  = lknock;
-         }
       }
       /*---(check prefix)----------------*/
-      if (x_status != 'F' && part == 'p' ) {
+      if (s_status != STATUS_FAILED && s_cpart == 'p' ) {
          if (x_count <  off + 2) {
-            if (ch != entry.prefix [x_count - off])  x_status = 'F';
+            if (x_ch != entry.prefix [x_count - off])  s_status = STATUS_FAILED;
          } else {
-            part = 'u';
+            s_cpart = 'u';
             off += 2;
          }
       }
       /*---(check username)--------------*/
-      if (x_status != 'F' && part == 'u' ) {
-         if      (ch != ' ') {
+      if (s_status != STATUS_FAILED && s_cpart == 'u' ) {
+         if      (x_ch != ' ') {
             if (x_count - off <  8) {
-               entry.username [x_count - off] = ch;
+               entry.username [x_count - off] = x_ch;
                entry.username [x_count - off + 1] = '\0';
                /*> DEBUG  mvprintw ( 58,  95, "[[%s]]", entry.username);              <*/
             } else {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
          } else {
             /*---(check for root)--------*/
             if (strcmp (entry.username, "root") == 0) {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
                strcpy (entry.user_fix, "ZZZZ");
                strcpy (entry.username, "ZZZZ");
             } else if (strcmp (entry.username, "kurios") == 0) {
@@ -976,7 +1224,7 @@ get_login          (void)
             /*---(rotate)----------------*/
             len = strlen (entry.username);
             if (len < 4) {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
             strcpy (entry.user_fix, "            ");
             for (i = 0; i < len; ++i) {
@@ -991,56 +1239,56 @@ get_login          (void)
             strcpy (entry.user_fix, entry.username);
             /*---(display)---------------*/
             /*> DEBUG  mvprintw ( 59,  95, "[[%s]]", entry.user_fix);                 <*/
-            part = 'I';
+            s_cpart = 'I';
             off  = x_count + 1;
             /*---(check)-----------------*/
             pw  = getpwnam (entry.user_fix);
             if (pw == NULL) {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
             spw = getspnam (entry.user_fix);
             if (spw == NULL) {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
          }
       }
       /*---(check infix)-----------------*/
-      if (x_status != 'F' && part == 'i' ) {
-         if (ch != entry.infix  [x_count - off])  x_status = 'F';
-         part = 'c';
+      if (s_status != STATUS_FAILED && s_cpart == 'i' ) {
+         if (x_ch != entry.infix  [x_count - off])  s_status = STATUS_FAILED;
+         s_cpart = 'c';
          off += 1;
       }
       /*---(check password)--------------*/
-      if (x_status != 'F' && part == 'c' ) {
-         if      (ch != ' ') {
+      if (s_status != STATUS_FAILED && s_cpart == 'c' ) {
+         if      (x_ch != ' ') {
             if (x_count - off <  15) {
-               entry.password [x_count - off] = ch;
+               entry.password [x_count - off] = x_ch;
                entry.password [x_count - off + 1] = '\0';
                /*> DEBUG  mvprintw ( 60,  95, "[[%s]]", entry.password);              <*/
             } else {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
          } else {
-            part = 'S';
+            s_cpart = 'S';
             off  = x_count + 1;
             password  = strdup (spw->sp_pwdp);
             salt      = strdup (spw->sp_pwdp);
             encrypted = crypt (entry.password, salt);
             if (strcmp (encrypted, password) != 0) {
-               x_status = 'F';
+               s_status = STATUS_FAILED;
             }
          }
       }
       /*---(check suffix)----------------*/
-      if (x_status != 'F' && part == 's' ) {
+      if (s_status != STATUS_FAILED && s_cpart == 's' ) {
          if (x_count <  off + 3) {
-            if (ch != entry.suffix [x_count - off])  x_status = 'F';
+            if (x_ch != entry.suffix [x_count - off])  s_status = STATUS_FAILED;
             if (x_count == off + 2) { 
-               part          = 'D';
+               s_cpart          = 'D';
                finish        = x_count + 1;
             }
          } else {
-            part          = 'D';
+            s_cpart          = 'D';
             off          += 3;
             finish        = x_count + 1;
          }
@@ -1049,14 +1297,14 @@ get_login          (void)
       ++x_count;
       refresh ();
       /*---(prepare)---------------------*/
-      if (part == 'I' )  part = 'i';
-      if (part == 'S' )  part = 's';
+      if (s_cpart == 'I' )  s_cpart = 'i';
+      if (s_cpart == 'S' )  s_cpart = 's';
       usleep ( 100000);
       /*---(done)------------------------*/
    }
-   yLOG_char   ("part"       , part);
+   yLOG_char   ("s_cpart"     , s_cpart);
    /*---(failed due to timeout)----------*/
-   if (part == 'Z') {
+   if (s_cpart == STATUS_TIMEOUT) {
       /* translation > fuck you window licker ;)  */
       strcpy (msg, "irrumabo vos fenestram lingent");
       len = strlen (msg);
@@ -1065,7 +1313,7 @@ get_login          (void)
          refresh ();
       }
       yLOG_note   ("timed out, login failed");
-      audit_fail (dev, part);
+      audit_fail (dev, s_cpart);
       rc = ySEC_failed (dev + 5, entry.user_fix);
       yLOG_value  ("rc"        , rc);
       yLOG_exit   (__FUNCTION__);
@@ -1073,7 +1321,7 @@ get_login          (void)
       return -1;
    }
    /*---(refresh request)----------------*/
-   if (part == 'R') {
+   if (s_cpart == 'R') {
       /* translation > once more into the breech  */
       strcpy (msg, "iterum, in confractione");
       len = strlen (msg);
@@ -1087,7 +1335,7 @@ get_login          (void)
       return  1;
    }
    /*---(cancel request)-----------------*/
-   if (part == 'B') {
+   if (s_cpart == 'B') {
       /* translation > i came into a place void of all light -- dante                       */
       strcpy (msg, "lo venne in loco d'ogne luce muto");
       len = strlen (msg);
@@ -1096,7 +1344,7 @@ get_login          (void)
          refresh ();
       }
       yLOG_note   ("login cancelled");
-      audit_fail (dev, part);
+      audit_fail (dev, s_cpart);
       rc = ySEC_failed (dev + 5, entry.user_fix);
       yLOG_value  ("rc"        , rc);
       yLOG_exit   (__FUNCTION__);
@@ -1104,7 +1352,7 @@ get_login          (void)
       return -2;
    }
    /*---(general failure)----------------*/
-   if (x_status == 'F') {
+   if (s_status == STATUS_FAILED) {
       /* translation > all hope abandon, ye who enter in -- dante                           */
       strcpy (msg, "lasciate ogne speranza, voi ch'intrate");
       len = strlen (msg);
@@ -1113,7 +1361,7 @@ get_login          (void)
          refresh ();
       }
       yLOG_note   ("login failed");
-      audit_fail (dev, part);
+      audit_fail (dev, s_cpart);
       rc = ySEC_failed (dev + 5, entry.user_fix);
       yLOG_value  ("rc"        , rc);
       yLOG_exit   (__FUNCTION__);
@@ -1202,3 +1450,40 @@ get_login          (void)
    yLOG_exit   (__FUNCTION__);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                    unit testing accessor                     ----===*/
+/*====================------------------------------------====================*/
+static void      o___UNITTEST________________o (void) {;}
+
+char*            /* [------] unit test accessor ------------------------------*/
+VEIL__unit           (char *a_question, int a_num)
+{
+   /*---(prepare)------------------------*/
+   strcpy  (unit_answer, "VEIL unit        : question not understood");
+   /*---(current)------------------------*/
+   if      (strcmp (a_question, "status"        ) == 0) {
+      snprintf (unit_answer, LEN_UNIT, "VEIL status      : status = %c, part = %c, count = %3d, char = %3d", s_status, s_cpart, s_count, s_ch);
+   }
+   else if (strcmp (a_question, "knock"         ) == 0) {
+      snprintf (unit_answer, LEN_UNIT, "VEIL knock       : 1 = %c , 2 = %c , 3 = %c , 4 = %c", entry.knock [0], entry.knock [1], entry.knock [2], entry.knock [3]);
+   }
+   else if (strcmp (a_question, "prefix"        ) == 0) {
+      snprintf (unit_answer, LEN_UNIT, "VEIL prefix      : 1 = %c , 2 = %c"                  , entry.prefix [0], entry.prefix [1]);
+   }
+   /*---(complete)-----------------------*/
+   return unit_answer;
+}
+
+char
+VEIL__unit_set       (int a_count, int a_char)
+{
+   s_count = a_count;
+   s_ch    = a_char;
+   return 0;
+}
+
+
+

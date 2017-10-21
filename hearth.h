@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0j"
-#define     VER_TXT          "updated hearth.conf to handle multiple terminals in config"
+#define     VER_NUM          "2.0k"
+#define     VER_TXT          "VEIL_check can check knocks and prefixes, basic user test"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -234,16 +234,21 @@ extern int         left2;
 extern int         x_knock2;
 extern char        ctitle;
 extern char        ntitle;
-
+ 
+#define     G_TYPE_KNOCK     " .01"
+#define     G_TYPE_NUM       "0123456789"
+#define     G_TYPE_ALPHA     "abcdefghijklmnopqrstuvwxyz "
+#define     G_TYPE_ALNUM     "0123456789abcdefghijklmnopqrstuvwxyz "
+#define     G_TYPE_ESCAPE    "\x1B"
 
 
 /*---(run modes)------------*/
-char        g_modes      [20];  /* valid run modes                            */
-#define     RUN_UNIT     'u'    /* unit test mode                             */
-#define     RUN_QUIET    'q'    /* ncurses mode, but no screen output/waits   */
-#define     RUN_FORCE    'f'    /* ncurses mode, but feed input as string     */
-#define     RUN_USER     'i'    /* ncurses mode, with screen output           */
-#define     RUN_HINT     'h'    /* FAKE_USER plus display a hint              */
+char        g_modes     [20];  /* valid run modes                            */
+#define     RUN_UNIT    'u'    /* unit test mode                             */
+#define     RUN_QUIET   'q'    /* ncurses mode, but no screen output/waits   */
+#define     RUN_FORCE   'f'    /* ncurses mode, but feed input as string     */
+#define     RUN_USER    'i'    /* ncurses mode, with screen output           */
+#define     RUN_HINT    'h'    /* FAKE_USER plus display a hint              */
 /*---(fake modes)-----------*/
 
 #define     IF_RUN_SILENT        if (my.run_mode == RUN_UNIT || my.run_mode == RUN_QUIET)
@@ -312,6 +317,7 @@ struct   cENTRY {
    char     password    [ 20];
    char     pointer     [ 20];
    char     suffix      [ 20];
+   char     done        [ 20];
 };
 tENTRY      entry;
 
@@ -348,10 +354,22 @@ char        CURS_init            (void);
 char        CURS_wrap            (void);
 
 char        VEIL_init            (void);
+char        VEIL_conf            (void);
+char        VEIL_reset           (void);
+char        VEIL_sizing          (void);
+
+char        VEIL_getchar         (void);
+char        VEIL_check           (char a_count, char a_ch);
+
 char        VEIL_knocks          (void);
 char        VEIL_knock           (void);
 char        VEIL_butterfly       (void);
 char        VEIL_tty             (int a_x, int a_y);
+/*---(unittest)----------------*/
+char*       VEIL__unit           (char *a_question, int a_num);
+char        VEIL__unit_set       (int a_count, int a_char);
+
+
 /*---(fake)--------------------*/
 char        FAKE_init            (char a_mode, char *a_user);
 char        FAKE_collect         (char a_mode, char *a_input, char *a_key);
