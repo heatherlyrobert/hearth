@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0k"
-#define     VER_TXT          "VEIL_check can check knocks and prefixes, basic user test"
+#define     VER_NUM          "2.0l"
+#define     VER_TXT          "unit testing on all elements of knocks"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -273,6 +273,7 @@ char        g_modes     [20];  /* valid run modes                            */
 struct cACCESSOR {
    /*---(mode)-------------------*/
    char        run_mode;               /* indicate test vs real               */
+   char        entry_text  [LEN_DESC]; /* actual text entered                 */
    /*---(fake)-------------------*/
    char        use_fake;               /* display and use fake (y/-)          */
    int         dev_num;                /* terminal device number              */
@@ -359,6 +360,8 @@ char        VEIL_reset           (void);
 char        VEIL_sizing          (void);
 
 char        VEIL_getchar         (void);
+char        VEIL_check_user      (void);
+char        VEIL_check_pass      (void);
 char        VEIL_check           (char a_count, char a_ch);
 
 char        VEIL_knocks          (void);
