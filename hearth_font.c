@@ -311,7 +311,7 @@ int         g_nfont       =    0;
 int         g_cfont       =   -1;
 
 
-char
+char         /*-> initialize font capabilities ---------[ shoot  [ge--2--121]-*/
 FONT_init            (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -326,8 +326,8 @@ FONT_init            (void)
    return 0;
 }
 
-char
-FONT__find           (char *a_font)
+char         /*-> find a font by name ------------------[ spur   [se1-73-431]-*/
+FONT__find           (cchar *a_font)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -367,7 +367,7 @@ FONT__find           (char *a_font)
    return rce;
 }
 
-char
+char         /*-> get index of a letter in a font --------[ spur   [ 2----9 ]-*/
 FONT__index          (char a_range, int a_letter)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -442,8 +442,8 @@ FONT__index          (char a_range, int a_letter)
    return rce;
 }
 
-char
-FONT_wide            (char *a_font)
+char         /*-> return the font letter width -----------[ whorl  [ 1----2 ]-*/
+FONT_wide            (cchar *a_font)
 {
    char        rce         =  -10;
    char        rc          =    0;
@@ -452,8 +452,8 @@ FONT_wide            (char *a_font)
    return g_fonts [g_cfont].wide + g_fonts [g_cfont].xoff;
 }
 
-char
-FONT_tall            (char *a_font)
+char         /*-> return the font letter height ----------[ whorl  [ 1----2 ]-*/
+FONT_tall            (cchar *a_font)
 {
    char        rce         =  -10;
    char        rc          =    0;
@@ -462,8 +462,8 @@ FONT_tall            (char *a_font)
    return g_fonts [g_cfont].tall + g_fonts [g_cfont].yoff;
 }
 
-char
-FONT_letter          (char *a_font, char a_num, int a_y, int a_x)
+char         /*-> display timer on screen ----------------[ whorl  [ 4----3 ]-*/
+FONT_letter          (cchar *a_font, char a_num, int a_y, int a_x)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -529,7 +529,7 @@ FONT_letter          (char *a_font, char a_num, int a_y, int a_x)
 /*====================------------------------------------====================*/
 static void      o___UNITTEST________________o (void) {;}
 
-char*            /* [------] unit test accessor ------------------------------*/
+char*        /*-> unit test accessor ---------------------[ light  [ 2----1 ]-*/
 FONT__unit           (char *a_question, int a_num)
 {
    /*---(prepare)------------------------*/

@@ -55,19 +55,19 @@ char        s_ch        =   0;
 #define     MAX_PART       10
 struct   cPARTS {
    char        part;
-   char        beg;
-   char        cnt;
-   char        end;
-   char        valid       [100];
+   short       beg;
+   short       cnt;
+   short       end;
+   char        valid       [LEN_STR];
    char       *check;
    char        sign;
    char        next;
 } s_parts      [MAX_PART] = {
    { PART_KNOCK    ,  1,  4,  4,  G_TYPE_KNOCK    , entry.knock    , '#', PART_PREFIX   },
    { PART_PREFIX   ,  5,  2,  6,  G_TYPE_NUM      , entry.prefix   , '#', PART_USERNAME },
-   { PART_USERNAME ,  7, 99, 99,  G_TYPE_ALNUM    , NULL           , ' ', PART_INFIX    },
+   { PART_USERNAME ,  7, 99, 99,  G_TYPE_USER     , NULL           , ' ', PART_INFIX    },
    { PART_INFIX    ,  0,  1, 99,  G_TYPE_NUM      , entry.infix    , '#', PART_PASSWORD },
-   { PART_PASSWORD ,  0, 99, 99,  G_TYPE_ALNUM    , NULL           , ' ', PART_SUFFIX   },
+   { PART_PASSWORD ,  0, 99, 99,  G_TYPE_PASS     , NULL           , ' ', PART_SUFFIX   },
    { PART_SUFFIX   ,  0,  3, 99,  G_TYPE_NUM      , entry.suffix   , '#', PART_DONE     },
    { PART_DONE     ,  0,  1, 99,  G_TYPE_ESCAPE   , entry.done     , '#', PART_TRAILING },
    { '-'           ,  0,  0, 99,  ""              , NULL           , '-', '-'           },
@@ -763,7 +763,7 @@ VEIL_show            (void)
    return 0;
 }
 
-char         /*--> display timer -------------------------[ berry  [ ------ ]-*/
+char         /*-> display timer on screen ----------------[ berry  [ ------ ]-*/
 VEIL_timer           (void)
 {
    /*---(locals)-----------+-----------+-*/
@@ -900,71 +900,114 @@ VEIL_status          (void)
    return 0;
 }
 
-char
+char             /*-> get character from ncurses ---------[ leaf-- [ ------ ]-*/
 VEIL_getchar         (void)
-{
+{  /*---(design notes)-------------------*/
+   /*  -- updates loop, seconds, and character counter
+    *  -- integrates basic delay, timeout, and calls timer display
+    *  -- gathers a character and evaluates basic response
+    *  -- updates full input string for later use
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         x_ch        =    0;
    char        t           [LEN_DESC]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
    /*---(get character)---------------*/
    while (1) {
       /*---(timers)----------------------*/
       ++s_loop;
+      DEBUG_USER   yLOG_value   ("s_loop"    , s_loop);
       if (my.use_timer == 'y' && s_loop % 5 == 0) ++s_secs;
+      DEBUG_USER   yLOG_value   ("s_secs"    , s_secs);
       /*---(timeout)---------------------*/
       if (s_secs > 120) {
+         DEBUG_USER   yLOG_note    ("s_secs timed out");
          s_status = STATUS_TIMEOUT;
          break;
       }
       /*---(always wait)-----------------*/
-      if (my.run_mode != RUN_UNIT)  usleep ( 100000);
+      if (my.run_mode != RUN_UNIT) {
+         DEBUG_USER   yLOG_note    ("insert a input delay, hacker proofing");
+         usleep ( 100000);
+      }
       /*---(get character)---------------*/
       x_ch = getch ();
       s_ch = x_ch;
+      DEBUG_USER   yLOG_value   ("x_ch"      , x_ch);
       /*---(show screen)-----------------*/
       VEIL_timer     ();
       refresh ();
-      /*> printf ("got a %3d = %c\n", x_ch, x_ch);                                    <*/
       /*---(didn't get a character)------*/
-      if (x_ch == ERR)        continue;
+      if (x_ch == ERR) {
+         DEBUG_USER   yLOG_note    ("no input, try again");
+         continue;
+      }
       ++s_count;
+      DEBUG_USER   yLOG_value   ("s_count"   , s_count);
       /*---(special keys)----------------*/
       if (x_ch    ==  27 )  { /* escape          */
+         DEBUG_USER   yLOG_note    ("escape, break out");
          break;
       }
       if (x_ch    == '\n')  { /* enter           */
+         DEBUG_USER   yLOG_note    ("return, mark failed and break out");
          s_status = STATUS_FAILED;
          break;
       }
       if (x_ch    ==   3 )  {  /* C-c quit         */
+         DEBUG_USER   yLOG_note    ("<C-c>, mark break and break out");
          s_status = STATUS_BREAK;
          break;
       }
       if (x_ch    ==  18 )  {  /* C-r refresh      */
+         DEBUG_USER   yLOG_note    ("<C-r>, mark refresh and break out");
          s_status = STATUS_REFRESH;
          break;
       }
       /*---(weird chars)-----------------*/
       if (x_ch    <  32  || x_ch > 126) {
+         DEBUG_USER   yLOG_note    ("weird characters, mark failed and break out");
          s_status = STATUS_FAILED;
          break;
       }
       /*---(normal)----------------------*/
       break;
    }
+   DEBUG_USER   yLOG_char    ("s_status"  , s_status);
    /*---(error checking)-----------------*/
-   --rce;  if (s_status == STATUS_TIMEOUT)  return rce;
-   --rce;  if (s_status == STATUS_BREAK  )  return rce;
-   --rce;  if (s_status == STATUS_REFRESH)  return rce;
+   --rce;  if (s_status == STATUS_TIMEOUT) {
+      DEBUG_USER   yLOG_note    ("found timeout, leave");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (s_status == STATUS_BREAK  ) {
+      DEBUG_USER   yLOG_note    ("found break, leave");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (s_status == STATUS_REFRESH) {
+      DEBUG_USER   yLOG_note    ("found refresh, leave");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (s_status == STATUS_FAILED ) {
+      DEBUG_USER   yLOG_note    ("failed, leave");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(add text)-----------------------*/
    sprintf (t, "%c", x_ch);
+   DEBUG_USER   yLOG_note    ("make hidden characters printable");
    switch (t [0]) {
    case 27 : t [0] = G_CHAR_ESCAPE;  break;
    case 32 : t [0] = G_CHAR_SPACE;   break;
    }
    strlcat (my.entry_text, t, LEN_DESC);
+   DEBUG_USER   yLOG_info    ("text"      , my.entry_text);
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return x_ch;
 }
 
@@ -978,24 +1021,25 @@ VEIL_check_user      (void)
    int         x_len       =    0;
    tPASSWD    *pw          = NULL;
    tSHADOW    *spw         = NULL;
-   /*---(defense)---------------*/
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_USER   yLOG_info    ("username"  , entry.username);
+   /*---(defense)------------------------*/
    x_len = strlen (entry.username);
+   DEBUG_USER   yLOG_value   ("x_len"     , x_len);
    --rce;  if (x_len < 4) {
+      DEBUG_USER   yLOG_note    ("length too short");
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(check for root)--------*/
-   --rce;  if (strcmp (entry.username, "root") == 0) {
-      strcpy (entry.user_fix, "(root)");
-      strcpy (entry.username, "(root)");
+   --rce;  if (x_len > 15) {
+      DEBUG_USER   yLOG_note    ("length too long");
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   if (strcmp (entry.username, "kurios") == 0) {
-      strcpy (entry.user_fix, "root");
-      strcpy (entry.username, "root");
-   }
-   /*---(rotate)----------------*/
+   /*---(rotate)-------------------------*/
    strcpy (entry.user_fix, "            ");
    for (i = 0; i < x_len; ++i) {
       j = i + (entry.rot[0] - '0');
@@ -1006,18 +1050,37 @@ VEIL_check_user      (void)
       }
    }
    entry.user_fix [x_len] = '\0';
-   /*---(check)-----------------*/
+   DEBUG_USER   yLOG_info    ("user_fix"  , entry.user_fix);
+   /*---(check for root)-----------------*/
+   --rce;  if (strcmp (entry.user_fix, "root") == 0) {
+      DEBUG_USER   yLOG_note    ("can not log directly into root");
+      strcpy (entry.user_fix, "(root)");
+      s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   if (strcmp (entry.user_fix, "kurios") == 0) {
+      DEBUG_USER   yLOG_note    ("kurios is the alias of root");
+      strcpy (entry.user_fix, "root");
+   }
+   DEBUG_USER   yLOG_info    ("user_fix"  , entry.user_fix);
+   /*---(check)--------------------------*/
    pw  = getpwnam (entry.user_fix);
+   DEBUG_USER   yLOG_point   ("pw"        , pw);
    --rce;  if (pw == NULL) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    spw = getspnam (entry.user_fix);
+   DEBUG_USER   yLOG_point   ("spw"       , pw);
    --rce;  if (spw == NULL) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1035,8 +1098,12 @@ VEIL_check_pass      (void)
    char       *password    = NULL;
    char       *encrypted   = NULL;
    /*---(defense)---------------*/
-   x_len = strlen (entry.username);
+   x_len = strlen (entry.password);
    --rce;  if (x_len < 4) {
+      s_status = STATUS_FAILED;
+      return rce;
+   }
+   --rce;  if (x_len > 15) {
       s_status = STATUS_FAILED;
       return rce;
    }
@@ -1077,91 +1144,144 @@ VEIL_check           (char a_count, char a_ch)
    char        rce         =  -10;
    char        rc          =    0;
    int         i           =    0;
-   char        x_part      =  '-';
-   char        x_pos       =    0;
-   static char x_curr      [20]        = "";
+   int         x_part      =    0;
+   int         x_pos       =    0;
+   static char x_curr      [20] = "";
+   int         x_cnt       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_value   ("a_count"   , a_count);
+   DEBUG_USER   yLOG_value   ("a_ch"      , a_ch);
    /*---(defense)------------------------*/
+   DEBUG_USER   yLOG_char    ("s_status"  , s_status);
    --rce;  if (s_status != STATUS_GOOD) {
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check part)---------------------*/
+   DEBUG_USER   yLOG_char    ("s_cpart"   , s_cpart);
    for (i = 0; i < MAX_PART; ++i) {
       if (s_parts [i].part != s_cpart)  continue;
       x_part = i;
       break;
    }
+   DEBUG_USER   yLOG_value   ("x_part"    , x_part);
    --rce;  if (x_part < 0) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check position)-----------------*/
+   DEBUG_USER   yLOG_value   ("beg"       , s_parts [x_part].beg);
    --rce;  if (a_count < s_parts [x_part].beg) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   DEBUG_USER   yLOG_value   ("end"       , s_parts [x_part].end);
    --rce;  if (a_count > s_parts [x_part].end) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check validity)-----------------*/
+   DEBUG_USER   yLOG_info    ("valid"     , s_parts [x_part].valid);
    --rce;  if (strchr (s_parts [x_part].valid, a_ch) == NULL) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    x_pos = a_count - s_parts [x_part].beg;
+   DEBUG_USER   yLOG_value   ("x_pos"     , x_pos);
+   DEBUG_USER   yLOG_char    ("sign"      , s_parts [x_part].sign);
    /*---(check bad part)-----------------*/
    --rce;  if (s_parts [x_part].sign == '-') {
+      DEBUG_USER   yLOG_note    ("bad sign");
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check instant)------------------*/
    --rce;  if (s_parts [x_part].sign == '#') {
+      DEBUG_USER   yLOG_note    ("check instant");
       if (a_ch != s_parts [x_part].check[x_pos]) {
          s_status = STATUS_FAILED;
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
+      DEBUG_USER   yLOG_note    ("character accepted");
       if (a_count == s_parts [x_part].end) {
+         DEBUG_USER   yLOG_note    ("end of field, update part");
          s_cpart  = s_parts [x_part].next;
-         s_parts [x_part + 1].beg = a_count + 1;
-         s_parts [x_part + 1].end = s_parts [x_part + 1].beg + s_parts [x_part + 1].cnt - 1;
-         if (s_parts [x_part + 1].end > 99)  s_parts [x_part + 1].end = 99;
+         DEBUG_USER   yLOG_char    ("s_cpart"   , s_cpart);
+         ++x_part;
+         DEBUG_USER   yLOG_value   ("x_part"    , x_part);
+         DEBUG_USER   yLOG_char    ("part"      , s_parts [x_part].part);
+         if (s_parts [x_part].sign == ' ')   s_parts [x_part].cnt = 99;
+         x_cnt = s_parts [x_part].cnt;
+         DEBUG_USER   yLOG_value   ("x_cnt"     , x_cnt);
+         s_parts [x_part].beg = a_count + 1;
+         s_parts [x_part].end = s_parts [x_part].beg + x_cnt - 1;
+         if (s_parts [x_part].end > 99)  s_parts [x_part].end = 99;
+         DEBUG_USER   yLOG_value   ("beg"       , s_parts [x_part].beg);
+         DEBUG_USER   yLOG_value   ("cnt"       , s_parts [x_part].cnt);
+         DEBUG_USER   yLOG_value   ("end"       , s_parts [x_part].end);
          if (s_cpart == PART_TRAILING)  s_status == STATUS_SUCCESS;
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
    }
    /*---(check saved)--------------------*/
    --rce;  if (s_parts [x_part].sign == ' ') {
-      if (x_pos > 10) {
+      DEBUG_USER   yLOG_note    ("check saved");
+      if (x_pos > 15) {
+         DEBUG_USER   yLOG_note    ("x_pos too big");
          s_status = STATUS_FAILED;
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       if (s_cpart == PART_USERNAME) {
+         DEBUG_USER   yLOG_note    ("checking username");
          if (a_ch == ' ') {
+            DEBUG_USER   yLOG_note    ("found the trailing space");
             rc = VEIL_check_user ();
+            DEBUG_USER   yLOG_value   ("rc"        , rc);
             if (rc < 0) {
                s_status = STATUS_FAILED;
+               DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
                return rce;
             }
          } else {
+            DEBUG_USER   yLOG_note    ("append character");
             entry.username [x_pos    ] = a_ch;
             entry.username [x_pos + 1] = '\0';
+            DEBUG_USER   yLOG_info    ("username"  , entry.username);
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
             return 0;
          }
       }
       if (s_cpart == PART_PASSWORD) {
+         DEBUG_USER   yLOG_note    ("checking password");
          if (a_ch == ' ') {
+            DEBUG_USER   yLOG_note    ("found the trailing space");
             rc = VEIL_check_pass ();
+            DEBUG_USER   yLOG_value   ("rc"        , rc);
             if (rc < 0) {
                s_status = STATUS_FAILED;
+               DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
                return rce;
             }
          } else {
+            DEBUG_USER   yLOG_note    ("append character");
             entry.password [x_pos    ] = a_ch;
             entry.password [x_pos + 1] = '\0';
+            DEBUG_USER   yLOG_info    ("username"  , entry.password);
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
             return 0;
          }
       }
       if (a_ch == ' ') {
+         DEBUG_USER   yLOG_note    ("handle moving to next part");
          s_parts [x_part    ].end = a_count;
          s_parts [x_part    ].cnt = s_parts [x_part + 1].end - s_parts [x_part + 1].beg + 1;
          s_parts [x_part + 1].beg = a_count + 1;
@@ -1171,68 +1291,24 @@ VEIL_check           (char a_count, char a_ch)
       }
    }
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
-VEIL_check_knock     (char a_count, char a_ch)
+VEIL_getcheck        (cchar *a_input)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   /*---(check basics)-------------------*/
-   --rce;  if (s_cpart  != PART_KNOCK) {
-      s_status = STATUS_FAILED;
-      return rce;
+   char        x_ch        =  -10;
+   int         x_len       =    0;
+   int         i           =    0;
+   --rce;  if (a_input == NULL)  return rce;
+   x_len = strlen (a_input);
+   for (i = 0; i < x_len; ++i) {
+      x_ch = VEIL_getchar ();
+      VEIL_check   (s_count, x_ch);
    }
-   --rce;  if (a_count > 4) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   --rce;  if (strchr (" .", a_ch) == NULL) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   /*---(check specific)-----------------*/
-   --rce;  if (a_ch != entry.knock [a_count - 1]) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   /*---(check complete)-----------------*/
-   if (a_count == 4) {
-      s_cpart   = PART_PREFIX;
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-VEIL_check_prefix    (char a_count, char a_ch)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;
-   /*---(check basics)-------------------*/
-   --rce;  if (s_cpart  != PART_PREFIX) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   --rce;  if (a_count <= 4 || a_count > 6) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   --rce;  if (strchr ("0123456789", a_ch) == NULL) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   /*---(check specific)-----------------*/
-   --rce;  if (a_ch != entry.prefix [a_count - 5]) {
-      s_status = STATUS_FAILED;
-      return rce;
-   }
-   /*---(check complete)-----------------*/
-   if (a_count == 6) {
-      s_cpart   = PART_USERNAME;
-   }
-   /*---(complete)-----------------------*/
    return 0;
 }
 
@@ -1426,6 +1502,7 @@ VEIL__unit_set       (int a_count, int a_char)
    s_ch    = a_char;
    return 0;
 }
+
 
 
 

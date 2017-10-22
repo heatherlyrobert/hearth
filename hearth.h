@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0l"
-#define     VER_TXT          "unit testing on all elements of knocks"
+#define     VER_NUM          "2.0m"
+#define     VER_TXT          "unit testing on all elements of prefixes and username"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -178,6 +178,7 @@
 #define     FONT_BINARY    'b'       /* [0-1]      */
 
 
+typedef const char       cchar;
 typedef unsigned char    uchar;
 typedef struct tm        tTIME;
 typedef struct stat      tSTAT;
@@ -239,6 +240,8 @@ extern char        ntitle;
 #define     G_TYPE_NUM       "0123456789"
 #define     G_TYPE_ALPHA     "abcdefghijklmnopqrstuvwxyz "
 #define     G_TYPE_ALNUM     "0123456789abcdefghijklmnopqrstuvwxyz "
+#define     G_TYPE_USER      "0123456789abcdefghijklmnopqrstuvwxyz_- "
+#define     G_TYPE_PASS      "0123456789abcdefghijklmnopqrstuvwxyz_-?!,.%'~^;/:()=|{}[]#&_<>$+ "
 #define     G_TYPE_ESCAPE    "\x1B"
 
 
@@ -350,6 +353,8 @@ char        PROG_final           (void);
 char        PROG_testloud        (void);
 char        PROG_testquiet       (void);
 char        PROG_testend         (void);
+char        PROG_testuserdel     (cchar *a_name);
+char        PROG_testuseradd     (cchar *a_name, cchar *a_pass);
 
 char        CURS_init            (void);
 char        CURS_wrap            (void);
@@ -363,6 +368,7 @@ char        VEIL_getchar         (void);
 char        VEIL_check_user      (void);
 char        VEIL_check_pass      (void);
 char        VEIL_check           (char a_count, char a_ch);
+char        VEIL_getcheck        (cchar *a_input);
 
 char        VEIL_knocks          (void);
 char        VEIL_knock           (void);
@@ -382,11 +388,11 @@ char        FAKE_door            (void);
 
 /*---(font)--------------------*/
 char        FONT_init            (void);
-char        FONT__find           (char *a_font);
+char        FONT__find           (cchar *a_font);
 char        FONT__index          (char a_range, int a_letter);
-char        FONT_wide            (char *a_font);
-char        FONT_tall            (char *a_font);
-char        FONT_letter          (char *a_font, char a_num, int a_y, int a_x);
+char        FONT_wide            (cchar *a_font);
+char        FONT_tall            (cchar *a_font);
+char        FONT_letter          (cchar *a_font, char a_num, int a_y, int a_x);
 char*       FONT__unit           (char *a_question, int a_num);
 
 int         audit_find         (char *a_dev, int  a_pid, int *a_pos);

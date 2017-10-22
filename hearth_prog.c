@@ -388,6 +388,38 @@ PROG_testend       (void)
    return 0;
 }
 
+char
+PROG_testuserdel     (cchar *a_name)
+{
+   char        rce          =  -10;
+   char        rc           =    0;
+   char        t            [LEN_STR  ] = "";
+   --rce;  if (a_name == NULL) return rce;
+   snprintf (t, LEN_STR, "userdel --remove %s", a_name);
+   rc = system (t);
+   --rce;  if (rc < 0)   return rce;
+   return 0; 
+}
+
+char
+PROG_testuseradd     (cchar *a_name, cchar *a_pass)
+{
+   char        rce          =  -10;
+   char        rc           =    0;
+   char        t            [LEN_STR  ] = "";
+   --rce;  if (a_name == NULL) return rce;
+   --rce;  if (a_pass == NULL) return rce;
+   PROG_testuserdel (a_name);
+   snprintf (t, LEN_STR, "useradd --gid nobody --create-home --no-user-group %s", a_name);
+   rc = system (t);
+   --rce;  if (rc < 0)   return rce;
+   snprintf (t, LEN_STR, "printf \"%s\n%s\n\" | passwd %s", a_pass, a_pass, a_name);
+   rc = system (t);
+   --rce;  if (rc < 0)   return rce;
+   return 0; 
+}
+
+
 
 
 /*============================[[    end-code    ]]============================*/
