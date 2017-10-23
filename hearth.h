@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0n"
-#define     VER_TXT          "unit testing on knock to done complete (for now)"
+#define     VER_NUM          "2.0o"
+#define     VER_TXT          "add s_loop wrap around to avoid huge numbers"
 
 
 /* configuration files -------------------------------------------------------*/

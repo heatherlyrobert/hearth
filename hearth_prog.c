@@ -123,8 +123,8 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.show_login      = 'y';
    my.show_status     = 'y';
    /*---(extra info)---------------------*/
-   my.show_counters   = 'y';
-   my.show_hint       = 'y';
+   my.show_counters   = '-';
+   my.show_hint       = '-';
    /*---(signals)------------------------*/
    /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/
    /*---(complete)-----------------------*/
@@ -224,7 +224,6 @@ PROG_args            (int a_argc, char **a_argv)
       /*---(visual options)--------------*/
       else if (strcmp (a, "--nofake"      ) == 0)  my.use_fake       = '-';
       else if (strcmp (a, "--notimer"     ) == 0)  my.use_timer      = '-';
-      else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
       else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
       else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = 'n';
       else if (strcmp (a, "--butterfly"   ) == 0)  my.show_butterfly = 'y';
@@ -243,9 +242,11 @@ PROG_args            (int a_argc, char **a_argv)
       else if (strcmp (a, "--noright"     ) == 0)  my.show_right     = 'n';
       else if (strcmp (a, "--judgement"   ) == 0)  my.show_judgement = 'y';
       else if (strcmp (a, "--nojudgement" ) == 0)  my.show_judgement = 'n';
-      else if (strcmp (a, "--hint"        ) == 0)  my.show_hint      = 'y';
-      else if (strcmp (a, "--shint"       ) == 0)  my.show_hint      = 's';
-      else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint      = 'n';
+      /*---(hints)-----------------------*/
+      else if (strcmp (a, "--hints"       ) == 0)  my.show_hint      = 'y';
+      else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint      = '-';
+      else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
+      else if (strcmp (a, "--nocounters"  ) == 0)  my.show_counters  = '-';
       /*---(usage/help)------------------*/
       else if (strcmp (a, "-h"            ) == 0)  PROG_usage ();
       else if (strcmp (a, "--help"        ) == 0)  PROG_usage ();

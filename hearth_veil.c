@@ -918,6 +918,7 @@ VEIL_getchar         (void)
    while (1) {
       /*---(timers)----------------------*/
       ++s_loop;
+      if (s_loop > 9999)  s_loop = 5000;
       DEBUG_USER   yLOG_value   ("s_loop"    , s_loop);
       if (my.use_timer == 'y' && s_loop % 5 == 0) ++s_secs;
       DEBUG_USER   yLOG_value   ("s_secs"    , s_secs);
@@ -929,8 +930,8 @@ VEIL_getchar         (void)
       }
       /*---(always wait)-----------------*/
       if (my.run_mode != RUN_UNIT) {
-         DEBUG_USER   yLOG_note    ("insert a input delay, hacker proofing");
-         usleep ( 100000);
+         /*> DEBUG_USER   yLOG_note    ("insert a input delay, hacker proofing");     <*/
+         usleep ( 100000); /* 0.1sec */
       }
       /*---(get character)---------------*/
       x_ch = getch ();
