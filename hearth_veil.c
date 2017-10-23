@@ -70,7 +70,7 @@ struct   cPARTS {
    { PART_PASSWORD ,  0, 99, 99,  G_TYPE_PASS     , NULL           , ' ', PART_SUFFIX   },
    { PART_SUFFIX   ,  0,  3, 99,  G_TYPE_NUM      , entry.suffix   , '#', PART_DONE     },
    { PART_DONE     ,  0,  1, 99,  G_TYPE_ESCAPE   , entry.done     , '#', PART_TRAILING },
-   { '-'           ,  0,  0, 99,  ""              , NULL           , '-', '-'           },
+   { PART_TRAILING ,  0, 99, 99,  ""              , NULL           , '-', '-'           },
    { '-'           ,  0,  0, 99,  ""              , NULL           , '-', '-'           },
    { '-'           ,  0,  0, 99,  ""              , NULL           , '-', '-'           },
 };
@@ -277,7 +277,7 @@ VEIL_reset           (void)
    s_secs      =   0;
    s_count     =   0;
    s_ch        =   0;
-   strlcpy (my.entry_text, "", LEN_DESC);
+   strlcpy (my.entry_text , "", LEN_DESC);
    return 0;
 }
 
@@ -1097,43 +1097,58 @@ VEIL_check_pass      (void)
    char       *salt        = NULL;
    char       *password    = NULL;
    char       *encrypted   = NULL;
-   /*---(defense)---------------*/
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_info    ("password"  , entry.password);
+   /*---(defense)------------------------*/
    x_len = strlen (entry.password);
+   DEBUG_USER   yLOG_value   ("x_len"     , x_len);
    --rce;  if (x_len < 4) {
+      DEBUG_USER   yLOG_note    ("length too short");
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    --rce;  if (x_len > 15) {
+      DEBUG_USER   yLOG_note    ("length too long");
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(check)-----------------*/
+   /*---(check)--------------------------*/
    pw  = getpwnam (entry.user_fix);
+   DEBUG_USER   yLOG_point   ("pw"        , pw);
    --rce;  if (pw == NULL) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    spw = getspnam (entry.user_fix);
+   DEBUG_USER   yLOG_point   ("spw"       , pw);
    --rce;  if (spw == NULL) {
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(password)--------------*/
+   /*---(password)-----------------------*/
    password  = strdup (spw->sp_pwdp);
+   DEBUG_USER   yLOG_info    ("password"  , password);
    salt      = strdup (spw->sp_pwdp);
+   DEBUG_USER   yLOG_info    ("salt"      , salt);
    encrypted = crypt (entry.password, salt);
+   DEBUG_USER   yLOG_point   ("encrypted" , encrypted);
    --rce;  if (strcmp (encrypted, password) != 0) {
       free (password);
       free (salt);
-      free (encrypted);
       s_status = STATUS_FAILED;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(free)---------------------------*/
    free (password);
    free (salt);
-   free (encrypted);
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1146,7 +1161,6 @@ VEIL_check           (char a_count, char a_ch)
    int         i           =    0;
    int         x_part      =    0;
    int         x_pos       =    0;
-   static char x_curr      [20] = "";
    int         x_cnt       =    0;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
@@ -1212,6 +1226,13 @@ VEIL_check           (char a_count, char a_ch)
       DEBUG_USER   yLOG_note    ("character accepted");
       if (a_count == s_parts [x_part].end) {
          DEBUG_USER   yLOG_note    ("end of field, update part");
+         if (s_cpart == PART_DONE) {
+            DEBUG_USER   yLOG_note    ("completed 'done' part");
+            s_status = STATUS_SUCCESS;
+            DEBUG_USER   yLOG_char    ("s_status"  , s_status);
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
+            return 0;
+         }
          s_cpart  = s_parts [x_part].next;
          DEBUG_USER   yLOG_char    ("s_cpart"   , s_cpart);
          ++x_part;
@@ -1226,7 +1247,6 @@ VEIL_check           (char a_count, char a_ch)
          DEBUG_USER   yLOG_value   ("beg"       , s_parts [x_part].beg);
          DEBUG_USER   yLOG_value   ("cnt"       , s_parts [x_part].cnt);
          DEBUG_USER   yLOG_value   ("end"       , s_parts [x_part].end);
-         if (s_cpart == PART_TRAILING)  s_status == STATUS_SUCCESS;
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
@@ -1275,7 +1295,7 @@ VEIL_check           (char a_count, char a_ch)
             DEBUG_USER   yLOG_note    ("append character");
             entry.password [x_pos    ] = a_ch;
             entry.password [x_pos + 1] = '\0';
-            DEBUG_USER   yLOG_info    ("username"  , entry.password);
+            DEBUG_USER   yLOG_info    ("password"  , entry.password);
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
             return 0;
          }

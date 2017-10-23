@@ -395,7 +395,7 @@ PROG_testuserdel     (cchar *a_name)
    char        rc           =    0;
    char        t            [LEN_STR  ] = "";
    --rce;  if (a_name == NULL) return rce;
-   snprintf (t, LEN_STR, "userdel --remove %s", a_name);
+   snprintf (t, LEN_STR, "userdel --remove %s >> /dev/null 2>&1", a_name);
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    return 0; 
@@ -410,10 +410,10 @@ PROG_testuseradd     (cchar *a_name, cchar *a_pass)
    --rce;  if (a_name == NULL) return rce;
    --rce;  if (a_pass == NULL) return rce;
    PROG_testuserdel (a_name);
-   snprintf (t, LEN_STR, "useradd --gid nobody --create-home --no-user-group %s", a_name);
+   snprintf (t, LEN_STR, "useradd --gid nobody --create-home --no-user-group %s >> /dev/null 2>&1", a_name);
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
-   snprintf (t, LEN_STR, "printf \"%s\n%s\n\" | passwd %s", a_pass, a_pass, a_name);
+   snprintf (t, LEN_STR, "printf \"%s\n%s\n\" | passwd %s >> /dev/null 2>&1", a_pass, a_pass, a_name);
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    return 0; 

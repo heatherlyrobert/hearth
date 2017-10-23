@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0m"
-#define     VER_TXT          "unit testing on all elements of prefixes and username"
+#define     VER_NUM          "2.0n"
+#define     VER_TXT          "unit testing on knock to done complete (for now)"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -240,8 +240,8 @@ extern char        ntitle;
 #define     G_TYPE_NUM       "0123456789"
 #define     G_TYPE_ALPHA     "abcdefghijklmnopqrstuvwxyz "
 #define     G_TYPE_ALNUM     "0123456789abcdefghijklmnopqrstuvwxyz "
-#define     G_TYPE_USER      "0123456789abcdefghijklmnopqrstuvwxyz_- "
-#define     G_TYPE_PASS      "0123456789abcdefghijklmnopqrstuvwxyz_-?!,.%'~^;/:()=|{}[]#&_<>$+ "
+#define     G_TYPE_USER      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_- "
+#define     G_TYPE_PASS      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-?!,.%'~^;/:()=|{}[]#&_<>$+ "
 #define     G_TYPE_ESCAPE    "\x1B"
 
 
