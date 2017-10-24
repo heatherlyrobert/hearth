@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0r"
-#define     VER_TXT          "adjusts to initial window size for large and medium"
+#define     VER_NUM          "2.1a"
+#define     VER_TXT          "knock and prefix use conf and stable random numbers"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -323,7 +323,7 @@ extern    struct cACCESSOR my;
 
 typedef struct cENTRY tENTRY;
 struct   cENTRY {
-   char     knock       [ 20];
+   char     knocks      [ 20];
    char     prefix      [ 20];
    char     rot         [ 20];
    char     username    [ 20];

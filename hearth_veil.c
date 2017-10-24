@@ -33,6 +33,22 @@ char        s_font_tty    [50]   = "alligator";
 int         s_butter    = -1;              /* left of butterfly            */
 char        s_bfly_size = 'L';
 
+#define     MAX_KNOCKS          20
+#define     MAX_LEFTS           40
+typedef struct cVAL tVAL;
+struct cVAL {
+   char       knocks       [MAX_KNOCKS];
+   char       lefts        [MAX_LEFTS ];
+};
+tVAL        s_vals;
+
+typedef struct cLOC tLOC;
+struct cLOC {
+   char        knocks      [4];
+   char        lefts       [3];
+};
+tLOC        s_locs;
+
 /*  s_part     k    = knock
  *             p    = prefix
  *             u/I  = username       (I is tentative username done)
@@ -85,7 +101,7 @@ struct   cPARTS {
    char        sign;
    char        next;
 } s_parts      [MAX_PART] = {
-   { PART_KNOCK    ,  1,  4,  4,  G_TYPE_KNOCK    , entry.knock    , '#', PART_PREFIX   },
+   { PART_KNOCK    ,  1,  4,  4,  G_TYPE_KNOCK    , entry.knocks   , '#', PART_PREFIX   },
    { PART_PREFIX   ,  5,  2,  6,  G_TYPE_NUM      , entry.prefix   , '#', PART_USERNAME },
    { PART_USERNAME ,  7, 99, 99,  G_TYPE_USER     , NULL           , ' ', PART_INFIX    },
    { PART_INFIX    ,  0,  1, 99,  G_TYPE_NUM      , entry.infix    , '#', PART_PASSWORD },
@@ -122,53 +138,6 @@ int         s_conf  [10][2] =
 
 #define     VEIL_CONF   "/etc/hearth.conf"
 
-
-char             /* [------] create one-time login numbers -------------------*/
-VEIL_init            (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;        /* loop iterator                       */
-   /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
-   VEIL_reset    ();
-   /*---(user/pass)----------------------*/
-   strlcpy (entry.username, "", LEN_STR);
-   strlcpy (entry.password, "", LEN_STR);
-   /*---(prefix)-------------------------*/
-   entry.prefix  [0] = my.magic_num [ 0] =  '0' + rand () % 10;
-   entry.prefix  [1] = my.magic_num [ 1] =  '0' + rand () % 10;
-   entry.prefix  [2] = '\0';
-   /*---(infix)--------------------------*/
-   entry.infix   [0] = my.magic_num [ 2] =  '0' + rand () % 10;
-   entry.infix   [1] = '\0';
-   /*---(knock)--------------------------*/
-   for (i = 0; i < 4; ++i) {
-      entry.knock [i] = my.magic_num [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';
-   }
-   entry.knock [4] = '\0';
-   /*---(special)------------------------*/
-   entry.rot     [0] = my.magic_num [ 7] = '0' + rand () % 3 + 1;
-   entry.pointer [0] = my.magic_num [ 8] = '0' + rand () % 10;
-   entry.rot     [1] = entry.pointer [1] = '\0';
-   /*---(suffix)-------------------------*/
-   entry.suffix  [0] = my.magic_num [ 9] = '0' + rand () % 10;
-   entry.suffix  [1] = my.magic_num [10] = '0' + rand () % 10;
-   entry.suffix  [2] = my.magic_num [11] = '0' + rand () % 10;
-   entry.suffix  [3] = '\0';
-   /*---(done)---------------------------*/
-   entry.done    [0] = '\x1B';
-   entry.done    [1] = '\0';
-   /*---(wrap-up)------------------------*/
-   my.magic_num  [12] = '\0';
-   DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
-   /*---(language)-----------------------*/
-   my.language = rand () % ntitle;
-   if (s_butter < 0)  s_butter    = rand () % s_bfly_max;
-   /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 char         /*--> read positions from conf file ---------[ leaf   [ ------ ]-*/
 VEIL_conf            (void)
 {
@@ -183,6 +152,7 @@ VEIL_conf            (void)
    int         x_row       =    0;
    char        x_text      [LEN_DESC] = "";
    int         x_off       =    0;
+   int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(open)---------------------------*/
@@ -254,6 +224,12 @@ VEIL_conf            (void)
    }
    /*---(assign)-------------------------*/
    my.language = s_conf [9][0];
+   for (i = 0; i < 4; ++i) {
+      s_locs.knocks [i]   = (s_conf [i    ][0] *  7 + s_conf [i    ][1]);
+   }
+   for (i = 0; i < 3; ++i) {
+      s_locs.lefts  [i]   = (s_conf [i + 4][0] * 20 + s_conf [i + 4][1]);
+   }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
@@ -275,9 +251,9 @@ VEIL_conf            (void)
       mvprintw (x_row++, 150,  "%s", x_text);
       sprintf  (x_text, "| prefix2  = %d %d |", s_conf [5][0], s_conf [5][1]);
       mvprintw (x_row++, 150,  "%s", x_text);
-      sprintf  (x_text, "| rotation = %d   |", s_conf [6][0]);
+      sprintf  (x_text, "| infix    = %d %d |", s_conf [6][0], s_conf [6][1]);
       mvprintw (x_row++, 150,  "%s", x_text);
-      sprintf  (x_text, "| infix    = %d %d |", s_conf [7][0], s_conf [7][1]);
+      sprintf  (x_text, "| rotation = %d   |", s_conf [7][0]);
       mvprintw (x_row++, 150,  "%s", x_text);
       sprintf  (x_text, "| pointer  = %d   |", s_conf [8][0]);
       mvprintw (x_row++, 150,  "%s", x_text);
@@ -288,6 +264,79 @@ VEIL_conf            (void)
    }
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> create values for screen -------------[ ------ [ -------- ]-*/
+VEIL_random          (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;        /* loop iterator                       */
+   /*---(knocks)-------------------------*/
+   for (i = 0; i < MAX_KNOCKS; ++i) {
+      s_vals.knocks [i] = (rand () %  2 == 0) ? ' ' : '.';
+   }
+   for (i = 0; i < 4; ++i) {
+      entry.knocks [i] = my.magic_num [ 3 + i] = s_vals.knocks [s_locs.knocks [i]];
+   }
+   entry.knocks [4] = '\0';
+   /*---(lefts)--------------------------*/
+   for (i = 0; i < MAX_LEFTS ; ++i) {
+      s_vals.lefts  [i] = (rand () % 10) + '0';
+   }
+   entry.prefix [0] = my.magic_num [ 0    ] = s_vals.lefts  [s_locs.lefts  [0]];
+   entry.prefix [1] = my.magic_num [ 1    ] = s_vals.lefts  [s_locs.lefts  [1]];
+   entry.prefix [2] = '\0';
+   entry.infix  [0] = my.magic_num [ 2    ] = s_vals.lefts  [s_locs.lefts  [2]];
+   entry.infix  [1] = '\0';
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char             /* [------] create one-time login numbers -------------------*/
+VEIL_init            (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;        /* loop iterator                       */
+   /*---(header)-------------------------*/
+   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
+   VEIL_reset    ();
+   VEIL_random   ();
+   /*---(user/pass)----------------------*/
+   strlcpy (entry.username, "", LEN_STR);
+   strlcpy (entry.password, "", LEN_STR);
+   /*---(prefix)-------------------------*/
+   /*> entry.prefix  [0] = my.magic_num [ 0] =  '0' + rand () % 10;                   <* 
+    *> entry.prefix  [1] = my.magic_num [ 1] =  '0' + rand () % 10;                   <* 
+    *> entry.prefix  [2] = '\0';                                                      <*/
+   /*---(infix)--------------------------*/
+   /*> entry.infix   [0] = my.magic_num [ 2] =  '0' + rand () % 10;                   <* 
+    *> entry.infix   [1] = '\0';                                                      <*/
+   /*---(knock)--------------------------*/
+   /*> for (i = 0; i < 4; ++i) {                                                       <* 
+    *>    entry.knock [i] = my.magic_num [ 3 + i] =  (rand () % 2 == 0) ? ' ' : '.';   <* 
+    *> }                                                                               <* 
+    *> entry.knock [4] = '\0';                                                         <*/
+   /*---(special)------------------------*/
+   entry.rot     [0] = my.magic_num [ 7] = '0' + rand () % 3 + 1;
+   entry.pointer [0] = my.magic_num [ 8] = '0' + rand () % 10;
+   entry.rot     [1] = entry.pointer [1] = '\0';
+   /*---(suffix)-------------------------*/
+   entry.suffix  [0] = my.magic_num [ 9] = '0' + rand () % 10;
+   entry.suffix  [1] = my.magic_num [10] = '0' + rand () % 10;
+   entry.suffix  [2] = my.magic_num [11] = '0' + rand () % 10;
+   entry.suffix  [3] = '\0';
+   /*---(done)---------------------------*/
+   entry.done    [0] = '\x1B';
+   entry.done    [1] = '\0';
+   /*---(wrap-up)------------------------*/
+   my.magic_num  [12] = '\0';
+   DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
+   /*---(language)-----------------------*/
+   my.language = rand () % ntitle;
+   if (s_butter < 0)  s_butter    = rand () % s_bfly_max;
+   /*---(complete)-----------------------*/
+   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -432,6 +481,7 @@ VEIL_left            (void)
    int         x_nrow      =    0;     /* number of rows to fill screen       */
    char        x_letter    =  '-';
    char        x_text      [LEN_DESC] = "";
+   char        x_pos       =    0;
    /*---(defense)------------------------*/
    yLOG_char   ("my.show_left"    , my.show_left       );
    if (my.show_left      != 'y')  return 0;
@@ -439,17 +489,19 @@ VEIL_left            (void)
    x_tall  = FONT_tall (s_font_lef);
    x_nrow  = trunc (s_bot / x_tall);
    x_wide  = FONT_wide (s_font_lef);
-   /*---(read config)-----------------*/
-
+   /*---(adjust prefix zero)----------*/
+   s_locs.lefts [0] = 20 + x_nrow - 1;
+   my.magic_num [ 0] = entry.prefix [0] = s_vals.lefts [s_locs.lefts [0]];
    /*---(show table of numbers)-------*/
    for (x_row = 0; x_row < (x_nrow + 1); ++x_row) {
       for (x_col =  0; x_col <  2; ++x_col) {
-         x_letter = rand () % 10 + '0';
+         x_pos    = x_col * 20 + x_row;
+         x_letter = s_vals.lefts [x_pos];
          SHOW_HINTS   COLOR_WHITE;
          else         COLOR_YELLOW;
-         if      (x_col == 1 && x_row == 0         )  entry.prefix [1] = my.magic_num [ 1] =  x_letter;
-         else if (x_col == 1 && x_row == x_nrow - 1)  entry.prefix [0] = my.magic_num [ 0] =  x_letter;
-         else if (x_col == 0 && x_row == 4         )  entry.infix  [0] = my.magic_num [ 2] =  x_letter;
+         if      (x_pos == s_locs.lefts [0]        )  x_letter = entry.prefix [0];
+         else if (x_pos == s_locs.lefts [1]        )  x_letter = entry.prefix [1];
+         else if (x_pos == s_locs.lefts [2]        )  x_letter = entry.infix  [0];
          else {
             COLOR_OFF;
             COLOR_YELLOW;
@@ -573,25 +625,17 @@ VEIL_knocks        (void)
    /*---(prepare)------------------------*/
    if (s_bot <  70) x_ygap = 3;
    if (s_bot <  50) x_ygap = 2;
-   for (i = 0; i < 14; ++i) {
-      x_letter = rand () % 2;
-      switch (x_letter) {
-      case 0 : x_knocks [i] = ' ';   break;
-      case 1 : x_knocks [i] = '.';   break;
-      }
-      x_knocks [i + 1] = 0;
-   }
    x_tall = FONT_tall (s_font_nok);
    x_wide = FONT_wide (s_font_nok);
    /*---(output)-------------------------*/
    for (i = 0; i < 14; ++i) {
-      x_letter = x_knocks [i];
+      x_letter = s_vals.knocks [i];
       SHOW_HINTS   COLOR_WHITE;
       else         COLOR_YELLOW;
-      if      (i ==  1)  entry.knock [0] = my.magic_num [ 3 + 0] = x_letter;
-      else if (i ==  8)  entry.knock [1] = my.magic_num [ 3 + 1] = x_letter;
-      else if (i == 12)  entry.knock [2] = my.magic_num [ 3 + 2] = x_letter;
-      else if (i ==  5)  entry.knock [3] = my.magic_num [ 3 + 3] = x_letter;
+      if      (i == s_locs.knocks [0])  x_letter = entry.knocks [0];
+      else if (i == s_locs.knocks [1])  x_letter = entry.knocks [1];
+      else if (i == s_locs.knocks [2])  x_letter = entry.knocks [2];
+      else if (i == s_locs.knocks [3])  x_letter = entry.knocks [3];
       else {
          COLOR_OFF;
          COLOR_YELLOW;
@@ -616,6 +660,14 @@ VEIL_knocks        (void)
       sprintf (x_text, "| x_tall = %2d |", x_tall);
       mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_wide = %2d |", x_wide);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      sprintf (x_text, "| nok1   = %2d |", s_locs.knocks [0]);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      sprintf (x_text, "| nok1   = %2d |", s_locs.knocks [1]);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      sprintf (x_text, "| nok1   = %2d |", s_locs.knocks [2]);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      sprintf (x_text, "| nok1   = %2d |", s_locs.knocks [3]);
       mvprintw (x_row++, x_col,  "%s", x_text);
       mvprintw (x_row++, x_col,  "'-------------'");
       COLOR_OFF;
@@ -1443,7 +1495,6 @@ get_login          (void)
    int         len;
    int         clen;
    int         off         = 0;
-   int         lknock      = 0;
    int         i           = 0;
    int         j           = 0;
    tPASSWD    *pw          = NULL;
@@ -1456,7 +1507,6 @@ get_login          (void)
    int         x_max       = 0;
    int         x_mid       = 0;
    /*---(prepare)------------------------*/
-   lknock = strlen (entry.knock);
    yLOG_note   ("entering initial key clearing loop");
    yLOG_note   ("beginning normal key processing");
    /*---(loop through input)-------------*/
@@ -1594,7 +1644,7 @@ VEIL__unit           (char *a_question, int a_num)
       else             snprintf (unit_answer, LEN_UNIT, "VEIL range       : part = %c, beg = %02d, cnt = %02d, end = %02d", s_cpart, s_parts [x_part].beg, s_parts [x_part].cnt, s_parts [x_part].end);
    }
    else if (strcmp (a_question, "knock"         ) == 0) {
-      snprintf (unit_answer, LEN_UNIT, "VEIL knock       : 1 = %c , 2 = %c , 3 = %c , 4 = %c", entry.knock [0], entry.knock [1], entry.knock [2], entry.knock [3]);
+      snprintf (unit_answer, LEN_UNIT, "VEIL knock       : 1 = %c , 2 = %c , 3 = %c , 4 = %c", entry.knocks [0], entry.knocks [1], entry.knocks [2], entry.knocks [3]);
    }
    else if (strcmp (a_question, "prefix"        ) == 0) {
       snprintf (unit_answer, LEN_UNIT, "VEIL prefix      : 1 = %c , 2 = %c"                  , entry.prefix [0], entry.prefix [1]);
