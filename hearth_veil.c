@@ -31,6 +31,7 @@ char        s_font_nok    [50]   = "dots";
 char        s_font_tty    [50]   = "alligator";
 
 int         s_butter    = -1;              /* left of butterfly            */
+char        s_bfly_size = 'L';
 
 /*  s_part     k    = knock
  *             p    = prefix
@@ -330,6 +331,25 @@ VEIL_sizing          (void)
    s_lef       = 0;
    s_cen       = x / 2;
    s_rig       = x;
+   /*---(fonts)--------------------------*/
+   if (s_rig > 180) {
+      s_bfly_size = 'L';
+      strlcpy (s_font_lef, "alligator"      , LEN_STR);
+      strlcpy (s_font_rig, "goofy"          , LEN_STR);
+      strlcpy (s_font_top, "basic"          , LEN_STR);
+      strlcpy (s_font_mid, "chunky_full"    , LEN_STR);
+      strlcpy (s_font_tty, "alligator"      , LEN_STR);
+      strlcpy (s_font_nok, "dots"           , LEN_STR);
+   } else if (s_rig > 100) {
+      s_bfly_size = 'm';
+      strlcpy (s_font_lef, "usaflag"        , LEN_STR);
+      strlcpy (s_font_rig, "graceful"       , LEN_STR);
+      strlcpy (s_font_top, "fuzzy"          , LEN_STR);
+      strlcpy (s_font_mid, "rob4dots"       , LEN_STR);
+      strlcpy (s_font_tty, "alligator"      , LEN_STR);
+      strlcpy (s_font_nok, "dots"           , LEN_STR);
+   }
+   /*---(special)------------------------*/
    DEBUG_GRAF   yLOG_svalue  ("s_rig", s_rig);
    s_lefplus   = s_lef + (FONT_wide (s_font_lef) * 2) + FONT_wide (s_font_nok);
    DEBUG_GRAF   yLOG_svalue  ("s_lef+", s_lefplus);
@@ -343,22 +363,21 @@ VEIL_sizing          (void)
 }
 
 char             /* [------] show butterfly background -----------------------*/
-VEIL_butterfly       (char a_size)
+VEIL_butterfly       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         b           = 0;               /* butterfly index              */
    int         x_row       = 0;               /* iterator -- rows             */
    int         x_col       = 0;               /* iterator -- columns          */
    char        x_text      [LEN_DESC] = "";
-   char        x_max       =   20;
-   char        x_ncol      =   20;
-   char        x_nrow      =   20;
+   int         x_ncol      =   20;
+   int         x_nrow      =   20;
    int         x_left      =    0;
    /*---(defense)------------------------*/
    yLOG_char   ("arg_butter"  , my.show_butterfly  );
    if (my.show_butterfly != 'y')  return 0;
    /*---(output)-------------------------*/
-   switch (a_size) {
+   switch (s_bfly_size) {
    case 'L' :  x_ncol = 180; x_nrow =  65;  break;
    case 'm' :  x_ncol = 100; x_nrow =  45;  break;
    }
@@ -368,7 +387,7 @@ VEIL_butterfly       (char a_size)
    COLOR_GREEN;
    for (x_row =  0; x_row <  x_nrow; ++x_row) {
       for (x_col =  0; x_col <  x_ncol; ++x_col) {
-         switch (a_size) {
+         switch (s_bfly_size) {
          case 'L' :
             mvprintw (s_topplus + x_row, x_col + x_left,  "%c", g_bfly_lrg [s_butter][x_row][x_col]);
             break;
@@ -815,7 +834,7 @@ VEIL_show            (void)
    /*---(set positions)---------------*/
    VEIL_sizing ();
    /*---(show sections)------------------*/
-   rc = VEIL_butterfly ('m');
+   rc = VEIL_butterfly ();
    rc = VEIL_conf      ();
    rc = VEIL_middle    ();
    rc = VEIL_left      ();
@@ -824,6 +843,7 @@ VEIL_show            (void)
    rc = VEIL_knocks    ();
    rc = VEIL_binary    ();
    rc = VEIL_prompt    ();
+   rc = VEIL_status    ();
    /*---(complete)-----------------------*/
    yLOG_note   ("printed issue");
    yLOG_exit   (__FUNCTION__);
