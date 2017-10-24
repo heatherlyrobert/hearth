@@ -162,7 +162,7 @@ VEIL_init            (void)
    DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
    /*---(language)-----------------------*/
    my.language = rand () % ntitle;
-   if (s_butter < 0)  s_butter    = rand () % 20;
+   if (s_butter < 0)  s_butter    = rand () % s_bfly_max;
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -300,6 +300,16 @@ VEIL_reset           (void)
    s_count     =   0;
    s_ch        =   0;
    strlcpy (my.entry_text , "", LEN_DESC);
+   return 0;
+}
+
+char
+VEIL_newbutterfly    (void)
+{
+   ++s_butter;
+   if (s_butter >= s_bfly_max)  s_butter = 0;
+   clear     ();
+   VEIL_show ();
    return 0;
 }
 
@@ -834,32 +844,29 @@ VEIL_timer           (void)
    /*---(assign pass)--------------------*/
    if        (s_secs <=   30) {
       x_pass  = 1;
-      x_secs  = s_secs;
    } else if (s_secs <=  60) {
       x_pass  = 2;
-      x_secs  = s_secs - 30;
    } else if (s_secs <=  90) {
       x_pass  = 3;
-      x_secs  = s_secs - 60;
-   } else if (s_secs <= 120) {
+   } else {
       x_pass  = 4;
-      x_secs  = s_secs - 90;
    }
+   x_secs = s_secs % 60;
    /*---(display marker)-----------------*/
    COLOR_CYAN;
-   switch (x_pass) {
-   case 4 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
-             break;
-   case 3 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
-             break;
-   case 2 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
-             break;
-   case 1 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
-             break;
+   if (x_secs <= 30) {
+      FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen - 17 + x_secs);
+   } else {
+      x_secs -= 30;
+      FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen + 13 - x_secs);
    }
    COLOR_OFF;
    /*---(display pass)-------------------*/
    COLOR_CYAN;
+   FONT_letter ( s_font_nok, '0'             , s_bot - 2, s_cen + 24);
+   FONT_letter ( s_font_nok, '0'             , s_bot - 2, s_cen + 18);
+   FONT_letter ( s_font_nok, '0'             , s_bot - 2, s_cen - 30);
+   FONT_letter ( s_font_nok, '0'             , s_bot - 2, s_cen - 24);
    switch (x_pass) {
    case 4 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen + 24);
    case 3 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen + 18);
@@ -909,7 +916,7 @@ VEIL_status          (void)
    int         x_count     = 0;
    /*---(defense)------------------------*/
    if (my.show_status != 'y'   )   return 0;
-   if (s_count        == x_save)   return 0;
+   /*> if (s_count        == x_save)   return 0;                                      <*/
    /*---(prepare)------------------------*/
    x_tall    = FONT_tall (s_font_top);
    x_wide    = FONT_wide (s_font_top);
@@ -988,7 +995,7 @@ VEIL_getchar         (void)
       if (my.use_timer == 'y' && s_loop % 5 == 0) ++s_secs;
       DEBUG_USER   yLOG_value   ("s_secs"    , s_secs);
       /*---(timeout)---------------------*/
-      if (s_secs > 120) {
+      if (my.infinite != 'y' && s_secs > 120) {
          DEBUG_USER   yLOG_note    ("s_secs timed out");
          s_status = STATUS_TIMEOUT;
          break;
@@ -1009,6 +1016,10 @@ VEIL_getchar         (void)
       if (x_ch == ERR) {
          DEBUG_USER   yLOG_note    ("no input, try again");
          continue;
+      }
+      if (x_ch    ==   2 ) {
+         VEIL_newbutterfly ();
+         break;
       }
       ++s_count;
       DEBUG_USER   yLOG_value   ("s_count"   , s_count);
@@ -1431,8 +1442,8 @@ get_login          (void)
    /*---(loop through input)-------------*/
    while (1) {
       /*---(update screen)---------------*/
-      rc   = VEIL_status    ();
       x_ch = VEIL_getchar   ();
+      rc   = VEIL_status    ();
       rc   = VEIL_prompt    ();
       refresh ();
       /*---(check parts)-----------------*/

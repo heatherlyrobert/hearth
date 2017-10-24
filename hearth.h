@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0p"
-#define     VER_TXT          "fonts standardized, new butterflies added and displayed"
+#define     VER_NUM          "2.0q"
+#define     VER_TXT          "automated butterfly processing and added infinite option"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -158,8 +158,11 @@
 
 #define     LOGIN       "/bin/login"
 #define     MAX_BFLY    50
-#define     MAX_ROW     64
-#define     MAX_COL     180
+#define     MAX_ROW     70
+#define     MAX_COL     200
+
+extern int  s_bfly_max;
+
 #define     MAX_HOST    500
 
 /*---(string length)------------------*/
@@ -302,6 +305,7 @@ struct cACCESSOR {
    char        show_external;
    char        show_knock;
    char        show_timer;
+   char        infinite;
    char        show_left;
    char        show_right;
    char        show_middle;
@@ -371,6 +375,8 @@ char        VEIL_conf            (void);
 char        VEIL_reset           (void);
 char        VEIL_sizing          (void);
 
+char        VEIL_show            (void);
+char        VEIL_status          (void);
 char        VEIL_getchar         (void);
 char        VEIL_check_user      (void);
 char        VEIL_check_pass      (void);

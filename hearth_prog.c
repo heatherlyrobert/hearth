@@ -115,6 +115,7 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.show_external   = 'y';
    my.show_knock      = 'y';
    my.show_timer      = 'y';
+   my.infinite        = '-';
    my.show_left       = 'y';
    my.show_right      = 'y';
    my.show_middle     = 'y';
@@ -232,6 +233,7 @@ PROG_args            (int a_argc, char **a_argv)
       else if (strcmp (a, "--nostatus"    ) == 0)  my.show_status    = 'n';
       else if (strcmp (a, "--timer"       ) == 0)  my.show_timer     = 'y';
       else if (strcmp (a, "--notimer"     ) == 0)  my.show_timer     = 'n';
+      else if (strcmp (a, "--infinite"    ) == 0)  my.infinite       = 'y';
       else if (strcmp (a, "--tty"         ) == 0)  my.show_tty       = 'y';
       else if (strcmp (a, "--notty"       ) == 0)  my.show_tty       = 'n';
       else if (strcmp (a, "--knock"       ) == 0)  my.show_knock     = 'y';
@@ -266,8 +268,8 @@ PROG_args            (int a_argc, char **a_argv)
       else if (strcmp (a, "--bfly"        ) == 0) {
          if (i + 1 < a_argc) {
             s_butter = atoi (a_argv [i + 1]);
-            if (s_butter > 20) s_butter = 20;
-            if (s_butter <  0) s_butter =  0;
+            if (s_butter > s_bfly_max) s_butter = s_bfly_max;
+            if (s_butter < 0         ) s_butter =  0;
             ++i;
          }
       }
