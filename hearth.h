@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.0o"
-#define     VER_TXT          "add s_loop wrap around to avoid huge numbers"
+#define     VER_NUM          "2.0p"
+#define     VER_TXT          "fonts standardized, new butterflies added and displayed"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -157,6 +157,7 @@
 
 
 #define     LOGIN       "/bin/login"
+#define     MAX_BFLY    50
 #define     MAX_ROW     64
 #define     MAX_COL     180
 #define     MAX_HOST    500
@@ -201,6 +202,8 @@ PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada);
 /*---(fonts)------------------------------------------------------------------*/
 struct cFONT {
    char        name        [20];       /* name for lookup                     */
+   char        active;                 /* font displays correctly             */
+   char        beauty;                 /* how nicely it displays              */
    char        range;                  /* type of symbols, alpha, nums, ...   */
    char       *ptr;                    /* pointer to font structure           */
    char        tall;                   /* height of standard symbol           */
@@ -212,7 +215,11 @@ struct cFONT {
 };
 
 extern char        hosties     [MAX_HOST][20];
-extern char        butterfly   [40] [MAX_ROW] [MAX_COL];
+
+extern int         s_butter;
+extern char        butterfly   [MAX_BFLY] [MAX_ROW] [MAX_COL];
+extern char        g_bfly_lrg  [MAX_BFLY] [MAX_ROW] [MAX_COL];
+extern char        g_bfly_med  [MAX_BFLY] [MAX_ROW] [MAX_COL];
 
 
 
@@ -372,7 +379,7 @@ char        VEIL_getcheck        (cchar *a_input);
 
 char        VEIL_knocks          (void);
 char        VEIL_knock           (void);
-char        VEIL_butterfly       (void);
+char        VEIL_butterfly       (char a_size);
 char        VEIL_tty             (int a_x, int a_y);
 /*---(unittest)----------------*/
 char*       VEIL__unit           (char *a_question, int a_num);

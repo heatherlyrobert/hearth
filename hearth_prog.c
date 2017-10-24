@@ -263,6 +263,14 @@ PROG_args            (int a_argc, char **a_argv)
             ++i;
          }
       }
+      else if (strcmp (a, "--bfly"        ) == 0) {
+         if (i + 1 < a_argc) {
+            s_butter = atoi (a_argv [i + 1]);
+            if (s_butter > 20) s_butter = 20;
+            if (s_butter <  0) s_butter =  0;
+            ++i;
+         }
+      }
       /*---(device)----------------------*/
       else if (a [0] == '/') {
          my.tty_num  = a[strlen (a) - 1];

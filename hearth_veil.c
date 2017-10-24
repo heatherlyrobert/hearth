@@ -2,6 +2,7 @@
 #include    "hearth.h"
 
 int         s_top       =   0;
+int         s_topplus   =   0;
 int         s_mid       =   0;
 int         s_bot       =   0;
 
@@ -9,7 +10,27 @@ int         s_lef       =   0;
 int         s_lefplus   =   0;
 int         s_cen       =   0;
 int         s_rigminus  =   0;
+int         s_rigbin    =   0;
 int         s_rig       =   0;
+
+/*> char        s_font_lef    [50]   = "alligator";                                   <*/
+/*> char        s_font_lef    [50]   = "computer";                                    <*/
+/*> char        s_font_lef    [50]   = "sblood";                                      <*/
+/*> char        s_font_lef    [50]   = "cricket";                                     <*/
+char        s_font_lef    [50]   = "usaflag";
+/*> char        s_font_rig    [50]   = "goofy";                                       <*/
+char        s_font_rig    [50]   = "graceful";
+/*> char        s_font_top    [50]   = "basic";                                       <*/
+/*> char        s_font_top    [50]   = "usaflag";                                     <*/
+char        s_font_top    [50]   = "fuzzy";
+/*> char        s_font_mid    [50]   = "chunky_full";                                 <*/
+/*> char        s_font_mid    [50]   = "amc3line";                                    <*/
+/*> char        s_font_mid    [50]   = "thick";                                       <*/
+char        s_font_mid    [50]   = "rob4dots";
+char        s_font_nok    [50]   = "dots";
+char        s_font_tty    [50]   = "alligator";
+
+int         s_butter    = -1;              /* left of butterfly            */
 
 /*  s_part     k    = knock
  *             p    = prefix
@@ -141,6 +162,7 @@ VEIL_init            (void)
    DEBUG_PROG   yLOG_info    ("magic_num" , my.magic_num);
    /*---(language)-----------------------*/
    my.language = rand () % ntitle;
+   if (s_butter < 0)  s_butter    = rand () % 20;
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -299,36 +321,51 @@ VEIL_sizing          (void)
    s_cen       = x / 2;
    s_rig       = x;
    DEBUG_GRAF   yLOG_svalue  ("s_rig", s_rig);
-   s_lefplus   = s_lef + (FONT_wide ("alligator") * 2) + FONT_wide ("dots");
+   s_lefplus   = s_lef + (FONT_wide (s_font_lef) * 2) + FONT_wide (s_font_nok);
    DEBUG_GRAF   yLOG_svalue  ("s_lef+", s_lefplus);
-   s_rigminus  = s_rig - (FONT_wide ("goofy") * 3)     - FONT_wide ("dots");
+   s_rigminus  = s_rig - (FONT_wide (s_font_rig) * 3) - FONT_wide (s_font_nok);
    DEBUG_GRAF   yLOG_svalue  ("s_rig-", s_rigminus);
+   s_rigbin    = s_rigminus - 35;
+   s_topplus   = s_top + FONT_tall (s_font_top) + 4;
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char             /* [------] show butterfly background -----------------------*/
-VEIL_butterfly       (void)
+VEIL_butterfly       (char a_size)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    int         b           = 0;               /* butterfly index              */
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columns          */
-   int         x_butter    = 0;               /* left of butterfly            */
+   int         x_row       = 0;               /* iterator -- rows             */
+   int         x_col       = 0;               /* iterator -- columns          */
    char        x_text      [LEN_DESC] = "";
+   char        x_max       =   20;
+   char        x_ncol      =   20;
+   char        x_nrow      =   20;
+   int         x_left      =    0;
    /*---(defense)------------------------*/
    yLOG_char   ("arg_butter"  , my.show_butterfly  );
    if (my.show_butterfly != 'y')  return 0;
    /*---(output)-------------------------*/
-   b           = rand () % 37;
-   yLOG_value  ("butterfly"   , b              );
-   x_butter  = (s_rig - MAX_COL) / 2;
-   yLOG_value  ("x_butter"    , x_butter       );
+   switch (a_size) {
+   case 'L' :  x_ncol = 180; x_nrow =  65;  break;
+   case 'm' :  x_ncol = 100; x_nrow =  45;  break;
+   }
+   yLOG_value  ("butterfly"   , s_butter       );
+   x_left  = (s_rig - x_ncol) / 2;
+   yLOG_value  ("x_left"    , x_left       );
    COLOR_GREEN;
-   for (i =  0; i <  MAX_ROW; ++i) {
-      for (j =  0; j <  MAX_COL; ++j) {
-         mvprintw (i, j + x_butter,  "%c", butterfly [b][i][j]);
+   for (x_row =  0; x_row <  x_nrow; ++x_row) {
+      for (x_col =  0; x_col <  x_ncol; ++x_col) {
+         switch (a_size) {
+         case 'L' :
+            mvprintw (s_topplus + x_row, x_col + x_left,  "%c", g_bfly_lrg [s_butter][x_row][x_col]);
+            break;
+         case 'm' :
+            mvprintw (s_topplus + x_row, x_col + x_left,  "%c", g_bfly_med [s_butter][x_row][x_col]);
+            break;
+         }
       }
    }
    COLOR_OFF;
@@ -370,9 +407,9 @@ VEIL_left            (void)
    yLOG_char   ("my.show_left"    , my.show_left       );
    if (my.show_left      != 'y')  return 0;
    /*---(get max characters)----------*/
-   x_tall  = FONT_tall ("alligator");
+   x_tall  = FONT_tall (s_font_lef);
    x_nrow  = trunc (s_bot / x_tall);
-   x_wide  = FONT_wide ("alligator");
+   x_wide  = FONT_wide (s_font_lef);
    /*---(read config)-----------------*/
 
    /*---(show table of numbers)-------*/
@@ -388,23 +425,27 @@ VEIL_left            (void)
             COLOR_OFF;
             COLOR_YELLOW;
          }
-         FONT_letter ( "alligator", x_letter, x_row * x_tall, x_col * x_wide);
+         FONT_letter (s_font_lef, x_letter, x_row * x_tall, x_col * x_wide);
          COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
-      mvprintw ( 12,   3,  ".----left-----.", x_text);
+      x_row = 12;
+      x_col =  0;
+      mvprintw (x_row++, x_col,  ".----LEFT-----.", x_text);
+      sprintf (x_text, "| %-11.11s |", s_font_lef);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_tall = %2d |", x_tall);
-      mvprintw ( 13,   3,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_wide = %2d |", x_wide);
-      mvprintw ( 14,   3,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_nrow = %2d |", x_nrow);
-      mvprintw ( 15,   3,  "%s", x_text);
-      sprintf (x_text, "| ptr    = %2d |", 4);
-      mvprintw ( 16,   3,  "%s", x_text);
-      mvprintw ( 17,   3,  "'-------------'", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      sprintf (x_text, "| infix  = %2d |", 4);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "'-------------'", x_text);
       COLOR_OFF;
    }
    /*---(complete)-----------------------*/
@@ -432,9 +473,9 @@ VEIL_right           (void)
    yLOG_char   ("my.show_right"   , my.show_right      );
    if (my.show_right     != 'y')  return 0;
    /*---(get max characters)----------*/
-   x_tall  = FONT_tall ("goofy");
+   x_tall  = FONT_tall (s_font_rig);
    x_nrow  = trunc (s_bot / x_tall);
-   x_wide  = FONT_wide ("goofy");
+   x_wide  = FONT_wide (s_font_rig);
    /*---(calculate locations)---------*/
    x_right = (s_rig - (x_wide * 3));
    /*---(output)----------------------*/
@@ -449,23 +490,27 @@ VEIL_right           (void)
             COLOR_OFF;
             COLOR_YELLOW;
          }
-         FONT_letter ( "goofy", x_letter, x_row * x_tall, x_right + (x_col * x_wide));
+         FONT_letter (s_font_rig, x_letter, x_row * x_tall, x_right + (x_col * x_wide));
          COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
-      mvprintw ( 12, x_right + 5,  ".----right----.", x_text);
+      x_row = s_bot - 10;
+      x_col = s_rig - 15;
+      mvprintw (x_row++, x_col,  ".----RIGHT----.", x_text);
+      sprintf (x_text, "| %-11.11s |", s_font_rig);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_tall = %2d |", x_tall);
-      mvprintw ( 13, x_right + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_wide = %2d |", x_wide);
-      mvprintw ( 14, x_right + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_nrow = %2d |", x_nrow);
-      mvprintw ( 15, x_right + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| ptr    = %2d |", entry.pointer [0] - '0');
-      mvprintw ( 16, x_right + 5,  "%s", x_text);
-      mvprintw ( 17, x_right + 5,  "'-------------'", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "'-------------'", x_text);
       COLOR_OFF;
    }
    /*---(complete)-----------------------*/
@@ -492,11 +537,13 @@ VEIL_knocks        (void)
    int         x_ybeg      =    0;
    int         x_ypos      =    0;
    int         x_ygap      =    4;
+   int         x_row       =    0;
+   int         x_col       =    0;
    /*---(defense)------------------------*/
    if (my.show_knock  != 'y')  return 0;
    /*---(prepare)------------------------*/
-   knock_spacing = 4;
-   if (s_mid <  20) knock_spacing = 3;
+   if (s_bot <  70) x_ygap = 3;
+   if (s_bot <  50) x_ygap = 2;
    for (i = 0; i < 14; ++i) {
       x_letter = rand () % 2;
       switch (x_letter) {
@@ -505,8 +552,8 @@ VEIL_knocks        (void)
       }
       x_knocks [i + 1] = 0;
    }
-   x_tall = FONT_tall ("dots");
-   x_wide = FONT_wide ("dots");
+   x_tall = FONT_tall (s_font_nok);
+   x_wide = FONT_wide (s_font_nok);
    /*---(output)-------------------------*/
    for (i = 0; i < 14; ++i) {
       x_letter = x_knocks [i];
@@ -526,18 +573,22 @@ VEIL_knocks        (void)
       }
       x_ybeg = s_mid - ((7 * x_tall + 6 * x_ygap) / 2.0);
       x_ypos = x_ybeg + ((i % 7) * (x_tall + x_ygap));
-      FONT_letter ( "dots", x_letter, x_ypos, x_xpos);
+      FONT_letter ( s_font_nok, x_letter, x_ypos, x_xpos);
       COLOR_OFF;
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
-      mvprintw ( 21, 25,  ".----knock----.");
+      x_row = 21;
+      x_col = s_lefplus - 2;
+      mvprintw (x_row++, x_col,  ".----KNOCK----.");
+      sprintf (x_text, "| %-11.11s |", s_font_nok);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_tall = %2d |", x_tall);
-      mvprintw ( 22, 25,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_wide = %2d |", x_wide);
-      mvprintw ( 23, 25,  "%s", x_text);
-      mvprintw ( 24, 25,  "'-------------'");
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "'-------------'");
       COLOR_OFF;
    }
    /*---(complete)-----------------------*/
@@ -553,9 +604,10 @@ VEIL_tty           (int a_x, int a_y)
    if (my.show_tty    != 'y')  return 0;
    /*---(show terminal number)-----------*/
    COLOR_YELLOW;
-   FONT_letter ( "dots"     , my.tty_type, 10, s_cen - 11);
-   FONT_letter ( "alligator", my.tty_num, 10, s_cen -  5);
-   FONT_letter ( "dots"     , my.tty_type, 14, s_cen +  6);
+   mvprintw ( 8, s_cen - 1,  "%2d", s_butter);
+   FONT_letter (s_font_nok  , my.tty_type, 10, s_cen - 11);
+   FONT_letter (s_font_tty  , my.tty_num , 10, s_cen -  5);
+   FONT_letter (s_font_nok  , my.tty_type, 14, s_cen +  6);
    COLOR_OFF;
    /*---(external indicator)-------------*/
    if (my.show_external == 'y')      x_type = 'e';
@@ -567,7 +619,7 @@ VEIL_tty           (int a_x, int a_y)
    mvprintw (20, s_cen - 1,  "%c", x_type);
    mvprintw (20, s_cen + 1,  "%c", x_type);
    mvprintw (21, s_cen    ,  "%c", x_type);
-   /*> FONT_letter ( "basic"    , x_type, s_mid + 10, x_mid);                       <*/
+   /*> FONT_letter ( s_font_top    , x_type, s_mid + 10, x_mid);                       <*/
    COLOR_OFF;
    /*---(complete)-----------------------*/
    return 0;
@@ -597,8 +649,8 @@ VEIL_middle          (void)
    char        x_text      [LEN_DESC] = "";
    int         x_top       = 0;
    /*---(prepare)------------------------*/
-   x_tall    = FONT_tall ("chunky_full");
-   x_wide    = FONT_wide ("chunky_full");
+   x_tall    = FONT_tall (s_font_mid);
+   x_wide    = FONT_wide (s_font_mid);
    x_left    = s_lefplus;
    x_right   = s_rigminus;
    x_dist    = x_right - x_left;
@@ -621,33 +673,36 @@ VEIL_middle          (void)
             COLOR_OFF;
             COLOR_YELLOW;
          }
-         FONT_letter ( "chunky_full", x_letter, x_top + x_row * x_tall, x_left + ((x_col + 0) * x_wide));
-         FONT_letter ( "chunky_full", x_digit , x_top + x_row * x_tall, x_left + ((x_col + 1) * x_wide));
+         FONT_letter ( s_font_mid, x_letter, x_top + x_row * x_tall, x_left + ((x_col + 0) * x_wide));
+         FONT_letter ( s_font_mid, x_digit , x_top + x_row * x_tall, x_left + ((x_col + 1) * x_wide));
          COLOR_OFF;
       }
    }
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
-      x_row = 45;
-      mvprintw (x_row++, x_left + 5,  ".----middle-----.");
+      x_col = x_left + 5;
+      x_row = x_top + x_tall;
+      mvprintw (x_row++, x_col, ".----MIDDLE-----.");
+      sprintf (x_text, "| %-13.13s |", s_font_mid);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_tall  = %3d |", x_tall);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_wide  = %3d |", x_wide);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_dist  = %3d |", x_dist);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_max   = %3d |", x_max);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_right = %3d |", x_right);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| x_left  = %3d |", x_left);
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| rot     = %3d |", entry.rot     [0] - '0');
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col, "%s", x_text);
       sprintf (x_text, "| ptr     = %3d |", entry.pointer [0] - '0');
-      mvprintw (x_row++, x_left + 5,  "%s", x_text);
-      mvprintw (x_row++, x_left + 5,  "'---------------'");
+      mvprintw (x_row++, x_col, "%s", x_text);
+      mvprintw (x_row++, x_col, "'---------------'");
       COLOR_OFF;
    }
    /*---(complete)-----------------------*/
@@ -658,8 +713,9 @@ char             /* [------] show binary numbers at bottom -------------------*/
 VEIL_binary          (void)
 {
    /*---(locals)-----------+-----------+-*/
-   int         i           = 0;               /* iterator -- rows             */
-   int         j           = 0;               /* iterator -- columnns         */
+   int         x_row       = 0;               /* iterator -- rows             */
+   int         x_col       = 0;               /* iterator -- columnns         */
+   int         x_grp       = 0;               /* iterator -- groups           */
    int         k           = 0;               /* iterator -- blocks           */
    int         x_top       = 0;
    int         x_left      = 0;           /* left of left knock               */
@@ -668,14 +724,15 @@ VEIL_binary          (void)
    if (my.show_binary    != 'y')   return 0;
    /*---(prepare)------------------------*/
    x_top     = s_bot - 12;
-   x_left    = FONT_wide ("alligator") * 2 + 8;
+   x_left    = s_lefplus + 5;
    /*---(output)-------------------------*/
    COLOR_BLUE;
-   for (i =  0; i <  8; i += 2) {
-      for (j =  0 ; j < 8; j += 2) {
-         for (k =  0 ; k < 80; k += 10) {
+   for (x_row =  0; x_row <  8; x_row += 2) {
+      for (x_col =  0 ; x_col < 8; x_col += 2) {
+         for (x_grp =  0 ; x_grp < 80; x_grp += 10) {
+            if (x_left + x_grp + 10 > s_rigbin)  continue;
             x_letter = rand () % 10 + '0';
-            FONT_letter ("binary", x_letter, i + x_top, j + x_left + k);
+            FONT_letter ("binary", x_letter, x_row + x_top, x_col + x_left + x_grp);
          }
       }
    }
@@ -726,7 +783,7 @@ VEIL_prompt          (void)
    SHOW_COUNTERS {
       COLOR_WHITE;
       x_row = s_bot - 11;
-      mvprintw (x_row++, x_left - 35,  ".----prompt----------------------.");
+      mvprintw (x_row++, x_left - 35,  ".----PROMPT----------------------.");
       sprintf (x_text, "| my.lang = %-3d                  |", my.language);
       mvprintw (x_row++, x_left - 35,  "%s", x_text);
       sprintf (x_text, "| name    = %-20.20s |", g_titles [my.language].language);
@@ -748,7 +805,7 @@ VEIL_show            (void)
    /*---(set positions)---------------*/
    VEIL_sizing ();
    /*---(show sections)------------------*/
-   rc = VEIL_butterfly ();
+   rc = VEIL_butterfly ('m');
    rc = VEIL_conf      ();
    rc = VEIL_middle    ();
    rc = VEIL_left      ();
@@ -770,6 +827,7 @@ VEIL_timer           (void)
    int         x_pass      = 0;
    int         x_secs      = 0;
    int         x_row       = 0;
+   int         x_col       = 0;
    char        x_text      [LEN_DESC] = "";
    /*---(defense)------------------------*/
    if (my.show_timer != 'y')  return 0;
@@ -790,23 +848,23 @@ VEIL_timer           (void)
    /*---(display marker)-----------------*/
    COLOR_CYAN;
    switch (x_pass) {
-   case 4 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
+   case 4 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
              break;
-   case 3 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
+   case 3 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
              break;
-   case 2 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
+   case 2 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen + 14 - x_secs);
              break;
-   case 1 :  FONT_letter ( "dots", s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
+   case 1 :  FONT_letter ( s_font_nok, s_secs % 2 + '0', s_bot - 2, s_cen - 18 + x_secs);
              break;
    }
    COLOR_OFF;
    /*---(display pass)-------------------*/
    COLOR_CYAN;
    switch (x_pass) {
-   case 4 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen + 24);
-   case 3 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen + 18);
-   case 2 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen - 30);
-   case 1 :  FONT_letter ( "dots", '1'             , s_bot - 2, s_cen - 24);
+   case 4 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen + 24);
+   case 3 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen + 18);
+   case 2 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen - 30);
+   case 1 :  FONT_letter ( s_font_nok, '1'             , s_bot - 2, s_cen - 24);
    }
    COLOR_OFF;
    /*---(display messeage)---------------*/
@@ -817,16 +875,17 @@ VEIL_timer           (void)
    SHOW_COUNTERS {
       COLOR_WHITE;
       x_row = s_bot - 5;
-      mvprintw (x_row++, s_lefplus + 35,  ".------timer------.");
+      x_col = s_lefplus - FONT_wide (s_font_nok);
+      mvprintw (x_row++, x_col,  ".------TIMER------.");
       sprintf (x_text, "| s_loop  = %-5d |", s_loop);
-      mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| s_secs  = %-3d   |", s_secs);
-      mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_secs  = %-3d   |", x_secs);
-      mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| x_pass  = %-3d   |", x_pass);
-      mvprintw (x_row++, s_lefplus + 35,  "%s", x_text);
-      mvprintw (x_row++, s_lefplus + 35,  "'----------------'");
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "'----------------'");
       COLOR_OFF;
    }
    return 0;
@@ -852,8 +911,10 @@ VEIL_status          (void)
    if (my.show_status != 'y'   )   return 0;
    if (s_count        == x_save)   return 0;
    /*---(prepare)------------------------*/
-   x_tall    = FONT_tall ("basic");
-   x_wide    = FONT_wide ("basic");
+   x_tall    = FONT_tall (s_font_top);
+   x_wide    = FONT_wide (s_font_top);
+   /*> x_left    = s_lefplus   - FONT_wide (s_font_nok);                              <* 
+    *> x_right   = s_rigminus  + FONT_wide (s_font_nok);                              <*/
    x_left    = s_lefplus;
    x_right   = s_rigminus;
    x_dist    = x_right - x_left;
@@ -869,31 +930,35 @@ VEIL_status          (void)
       } else {
          COLOR_YELLOW;
       }
-      FONT_letter ( "basic", x_letter,  0,  x_left + (x_col * x_wide));
+      FONT_letter ( s_font_top, x_letter,  0,  x_left + (x_col * x_wide));
       COLOR_OFF;
    }
    x_save = s_count;
    /*---(show counters)------------------*/
    SHOW_COUNTERS {
       COLOR_WHITE;
-      x_row = s_top + x_tall + 1;
-      mvprintw (x_row++, s_lefplus + 5,  ".-----status----.");
+      x_row = s_top     + 2;
+      x_col = s_lefplus + 5;
+      mvprintw (x_row++, x_col,  ".-----STATUS----.");
+      sprintf (x_text, "| %-13.13s |", s_font_top);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| s_count = %3d |", s_count);
-      mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| s_status=  %c  |", s_status);
-      mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "%s", x_text);
       sprintf (x_text, "| s_cpart =  %c  |", s_cpart );
-      mvprintw (x_row++, s_lefplus + 5,  "%s", x_text);
-      mvprintw (x_row++, s_lefplus + 5,  "'---------------'");
+      mvprintw (x_row++, x_col,  "%s", x_text);
+      mvprintw (x_row++, x_col,  "'---------------'");
       COLOR_OFF;
    }
    SHOW_COUNTERS {
       COLOR_WHITE;
-      x_row = 7;
-      mvprintw (++x_row, s_cen - 17,  ".--------------------------------.");
-      mvprintw (++x_row, s_cen - 17,  "| %-30.30s |", my.entry_text);
-      mvprintw (++x_row, s_cen - 17,  "|          %-12.12s          |", my.magic_num);
-      mvprintw (++x_row, s_cen - 17,  ".--------------------------------.");
+      x_row = 2;
+      x_col = s_cen;
+      mvprintw (++x_row, x_col,  ".----------MAGIC-KEYS------------.");
+      mvprintw (++x_row, x_col,  "| %-30.30s |", my.entry_text);
+      mvprintw (++x_row, x_col,  "|          %-12.12s          |", my.magic_num);
+      mvprintw (++x_row, x_col,  ".--------------------------------.");
       COLOR_OFF;
    }
    /*---(complete)-----------------------*/
