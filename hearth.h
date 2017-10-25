@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.1a"
-#define     VER_TXT          "knock and prefix use conf and stable random numbers"
+#define     VER_NUM          "2.1c"
+#define     VER_TXT          "fixed prefix and added color, rotpnt, and other options"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -223,6 +223,7 @@ extern int         s_butter;
 extern char        butterfly   [MAX_BFLY] [MAX_ROW] [MAX_COL];
 extern char        g_bfly_lrg  [MAX_BFLY] [MAX_ROW] [MAX_COL];
 extern char        g_bfly_med  [MAX_BFLY] [MAX_ROW] [MAX_COL];
+extern char        g_bfly_sml  [MAX_BFLY] [MAX_ROW] [MAX_COL];
 
 
 
@@ -296,6 +297,7 @@ struct cACCESSOR {
    char        tty_num;
    char        fake_user   [50];
    char        show_counters;          /* show counters on screen             */
+   char        show_color;             /* show color on screen                */
    /*---(veil)-------------------*/
    char        language;
    char        use_timer;              /* time limiter                        */
@@ -311,6 +313,7 @@ struct cACCESSOR {
    char        show_middle;
    char        show_judgement;
    char        show_hint;
+   char        show_rotpnt;
    char        show_binary;
    char        show_login;
    char        show_status;

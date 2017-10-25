@@ -126,6 +126,8 @@ PROG_init            (int   a_argc , char *a_argv[])
    /*---(extra info)---------------------*/
    my.show_counters   = '-';
    my.show_hint       = '-';
+   my.show_rotpnt     = 'y';
+   my.show_color      = 'y';
    /*---(signals)------------------------*/
    /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/
    /*---(complete)-----------------------*/
@@ -249,6 +251,10 @@ PROG_args            (int a_argc, char **a_argv)
       else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint      = '-';
       else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
       else if (strcmp (a, "--nocounters"  ) == 0)  my.show_counters  = '-';
+      else if (strcmp (a, "--rotpnt"      ) == 0)  my.show_rotpnt    = 'y';
+      else if (strcmp (a, "--norotpnt"    ) == 0)  my.show_rotpnt    = '-';
+      else if (strcmp (a, "--color"       ) == 0)  my.show_color     = 'y';
+      else if (strcmp (a, "--nocolor"     ) == 0)  my.show_color     = '-';
       /*---(usage/help)------------------*/
       else if (strcmp (a, "-h"            ) == 0)  PROG_usage ();
       else if (strcmp (a, "--help"        ) == 0)  PROG_usage ();
