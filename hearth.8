@@ -1,7 +1,10 @@
 .TH hearth 8 2012-mar "linux" "heatherly custom tools manual"
 
 .SH NAME
-hearth (hestia) \- clean, custom, and secure terminal login replacement
+hearth_estia \- clean, custom, and secure terminal login replacement
+
+.SH IMAGERY
+hearth (לשתנט) is a symbol of one's home, a place of welcoming guests
 
 .SH SUMMARY
 hearth is a clean, custom, maintainable, reliable, and secure login
@@ -12,65 +15,163 @@ increasing monitoring, notification, and logging.
 .nf
 .B hearth [URGENTS] [OPTIONS] <dev_file>
 
-.SH DESCRIPTION (short version)
-hearth is a clean, custom, maintainable, reliable, and secure login
-replacement utilty that will take the place of both login and su while 
-increasing monitoring, notification, and logging.
+.SH COMMAND LINE OPTIONS
+hearth can alter its display a number of ways to aid login and debugging.
 
-.SH HERITAGE and NAMESAKE
-hestia is one of the twelve great olympic gods in the greek pantheon, firstborn
-of the six children of cronus and rhea, and so sister to zeus, poseidon,
-and hades.  she serves as the principle protector of cities, community
-harmony, hearths, and homes.  she was typically represented as gentle and
-modest, sitting on a wooden throne, and wearing a veil to cover her face.
-every hearth is her alter and the central public hearth in every city had
-a fire burning continuously in her name.  she was typically worshiped as an
-entire city through the burning of her fire and the first offering of every
-sacrifice was given to her, before even zeus.
+.B hestia, 
+these options allow hestia (getty) to transfer critical information easily
+to hearth (login).
 
+.B --hostname <text>
+.RS 8
+transfers the hostname string
+.RE
 
-.SH DESCRIPTION (extended version and backstory)
-login, su, and many other variations are responsible for identifying and
-authenticating an individual user based on credentials that they presents to
-the program.  given the advancements in hacking, security, and privacy;
-a great deal more is possible, and often expected, than was available 
-when these applications were created.
+.B --cluster <n>
+.RS 8
+transfers the cluster number
+.RE
 
-the standard unix path to authentication is init spawns getty which mananges
-the physical and virtual terminals.  when a user indicates that they wish to
-log on to the system, getty accepts the user name and spawns login to
-accept and validate the password.  if successful, login then launches the users
-default shell and waits for the session to end.  if not, it simply returns.
+.B /dev/tty<n>
+.RS 8
+specifies the device for the login
+.RE
 
-over time, various forms of logging have been added to help identify patterns
-of activity as well as understand general usage.  these tracking methods were
-standardized but not well supported with reporting and so have been slowly
-falling out of favor.  as a result, administators can either accept the current
-state of play or have to upgrade to an all-encompassing monster like pam or
-selinux.  fuck both options.
+.B informational, 
+these options provide simple additional information on the program.
 
-in order to truly understand the system and own the situation, we have opted
-to write a custom getty, login, and reporting system rather than just ignore,
-accept, or bitch about the situation like most others.  the fits in perfectly
-with our goal to simplity and tailor the system to our needs.
+.B --version
+.RS 8
+displays version number and comment then exits
+.RE
 
-hestia, hearth, and argus are an attempt to...
-   -- manage all logins with a single getty server (hestia)
-   -- reinvent configuration and coding to increase security (hestia)
-   -- add modern security features to the process (hearth)
-   -- enable tracking as expected in unix standard (hearth)
-   -- create excellent reporting for security related logging (argus)
-   -- enable access audits with more comprehensive reporting (argus)
+.B hinting, 
+these options provide additional help in locating and interpreting login
+information for new or inexperienced users.
 
-hearth will implement...
-   -- user name and passwords from the standard sources
-   -- add a layer of unique, hidden, coded on-screen date to the login
-   -- and implement a basic grid authentication system
-   -- have a full screen mode that can adapt to different size screens
-   -- have a single line mode for more compressed input
-   -- write to all unix standard security logging files
-   -- create individual log files to analyze log ins
+.B --color (default), --nocolor
+.RS 8
+display in color or all white, on a transparent background
+.RE
 
+.B --hints, --nohints (default)
+.RS 8
+colorize key elements which can aid a end-user to login
+.RE
+
+.B --counters, --nocounters (default)
+.RS 8
+show small information windows with debugging information
+.RE
+
+.B --rotpnt (default), --norotpnt
+.RS 8
+display rotation and suffix pointers in midline
+.RE
+
+.B visual display, 
+these options are primarily for debugging purposes as some of the elements
+contain critical login information.
+
+.B --butterfly (default), --nobutterfly
+.RS 8
+display the center butterfly ascii art
+.RE
+
+.B --bfly <n>
+.RS 8
+allows the caller to specify a specific image
+.RE
+
+.B --status (default), --nostatus
+.RS 8
+display the topmost line that provides current status
+.RE
+
+.B --knock (default), --noknock
+.RS 8
+display the dots and dashes for the knock
+.RE
+
+.B --left (default), --noleft
+.RS 8
+display the leftmost numbers for prefix and infix
+.RE
+
+.B --right (default), --noright
+.RS 8
+display the rightmost numbers for suffix
+.RE
+
+.B --middle (default), --nomiddle
+.RS 8
+display the middle line of letters/numbers
+.RE
+
+.B --binary (default), --nobinary
+.RS 8
+display the bottom left binary codes
+.RE
+
+.B --prompt (default), --noprompt
+.RS 8
+display the traditional login prompting
+.RE
+
+.B --tty (default), --notty
+.RS 8
+display information about terminal
+.RE
+
+.B --external (default), --internal
+.RS 8
+display information about external vs internal sessions
+.RE
+
+.B --judgement (default), --nojudgement
+.RS 8
+display narrative feedback about login
+.RE
+
+.B timer and timeout, 
+these options provide additional information and control over login session
+timeout and status
+
+.B --timer (default), --notimer
+.RS 8
+display the timer at the bottom
+.RE
+
+.B --timeout, --notimeout (default)
+.RS 8
+display the timeout period in tenths of a second
+.RE
+
+.B --infinite, --finite (default)
+.RS 8
+allow the user session to timeout
+.RE
+
+.B --timeout <tenths>
+.RS 8
+timeout period in tenths of seconds
+.RE
+
+.B interactive, 
+these options allow the system to be run from the command line to aid in
+debugging and testing.
+
+.B --fake (default), --nofake
+.RS 8
+turn the initial login screen on or off
+.RE
+
+.B <username>
+.RS 8
+provide a command line username string
+.RE
+
+.SH FILES
 hearth will not alter or update any unix standard input or output files
 including...
    -- /etc/passwd             -- for valid users and characteristics
@@ -86,93 +187,13 @@ and consistency checking...
    -- /var/log/hestia.logging -- supplementary logging
    -- /etc/hestia.conf        -- hestia configuration
 
-.SH OPTIONS
-
-hearth only requires a tty or pty cdevice file to run.  without a
-device file, hearth will simply fail and return.
-
-.B required arguments
-
-there is only one required argument, the device file.  this argument tells
-the program which physical, virtual, or pseudo terminal on which to collect
-log on credentials and grant access under the supplied user id.
-
-.B traditional arguments
-
-there are a number of historical options from related programs that
-hearth will replace, including, login, su, and others.  hearth
-is intended to tighten up the security environment and so will eliminate
-options that have been added overtime due to creeping featurism and
-flexiblity that is not generally required.
-
-options from the login command...
-   -f    preauthenticated so do not ask for password (no way)
-   -h    login on remote host (no way, use ssh instead)
-   -p    preserve login environment (no as it may weaken security)
-   -r    use rlogin autologin (no way)
-
-options from the su command...
-   -s    designate the shell environment (could weaken security)
-   -c    command invoked by the shell after login (no way, spooky)
-   -m    preserve login environment (no as it may weaken security)
-   -l    create environment like fresh log in (always the case)
-
-options from the getty command effecting hearth...
-   -a    autologin to specific user id (no bloody way)
-   -H    set to an alternate host (no, use ssh)
-   -l    set an alternate login program (huge security hole)
-   -n    skip log in process (no way)
-   -o    login options for the login program (no)
-   -t    timeout period (going with a fixed timeout)
-
-.B retained options
-
-none.  all the options tend to circumvent a consistent, tight security
-environment.  it is also problematic to allow command line options that
-will be retained in the shell history which can be searched.
-
-.B addidional unique visual options
-
-   --butterfly     background butterfly display
-   --nobutterfly
-
-   --status        coded pass/fail feedback
-   --nostatus
-
-   --timer         display a countdown timer
-   --notimer
-
-   --tty           show the tty number and tty vs. pty indicator
-   --notty
-
-   --knock         coded current knock information
-   --noknock
-
-   --left          left side prefix and infix numbers
-   --noleft
-
-   --right         right side suffix numbers
-   --noright
-
-   --judgement     pass/fail feedback at bottom of screen
-   --nojudgement
-
-   --hint          highlight corrent coded information
-   --nohint
-
-   --binary        display binary block
-   --nobinary
-
-   --login         show fake login feedack
-   --nologin
-
-   --version       display version string and exit
-
-.SH BUGS
-unit testing is presently clean, but who knows till it rears its ugly head
+.SH SEE ALSO
+this documentation is layered to provide easier navigation.
+   hearth (7), decision rationale, objectives, and overview
+   hearth (8), initiation, options, and structure
 
 .SH AUTHOR
-the_heatherlys
+jelloshrke ata gmail dotta com
 
 .SH COLOPHON
 this page is part of a documentation package meant to make our use of the

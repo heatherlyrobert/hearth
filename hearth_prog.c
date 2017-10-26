@@ -108,26 +108,29 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.cluster         =   0;
    strlcpy (my.fake_user, "", LEN_DESC);
    /*---(veil)---------------------------*/
-   my.use_timer       = 'y';
    my.tty_type        = ' ';
-   my.show_butterfly  = 'y';
    my.show_tty        = 'y';
    my.show_external   = 'y';
-   my.show_knock      = 'y';
+   my.show_judgement  = 'y';
+   /*---(timer options)------------------*/
    my.show_timer      = 'y';
+   my.show_timeout    = '-';
+   my.timeout         = 120;
    my.infinite        = '-';
+   /*---(visual)-------------------------*/
+   my.show_butterfly  = 'y';
+   my.show_status     = 'y';
+   my.show_knock      = 'y';
    my.show_left       = 'y';
    my.show_right      = 'y';
    my.show_middle     = 'y';
-   my.show_judgement  = 'y';
    my.show_binary     = 'y';
-   my.show_login      = 'y';
-   my.show_status     = 'y';
-   /*---(extra info)---------------------*/
-   my.show_counters   = '-';
-   my.show_hint       = '-';
-   my.show_rotpnt     = 'y';
+   my.show_prompt     = 'y';
+   /*---(hinting)------------------------*/
    my.show_color      = 'y';
+   my.show_hint       = '-';
+   my.show_counters   = '-';
+   my.show_rotpnt     = 'y';
    /*---(signals)------------------------*/
    /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/
    /*---(complete)-----------------------*/
@@ -221,40 +224,66 @@ PROG_args            (int a_argc, char **a_argv)
       if      (a[0] == '@')                     continue;
       /*---(interactive)-----------------*/
       if      (strcmp (a, "--version"     ) == 0) {
-         /*> printf ("hearth (%s/%s) %s\n", VER_NUM, __DATE__, VER_TXT);              <*/
+         printf ("hearth (%s/%s) %s\n", VER_NUM, __DATE__, VER_TXT);
          exit (0);
       }
-      /*---(visual options)--------------*/
+      /*---(fake control)----------------*/
+      else if (strcmp (a, "--fake"        ) == 0)  my.use_fake       = 'y';
       else if (strcmp (a, "--nofake"      ) == 0)  my.use_fake       = '-';
-      else if (strcmp (a, "--notimer"     ) == 0)  my.use_timer      = '-';
-      else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
-      else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = 'n';
+      /*---(visual options)--------------*/
       else if (strcmp (a, "--butterfly"   ) == 0)  my.show_butterfly = 'y';
       else if (strcmp (a, "--nobutterfly" ) == 0)  my.show_butterfly = 'n';
+      else if (strcmp (a, "--bfly"        ) == 0) {
+         if (i + 1 < a_argc) {
+            s_butter = atoi (a_argv [i + 1]);
+            if (s_butter > s_bfly_max) s_butter = s_bfly_max;
+            if (s_butter < 0         ) s_butter =  0;
+            ++i;
+         }
+      }
       else if (strcmp (a, "--status"      ) == 0)  my.show_status    = 'y';
       else if (strcmp (a, "--nostatus"    ) == 0)  my.show_status    = 'n';
-      else if (strcmp (a, "--timer"       ) == 0)  my.show_timer     = 'y';
-      else if (strcmp (a, "--notimer"     ) == 0)  my.show_timer     = 'n';
-      else if (strcmp (a, "--infinite"    ) == 0)  my.infinite       = 'y';
-      else if (strcmp (a, "--tty"         ) == 0)  my.show_tty       = 'y';
-      else if (strcmp (a, "--notty"       ) == 0)  my.show_tty       = 'n';
       else if (strcmp (a, "--knock"       ) == 0)  my.show_knock     = 'y';
       else if (strcmp (a, "--noknock"     ) == 0)  my.show_knock     = 'n';
       else if (strcmp (a, "--left"        ) == 0)  my.show_left      = 'y';
       else if (strcmp (a, "--noleft"      ) == 0)  my.show_left      = 'n';
       else if (strcmp (a, "--right"       ) == 0)  my.show_right     = 'y';
       else if (strcmp (a, "--noright"     ) == 0)  my.show_right     = 'n';
+      else if (strcmp (a, "--middle"      ) == 0)  my.show_middle    = 'y';
+      else if (strcmp (a, "--nomiddle"    ) == 0)  my.show_middle    = 'n';
+      else if (strcmp (a, "--binary"      ) == 0)  my.show_binary    = 'y';
+      else if (strcmp (a, "--nobinary"    ) == 0)  my.show_binary    = 'n';
+      else if (strcmp (a, "--prompt"      ) == 0)  my.show_prompt    = 'y';
+      else if (strcmp (a, "--noprompt"    ) == 0)  my.show_prompt    = 'n';
+      else if (strcmp (a, "--tty"         ) == 0)  my.show_tty       = 'y';
+      else if (strcmp (a, "--notty"       ) == 0)  my.show_tty       = 'n';
+      else if (strcmp (a, "--external"    ) == 0)  my.show_external  = 'y';
+      else if (strcmp (a, "--internal"    ) == 0)  my.show_external  = '-';
       else if (strcmp (a, "--judgement"   ) == 0)  my.show_judgement = 'y';
       else if (strcmp (a, "--nojudgement" ) == 0)  my.show_judgement = 'n';
-      /*---(hints)-----------------------*/
+      /*---(timer options)---------------*/
+      else if (strcmp (a, "--timer"       ) == 0)  my.show_timer     = 'y';
+      else if (strcmp (a, "--notimer"     ) == 0)  my.show_timer     = 'n';
+      else if (strcmp (a, "--timeout"     ) == 0)  my.show_timeout   = '-';
+      else if (strcmp (a, "--notimeout"   ) == 0)  my.show_timeout   = 'y';
+      else if (strcmp (a, "--finite"      ) == 0)  my.infinite       = '-';
+      else if (strcmp (a, "--infinite"    ) == 0)  my.infinite       = 'y';
+      else if (strcmp (a, "--timeout"     ) == 0) {
+         if (i + 1 < a_argc) {
+            my.timeout = atoi (a_argv [i + 1]);
+            ++i;
+            if (my.timeout < 60)  my.timeout = 60;
+         }
+      }
+      /*---(hinting options)-------------*/
+      else if (strcmp (a, "--color"       ) == 0)  my.show_color     = 'y';
+      else if (strcmp (a, "--nocolor"     ) == 0)  my.show_color     = '-';
       else if (strcmp (a, "--hints"       ) == 0)  my.show_hint      = 'y';
       else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint      = '-';
       else if (strcmp (a, "--counters"    ) == 0)  my.show_counters  = 'y';
       else if (strcmp (a, "--nocounters"  ) == 0)  my.show_counters  = '-';
       else if (strcmp (a, "--rotpnt"      ) == 0)  my.show_rotpnt    = 'y';
       else if (strcmp (a, "--norotpnt"    ) == 0)  my.show_rotpnt    = '-';
-      else if (strcmp (a, "--color"       ) == 0)  my.show_color     = 'y';
-      else if (strcmp (a, "--nocolor"     ) == 0)  my.show_color     = '-';
       /*---(usage/help)------------------*/
       else if (strcmp (a, "-h"            ) == 0)  PROG_usage ();
       else if (strcmp (a, "--help"        ) == 0)  PROG_usage ();
@@ -268,14 +297,6 @@ PROG_args            (int a_argc, char **a_argv)
       else if (strcmp (a, "--cluster"     ) == 0) {
          if (i + 1 < a_argc) {
             my.cluster = atoi (a_argv [i + 1]);
-            ++i;
-         }
-      }
-      else if (strcmp (a, "--bfly"        ) == 0) {
-         if (i + 1 < a_argc) {
-            s_butter = atoi (a_argv [i + 1]);
-            if (s_butter > s_bfly_max) s_butter = s_bfly_max;
-            if (s_butter < 0         ) s_butter =  0;
             ++i;
          }
       }
@@ -318,7 +339,7 @@ PROG_args            (int a_argc, char **a_argv)
    DEBUG_ARGS   yLOG_char    ("judgement" , my.show_judgement);
    DEBUG_ARGS   yLOG_char    ("hint"      , my.show_hint);
    DEBUG_ARGS   yLOG_char    ("binary"    , my.show_binary);
-   DEBUG_ARGS   yLOG_char    ("login"     , my.show_login);
+   DEBUG_ARGS   yLOG_char    ("prompt"    , my.show_prompt);
    DEBUG_ARGS   yLOG_char    ("status"    , my.show_status);
    /*---(complete)-----------------------*/
    DEBUG_TOPS   yLOG_exit   (__FUNCTION__);

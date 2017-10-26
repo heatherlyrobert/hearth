@@ -789,6 +789,7 @@ VEIL_middle          (void)
    char        x_text      [LEN_DESC] = "";
    int         x_top       = 0;
    int         x_pos       = 0;
+   if (my.show_middle != 'y') return 0;
    /*---(prepare)------------------------*/
    x_tall    = FONT_tall (s_font_mid);
    x_wide    = FONT_wide (s_font_mid);
@@ -900,7 +901,7 @@ VEIL_prompt          (void)
    x_left    = x_right - 35;
    yLOG_value  ("x_right"     , x_right);
    yLOG_value  ("x_left"      , x_left );
-   if (my.show_login     != 'y') return 0;
+   if (my.show_prompt != 'y') return 0;
    x_row = s_bot - 12;
    x_gmt_off = g_titles [my.language].gmt_off * 60 * 60;
    strl4time (time (NULL) + x_gmt_off, x_text, 0, 'T', LEN_DESC);
@@ -1014,6 +1015,7 @@ VEIL_timer           (void)
    COLOR_OFF;
    /*---(display messeage)---------------*/
    COLOR_CYAN;
+   mvprintw (s_bot - 3, s_cen - 29,  "[[ %d ]]" , my.timeout);
    mvprintw (s_bot - 3, s_cen - strlen (g_titles [my.language].timer) / 2,  "%s" , g_titles [my.language].timer );
    COLOR_OFF;
    /*---(show counters)------------------*/
@@ -1128,12 +1130,13 @@ VEIL_getchar         (void)
    while (1) {
       /*---(timers)----------------------*/
       ++s_loop;
-      if (s_loop > 9999)  s_loop = 5000;
+      if (s_loop > 9999)  s_loop = 5001;
+      if (s_secs > 9999)  s_secs = 5001;
       DEBUG_USER   yLOG_value   ("s_loop"    , s_loop);
-      if (my.use_timer == 'y' && s_loop % 5 == 0) ++s_secs;
+      if (s_loop % 5 == 0) ++s_secs;
       DEBUG_USER   yLOG_value   ("s_secs"    , s_secs);
       /*---(timeout)---------------------*/
-      if (my.infinite != 'y' && s_secs > 120) {
+      if (my.infinite != 'y' && s_secs > my.timeout) {
          DEBUG_USER   yLOG_note    ("s_secs timed out");
          s_status = STATUS_TIMEOUT;
          break;

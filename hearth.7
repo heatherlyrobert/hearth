@@ -1,34 +1,57 @@
 .TH hearth 7 2012-mar "linux" "heatherly custom tools manual"
 
 .SH NAME
-hearth \- decision rationale, objectives, and overview
+hearth_estia \- decision rationale, objectives, and overview
+
+.SH IMAGERY
+hearth (לשתנט) is a symbol of one's home, a place of welcoming guests
 
 .SH SUMMARY
 hearth is a flexible, adaptive, maintainable, reliable, and secure login
 replacement utilty that will take the place of login, su, and x11 login while
 increasing monitoring, notification, and logging.
 
+.SH USER AUTHENTICATION PROCESS OVERVIEW
+in standard unix/linux user authentication, init (kharon) spawns getty
+(hestia) which mananges physical and virtual terminals.  when a user attempts
+to login, getty (hestia) accepts the user name and spawns login (hearth) to
+accept the passowrd and validate the user.  if successful, login (hearth)
+then launches the users default shell and waits for the session to end.
+if not, it simply returns.
+
+over time, various forms of logging have been added to help identify patterns
+of activity as well as understand general usage.  these tracking methods were
+standardized but not well supported with reporting and so have been slowly
+falling out of favor.  as a result, administators can either accept the current
+state of play or have to upgrade to an all-encompassing monster like pam or
+selinux.  fuck both options.
+
+in order to truly understand the system and own the situation, we have opted
+to write a custom getty, login, and reporting system rather than just ignore,
+accept, or bitch about the situation like most others.  the fits in perfectly
+with our goal to simplity and tailor the system to our needs.
+
 .SH SCOPE, REASONING and DECISION
 
 .B definition (D).   
-login services are used by interactive users to request, validate, and
-establish a new session with the system -- traditionally requiring only a
-user name and password from the user.
+login, su, and many other variants are responsible for authenticating and
+granting access to an individual user based on credentials they present to
+the program.
 
 .B wtf (W).   
 no one in their right mind rebuilds a well-tested, fundamental system.  well,
 i want to learn this critical area.  i actually feel login has squashed
-creativity by being so steady and good.
+creativity by being so reliable and good.
 
 .B value (V).   
-most linux systems are only guarded by physical/electronic access and login
-serices.  the importance of a strong, flexible, and adaptive login system
-can not be overstated.  time to improve.
+most linux systems are only guarded by physical/electronic access and these
+login serices.  the importance of a strong, flexible, and adaptive login
+system can not be overstated.  time to improve.
 
 .B complication (C).   
-traditional login services have been a mainstay in security, but have not
-been updated with new thinking and theories, sometimes due to users refusing
-to do additional input/work.
+given the advancements in hacking, security, and privacy; a great deal more
+is possible, and often expected, than was available when these applications
+were created.
 
 .B answer (A).   
 i will build a fully custom, very specific login services system to test any
@@ -38,32 +61,39 @@ robots, and, well, anyone but me.
 .B target user (T).  
 very technical, well-versed, power user.
 
+.B hearth will attempt to...
+   -- use user name and passwords from the standard sources
+   -- add a layer of unique, hidden, coded on-screen date to the login
+   -- add modern security features to the process
+   -- enable tracking as expected in unix standard
+   -- write to all unix standard security logging files
+   -- provide for much more comprehensive audiing (using argus)
+   -- have a full screen mode that can adapt to different size screens
+   -- have a single line mode for more compressed input
+
 .B drawbacks...
    -- replacing a tried, tested, and working system -- dumb
    -- must become knowledgeable on digital security systems
    -- may introduce explotable bugs along the way
+   -- introduce complexity which can lead to more issues
    -- one more thing i need to maintain
    -- user base of one -- nobody else will ever want such a thing
 
 .B benefits...
-   -- great chance to measure up against the programming gods ;)
+   -- another chance to measure up against the programming gods ;)
    -- develop a bigger knowledge base in this critical area
    -- pressure me to create more stable programs (reduce maintenance)
    -- make my systems much more defensable than the next guy
    -- get rid of dependence on other people's login systems
    -- experiment like crazy and find new great methods
+   -- login is easy to fake (hackers can exploit)
 
-.B requirements drawn from existing systems
-   -- runs as a single daemon, like ngetty
-
-.B requirements or limits i am imposing
-   -- will run with ncurses as i want complex user presentation
-
-.B requirements refused from existing systems
-   -- no specialty terminal types, only vt102 (xterm, aterm, eterm)
-   -- will not use /etc/issue or -f <issue_file>
-   -- will not use /etc/ttys, /etc/gettydefs, /etc/gettytab
-   -- will not change the login program using "-l <login_program>"
+.B requirements rejected from existing systems
+   -- will not allow password changes, separate utility
+   -- will not provide system messages
+   -- will not inform users of incomming mail
+   -- no remote host access, use ssh (do one thing, do it well)
+   -- no autologin or preauthentication (hacker holes)
 
 .B known experiments...
    -- two-factor authentication
@@ -73,6 +103,41 @@ very technical, well-versed, power user.
    -- hall detector from ring or other wearable
    -- work schedule restrictions
    -- source point restrictions
+
+.B traditional arguments
+
+there are a number of historical options from related programs that
+hearth will replace, including, login, su, and others.  hearth
+is intended to tighten up the security environment and so will eliminate
+options that have been added overtime due to creeping featurism and
+flexiblity that is not generally required.
+
+options from the login command...
+   -f    preauthenticated so do not ask for password (no way)
+   -h    login on remote host (no way, use ssh instead)
+   -p    preserve login environment (no as it may weaken security)
+   -r    use rlogin autologin (no way)
+
+options from the su command...
+   -s    designate the shell environment (could weaken security)
+   -c    command invoked by the shell after login (no way, spooky)
+   -m    preserve login environment (no as it may weaken security)
+   -l    create environment like fresh log in (always the case)
+
+options from the getty command effecting hearth...
+   -a    autologin to specific user id (no bloody way)
+   -H    set to an alternate host (no, use ssh)
+   -l    set an alternate login program (huge security hole)
+   -n    skip log in process (no way)
+   -o    login options for the login program (no)
+   -t    timeout period (going with a fixed timeout)
+
+.B retained options
+
+none.  all the options tend to circumvent a consistent, tight security
+environment.  it is also problematic to allow command line options that
+will be retained in the shell history which can be searched.
+
 
 .SH SEE ALSO
 this documentation is layered to provide easier navigation.

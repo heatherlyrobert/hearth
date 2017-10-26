@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.1c"
-#define     VER_TXT          "fixed prefix and added color, rotpnt, and other options"
+#define     VER_NUM          "2.1d"
+#define     VER_TXT          "fixed and documented existing options"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -296,27 +296,32 @@ struct cACCESSOR {
    char        tty_type;
    char        tty_num;
    char        fake_user   [50];
-   char        show_counters;          /* show counters on screen             */
-   char        show_color;             /* show color on screen                */
    /*---(veil)-------------------*/
    char        language;
-   char        use_timer;              /* time limiter                        */
    char        magic_num    [20];      /* magic number used on this getty     */
-   char        show_butterfly;
-   char        show_tty;
-   char        show_external;
-   char        show_knock;
+   /*---(timer)------------------*/
    char        show_timer;
+   char        show_timeout;           /* display timeout limit               */
+   char        timeout;                /* actual timeout period               */
    char        infinite;
+   /*---(visual)-----------------*/
+   char        show_butterfly;
+   char        show_status;
+   char        show_knock;
    char        show_left;
    char        show_right;
    char        show_middle;
-   char        show_judgement;
-   char        show_hint;
-   char        show_rotpnt;
    char        show_binary;
-   char        show_login;
-   char        show_status;
+   char        show_prompt;
+   char        show_tty;
+   char        show_external;
+   char        show_judgement;
+   /*---(hinting)----------------*/
+   char        show_color;             /* show color on screen                */
+   char        show_hint;
+   char        show_counters;          /* show counters on screen             */
+   char        show_rotpnt;
+   /*---(temporary)--------------*/
    char        user_name   [30];
 };
 extern    struct cACCESSOR my;
