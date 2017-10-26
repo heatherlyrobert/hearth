@@ -3,6 +3,7 @@
 
 /*  @a for large   Da{jV64j:s/^/   "/gv:s/$/",/o},             */
 /*  @a for medium  Da{jV44j:s/^/   "/gv:s/$/",/o},             */
+/*  @a for small   Da{jV29j:s/^/   "/gv:s/$/",/o},             */
 
 int         s_bfly_max  = 16;
 
@@ -4802,25 +4803,28 @@ char        butterfly  [MAX_BFLY] [MAX_ROW] [MAX_COL] = {
    },
 };
 
+/* @a space to 16    $a                                 017|D0j   */
+/* @b place data     v$hykkkkkkkkkkkkkkk$hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhllllllllllllllllllllllllllllllllllllllllllllllllllllllhllPi  ,0jjjjjjjjjjjjjjjj    */
 
 tTITLES g_titles [30] = {
-   /* 123456789012345        123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    1234567890123456789012345    123456789012345678901234567890123456789012345678901234567890 */
-   /* language-------  gmt ---cluster-------  ---number/seq----  ---date----------  ---host----------  ---user----------  ---token/num-----  ---password------  ---attempt-------  ---time-remaining----------  ---success----------------------------------------------- */
-   { "estonian       ",  0, "kobar"          , "jada"           , "kuupaev"        , "vastuvotva"     , "kasutaja"       , "sumboolne"      , "parool"         , "katse"          , "aega jaanud"              , "siin peab koik usaldamatus jaama maha"                  },
-   { "dutch          ",  0, "bundel"         , "volgorde"       , "datum"          , "gastheer"       , "gebruiker"      , "teken"          , "wachtwoord"     , "poging"         , "overgebleven tijd"        , "hier moet alle wantrouwen achterblijven"                },
-   { "finnish        ",  0, "ryhma"          , "jarjestys"      , "paivays"        , "isanta"         , "kayttaja"       , "symbolinen"     , "salasana"       , "yritys"         , "aikaa jaljella"           , "taalla kaikkien luottamus on jatettava jaljelle"        },
-   { "galacian       ",  0, "auxiliares"     , "secuencia"      , "data"           , "anfitrion"      , "usuario"        , "simbolo"        , "contrasinal"    , "intento"        , "tempo restante"           , "aqui debe desconfiar de todos os xeitos"                },
-   { "german         ",  0, "haufen"         , "sequenz"        , "datum"          , "gastgeber"      , "benutzer"       , "zeichen"        , "kennwort"       , "versuch"        , "verbleibende zeit"        , "hier mussen alle mibtrauen zuruckgelassen werden"       },
-   { "icelandic      ",  0, "pyrping"        , "roo"            , "dagsetning"     , "gestgjafi"      , "notandi"        , "skapi"          , "lykiloro"       , "tilraun"        , "timi eftir"               , "her verour allt vantraust ao vera eftir"                },
-   { "polish         ",  0, "grupa"          , "sekwencja"      , "data"           , "gospodarz"      , "uzythownik"     , "zeton"          , "hasto"          , "proba"          , "pozostaly czas"           , "tataj wszyscy niechetnie zostaja zostawieni"            },
-   { "swedish        ",  0, "kluster"        , "sekvens"        , "datum"          , "vard"           , "anvandaren"     , "byggnad"        , "losenord"       , "forsok"         , "aterstanende tid"         , "har maste all misstro vara kvar"                        },
-   { "turkish        ",  0, "kume"           , "dizi"           , "tarih"          , "ev sahibi"      , "kullanici"      , "simgi"          , "sifre"          , "girisim"        , "kalan sure"               , "burada tum guvensizlik geride kalmalidir"               },
-   { "welsh          ",  0, "clwstwr"        , "dilyniant"      , "dyddiad"        , "llu"            , "defnyddiwr"     , "tocyn"          , "cyfrinair"      , "ymgais"         , "amser yn weddill"         , "rhaid i bawb ddiffyg ymddiriedaeth gael ei adae ar ol"  },
-   { "irish          ",  0, "braisle"        , "seicheamh"      , "date"           , "ostach"         , "usaideoir"      , "chomhartha"     , "focal faire"    , "iarracht"       , "am ata fagtha"            , "ni mor gach mishuim a fhagail taobh thiar de seo"       },
-   { "scottish       ",  0, "leanmhainn"     , "cuideachd"      , "tide"           , "thrang"         , "fiar"           , "taiken"         , "tyrst"          , "pree"           , "uine air fhagail"         , "an seo feumaidh an earbsa a bhith air fhagail air chul" },
-   { "latin          ",  0, "botrus"         , "sequentia"      , "tempus"         , "militiae"       , "nomen"          , "indicium"       , "secretum"       , "conatus"        , "temporis"                 , "qui si convien lasciare ogne sospettoo"                 },
-   { "maltese        ",  0, "cluster"        , "sekwenza"       , "hin"            , "ospitanti"      , "utent"          , "numru"          , "sigriet"        , "tentattiv"      , "hin li jifdal"            , "hawnhekk in-nuqqas ta fiducja kollha jithalla barra"    },
+   /* 123456789012345        123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    123456789012345    1234567890123456789012345    123456789012345678901234567890123456789012345678901234567890 */
+   /* language-------  gmt ---cluster-------  ---number/seq----  ---date----------  ---host----------  ---user----------  ---token/num-----  ---password------  ---attempt-------  ---denied--------  ---locked--------  ---time-remaining----------  ---success----------------------------------------------- */
+   { "estonian       ",  0, "kobar"          , "jada"           , "kuupaev"        , "vastuvotva"     , "kasutaja"       , "sumboolne"      , "parool"         , "katse"          , "eitada"         , "lukustatud"     , "aega jaanud"              , "siin peab koik usaldamatus jaama maha"                  },
+   { "dutch          ",  0, "bundel"         , "volgorde"       , "datum"          , "gastheer"       , "gebruiker"      , "teken"          , "wachtwoord"     , "poging"         , "ontkennen"      , "opgesloten"     , "overgebleven tijd"        , "hier moet alle wantrouwen achterblijven"                },
+   { "finnish        ",  0, "ryhma"          , "jarjestys"      , "paivays"        , "isanta"         , "kayttaja"       , "symbolinen"     , "salasana"       , "yritys"         , "kieltaa"        , "kiinni"         , "aikaa jaljella"           , "taalla kaikkien luottamus on jatettava jaljelle"        },
+   { "galacian       ",  0, "auxiliares"     , "secuencia"      , "data"           , "anfitrion"      , "usuario"        , "simbolo"        , "contrasinal"    , "intento"        , "negar"          , "bloqueado"      , "tempo restante"           , "aqui debe desconfiar de todos os xeitos"                },
+   { "german         ",  0, "haufen"         , "sequenz"        , "datum"          , "gastgeber"      , "benutzer"       , "zeichen"        , "kennwort"       , "versuch"        , "verweigern"     , "eingesperrt"    , "verbleibende zeit"        , "hier mussen alle mibtrauen zuruckgelassen werden"       },
+   { "icelandic      ",  0, "pyrping"        , "roo"            , "dagsetning"     , "gestgjafi"      , "notandi"        , "skapi"          , "lykiloro"       , "tilraun"        , "neita"          , "laest"          , "timi eftir"               , "her verour allt vantraust ao vera eftir"                },
+   { "polish         ",  0, "grupa"          , "sekwencja"      , "data"           , "gospodarz"      , "uzythownik"     , "zeton"          , "hasto"          , "proba"          , "zaprzeczac"     , "zablokowany"    , "pozostaly czas"           , "tataj wszyscy niechetnie zostaja zostawieni"            },
+   { "swedish        ",  0, "kluster"        , "sekvens"        , "datum"          , "vard"           , "anvandaren"     , "byggnad"        , "losenord"       , "forsok"         , "forneka"        , "last"           , "aterstanende tid"         , "har maste all misstro vara kvar"                        },
+   { "turkish        ",  0, "kume"           , "dizi"           , "tarih"          , "ev sahibi"      , "kullanici"      , "simgi"          , "sifre"          , "girisim"        , "reddetmek"      , "kilitli"        , "kalan sure"               , "burada tum guvensizlik geride kalmalidir"               },
+   { "welsh          ",  0, "clwstwr"        , "dilyniant"      , "dyddiad"        , "llu"            , "defnyddiwr"     , "tocyn"          , "cyfrinair"      , "ymgais"         , "gwadu"          , "wedi'i gloi"    , "amser yn weddill"         , "rhaid i bawb ddiffyg ymddiriedaeth gael ei adae ar ol"  },
+   { "irish          ",  0, "braisle"        , "seicheamh"      , "date"           , "ostach"         , "usaideoir"      , "chomhartha"     , "focal faire"    , "iarracht"       , "dhiultu"        , "faoi ghlas"     , "am ata fagtha"            , "ni mor gach mishuim a fhagail taobh thiar de seo"       },
+   { "scottish       ",  0, "leanmhainn"     , "cuideachd"      , "tide"           , "thrang"         , "fiar"           , "taiken"         , "tyrst"          , "pree"           , "dhiutl"         , "glaiste"        , "uine air fhagail"         , "an seo feumaidh an earbsa a bhith air fhagail air chul" },
+   { "latin          ",  0, "botrus"         , "sequentia"      , "tempus"         , "militiae"       , "nomen"          , "indicium"       , "secretum"       , "conatus"        , "negare"         , "clausa"         , "temporis"                 , "qui si convien lasciare ogne sospettoo"                 },
+   { "maltese        ",  0, "cluster"        , "sekwenza"       , "hin"            , "ospitanti"      , "utent"          , "numru"          , "sigriet"        , "tentattiv"      , "tichad"         , "maqful"         , "hin li jifdal"            , "hawnhekk in-nuqqas ta fiducja kollha jithalla barra"    },
 };
+
 
 
 /*============================[[    end-code    ]]============================*/

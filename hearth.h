@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.1e"
-#define     VER_TXT          "fixed language reading from configuration"
+#define     VER_NUM          "2.1f"
+#define     VER_TXT          "little work on fake using alternate languages"
 
 
 /* configuration files -------------------------------------------------------*/
@@ -356,6 +356,8 @@ struct    cTITLES {
    char     token       [20];
    char     password    [20];
    char     attempt     [20];
+   char     denied      [20];
+   char     locked      [20];
    char     timer       [20];
    char     passed      [90];
 };

@@ -44,7 +44,7 @@ FAKE_init            (char a_mode, char *a_user)
    /*---(initial prompt)-----------------*/
    IF_A_RUN_REAL {
       DEBUG_INPT   yLOG_note    ("showing prompt in real mode");
-      sprintf  (x_prompt, "cluster (%02d) host <%s> login: %s", 42, my.host_name, s_blocked);
+      sprintf (x_prompt, "%s (%02d) %s <%s> %s: %s", g_titles [my.language].cluster, my.dev_num, g_titles [my.language].host, my.host_name, g_titles [my.language].user, s_blocked);
       mvprintw ( 0,  0,  "%s", x_prompt);
       refresh  ();
    }
@@ -224,19 +224,16 @@ FAKE_prompt          (int a_tries, int a_loops, int a_chars)
    DEBUG_TOPS   yLOG_senter  (__FUNCTION__);
    /*---(primary)------------------------*/
    DEBUG_INPT   yLOG_snote   ("show tarpit message");
-   sprintf (x_prompt, "cluster (%02d) host <%s> login: %s", my.dev_num, my.host_name, s_blocked);
+   sprintf (x_prompt, "%s (%02d) %s <%s> %s: %s", g_titles [my.language].cluster, my.dev_num, g_titles [my.language].host, my.host_name, g_titles [my.language].user, s_blocked);
    mvprintw ( 0,  0,  "%s", x_prompt);
    /*---(secondary)----------------------*/
    for (i = 1; i < a_tries; ++i) {
-      mvprintw ( i,  0,  "password: access denied");
+      mvprintw ( i,  0,  "%s: %s", g_titles [my.language].password, g_titles [my.language].denied);
    }
-   if (a_tries > 5) {
-      mvprintw ( a_tries,  0,  "account locked, please contact help desk for assistance");
-   } else if (a_loops <= s_warn) {
-      mvprintw ( a_tries,  0,  "password:");
-   }
-   if (a_loops > s_warn) {
-      mvprintw ( 1 + a_tries,  0,  "suspicious activity, console locked out, SECOPS notified");
+   if (a_tries <= 5 && a_loops <= s_warn) {
+      mvprintw ( i,  0,  "%s: ", g_titles [my.language].password);
+   } else {
+      mvprintw ( i,  0,  "%s, 39-06-698-83296", g_titles [my.language].locked);
    }
    /*---(debugging)----------------------*/
    SHOW_COUNTERS {
