@@ -114,8 +114,8 @@
 
 
 /* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.1d"
-#define     VER_TXT          "fixed and documented existing options"
+#define     VER_NUM          "2.1e"
+#define     VER_TXT          "fixed language reading from configuration"
 
 
 /* configuration files -------------------------------------------------------*/

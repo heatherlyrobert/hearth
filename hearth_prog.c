@@ -128,8 +128,8 @@ PROG_init            (int   a_argc , char *a_argv[])
    my.show_prompt     = 'y';
    /*---(hinting)------------------------*/
    my.show_color      = 'y';
-   my.show_hint       = '-';
-   my.show_counters   = '-';
+   my.show_hint       = 'y';
+   my.show_counters   = 'y';
    my.show_rotpnt     = 'y';
    /*---(signals)------------------------*/
    /*> rc = yEXEC_signal (yEXEC_SOFT, yEXEC_TYES, yEXEC_CYES, yEXEC_LOCAL);           <*/

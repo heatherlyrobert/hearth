@@ -231,7 +231,7 @@ VEIL_conf            (void)
       return rce;
    }
    /*---(assign)-------------------------*/
-   my.language = s_conf [9][0];
+   my.language = s_conf [9][0] * 10 + s_conf [9][1];
    for (i = 0; i < 4; ++i) {
       s_locs.knocks [i]   = (s_conf [i    ][0] *  7 + s_conf [i    ][1]);
    }
@@ -950,6 +950,8 @@ VEIL_show            (void)
    char        rc          = 0;
    /*---(set positions)---------------*/
    VEIL_sizing ();
+   clear       ();
+   mvprintw    (0, 0,  "                                                                            ");
    /*---(show sections)------------------*/
    rc = VEIL_butterfly ();
    rc = VEIL_conf      ();
