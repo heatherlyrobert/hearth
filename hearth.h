@@ -1,121 +1,59 @@
 /*===============================[[ beg-code ]]===============================*/
-
-/*===[[ HEADER ]]==============================================================#
-
- *   focus         : (SA) system_admin
- *   niche         : (au) authentication
- *   application   : hestia      (ancient greek goddess of hearth and home)
- *   purpose       : provide light, reliable, and secure getty services
- *
- *   base_system   : gnu/linux   (powerful, ubiquitous, technical, and hackable)
- *   lang_name     : ansi-c      (wicked, limitless, universal, and everlasting)
- *   dependencies  : yLOG, yEXEC
- *   size          : small       (less than 2,000 slocL)
- * 
- *   author        : the_heatherlys
- *   created       : 2012-01
- *   priorities    : direct, simple, brief, vigorous, and lucid (h.w. fowler)
- *   end goal      : loosely coupled, strict interface, maintainable, portable
- *
- *   simplicity is prerequisite for reliability and security, but logging
- *   and unit testing can not be neglected
- * 
- */
-/*===[[ SUMMARY ]]=============================================================*
-
- *   hestia is a light, reliable, and secure verion of the classic posix-defined
- *   getty terminal services which allows for additional logging, verification,
- *   flexiblity, and restartability.
- *
- *
- *
- *   getty is the generic name for a program which manages a terminal line,
- *   handles the login process, and protects the system from unauthorized
- *   access.
- *
- *   alternatives...
- *      -- getty        : original configured through conf file
- *      -- agetty       : alternative configured using arguments
- *      -- mingetty     : minimal version for virtual terminals only
- *      -- ngetty       : handles multiple tty in one instance
- *      -- mgetty       : more flexible to handle fax, voice, and others
- *      -- fbgetty      : adds framebuffer and image support
- *
- */
-
-/*
- *  original
- *     - asks for username and password with simple prompts
- *
- *  minimal
- *     - input username and password without any ques at all
- *
- *  grabled
- *     - passes a small strip of digits and you must scramble also
- *
- *  complex
- *     - banner page with clues in ascii art
- *
- *
- *
- *
- *  authentication is about confirming the truth of an identity or fact
- *
- *  1st, accepting proof given by a credible person
- *  2nd, comparing attributes to what is known of objects of that origin
- *  3rd, documentation or external affirmations
- *
- *  ownership   : something the user has (id card, token, phone, bracelet ...)
- *  knowledge   : something the user knows (password, challenge-response, ...)
- *  inherence   : something the user is (biometrics, signature, voice, ...)
- *
- *  two-factor  : bankcard and pin, token and password, etc
- *
- *  authentication (Au) is proving you are who you say you are
- *  authorization  (Az) is proving you permitted to do what you are trying to do
- *
- *
- *
- */
-/*
- *   the goddess hekate is the guardian of gates and doorways and is sometimes
- *   shown as triple bodied
- *
- *   the job of this piece of software is to...
- *      - open and initialize a tty line (/dev file)
- *      - read a login name
- *      - invoke /bin/login
- *
- *   hekate seeks to be a clean, simplified getty that takes out the wierd
- *   features and focuses on our normal systems.
- *      - runs as a single daemon (ngetty)
- *      - always asks for user name
- *      - has a tiny securyty extra in user name
- *      - does not use the /etc/issue file or "-f <issue_file>"
- *      - does not use /etc/ttys, /etc/gettydefs, /etc/gettytab
- *      - can not change the login program using "-l <login_program>"
- *      - only used for the local host so no "-H <host_name>"
- *      - time out is automatic so no "-t <timeout>"
- *      - always assume 8-bit clean
- *      - all terminals are assumed to be vt102 (like eterm, xterm, ...)
- *      - let login take care of the fact root can not login except using su
- *      - no modems
- *
- *
- *
- *  each time hestia prompts for a login it uses a different host name
- *
- */
-
-
-/*===[[ HEADER GUARD ]]=======================================================*/
 #ifndef HEARTH
 #define HEARTH loaded
 
 
-/* rapidly evolving version number to aid with visual change confirmation ----*/
-#define     VER_NUM          "2.1f"
-#define     VER_TXT          "little work on fake using alternate languages"
+
+
+/*===[[ HEADER ]]=============================================================*/
+/*345678901-12345678901-123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
+
+#define     P_FOCUS     "SA (system administration)"
+#define     P_NICHE     "au (authentication)"
+#define     P_SUBJECT   "terminal login handler"
+#define     P_PURPOSE   "simple, reliable, experimental, and secure terminal login"
+
+#define     P_NAMESAKE  "hestia-polyolbos (full of blessings)"
+#define     P_HERITAGE  "virgin goddess of hearth, home, architecture, and eternal flame"
+#define     P_IMAGERY   "regal, but modestly cloaked and vieled woman with a wooden staff"
+#define     P_REASON    ""
+
+#define     P_ONELINE   P_NAMESAKE " " P_SUBJECT
+
+#define     P_BASENAME  ""
+#define     P_FULLPATH  ""
+#define     P_SUFFIX    ""
+#define     P_CONTENT   ""
+
+#define     P_SYSTEM    "gnu/linux   (powerful, ubiquitous, technical, and hackable)"
+#define     P_LANGUAGE  "ansi-c      (wicked, limitless, universal, and everlasting)"
+#define     P_CODESIZE  "small       (appoximately 1,000 slocl)"
+#define     P_DEPENDS   "yEXEC, ySEC, ySTR"           
+
+#define     P_AUTHOR    "heatherlyrobert"
+#define     P_CREATED   "2012-01"
+
+#define     P_VERMAJOR  "2.-, second revision for production"
+#define     P_VERMINOR  "2.1, building up new version"
+#define     P_VERNUM    "2.2a"
+#define     P_VERTXT    "new code is messy but working, need huge cleaning"
+
+#define     P_USAGE     "hearth [OPTIONS]"
+#define     P_DEBUG     "hearth_debug [URGENTS] [OPTIONS]"
+
+#define     P_SUMMARY   \
+ "hestia's hearth is a simple, reliable, experimental, and secure visual login¦" \
+ "program called by hestia (the getty daemon) which manages display of key data,¦" \
+ "gathering of input, authentication of a user, launching of a session.¦"
+
+#define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
+#define     P_SAYING    "[grow a set] and build your wings on the way down (bradbury)"
+
+#define     P_ALTERNS   "getty, agetty, mingetty, ngetty, mgetty, fbgetty, ..."
+#define     P_REMINDER  "there are many better options, but i *own* this top-to-bottom"
+
+/*345678901-12345678901-123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
+
 
 
 /* configuration files -------------------------------------------------------*/
@@ -130,6 +68,7 @@
 #include    <stdio.h>                  /* ANSI-C    i/o library               */
 #include    <stdlib.h>                 /* ANSI-C    general library           */
 #include    <string.h>                 /* ANSI-C    c-string library          */
+#include    <signal.h>                 /* ANSI-C    singal handling           */
 #include    <time.h>
 #include    <fcntl.h>
 #include    <poll.h>
@@ -140,6 +79,7 @@
 #include    <sys/ioctl.h>
 #include    <math.h>
 
+
 #include    <ncurses.h>                /* XSI_STD   cursor optimization       */
 
 #include    <pwd.h>                    /* LINUX     password access           */
@@ -147,9 +87,10 @@
 
 
 /*===[[ CUSTOM LIBRARIES ]]===================================================*/
+#include    <yEXEC.h>        /* CUSTOM : heatherly execution services         */
+#include    <yPARSE.h>       /* CUSTOM : heatherly input parser               */
 #include    <yURG.h>         /* CUSTOM : heatherly urgent processing          */
 #include    <yLOG.h>         /* CUSTOM : heatherly program logging            */
-#include    <yEXEC.h>        /* CUSTOM : heatherly execution services         */
 #include    <ySEC.h>         /* CUSTOM : heatherly security logging           */
 #include    <ySTR.h>         /* CUSTOM : heatherly string handling            */
 #include    <yVAR.h>         /* CUSTOM : heatherly variable testing           */
@@ -158,12 +99,11 @@
 
 #define     LOGIN       "/bin/login"
 #define     MAX_BFLY    50
+#define     CNT_BFLY    16
 #define     MAX_ROW     70
 #define     MAX_COL     200
-
-extern int  s_bfly_max;
-
 #define     MAX_HOST    500
+
 
 /*---(string length)------------------*/
 #define     LEN_RECD    4000
@@ -172,14 +112,6 @@ extern int  s_bfly_max;
 #define     LEN_DESC    100
 #define     LEN_LABEL   20
 #define     LEN_ABBR    10
-/*---(font constants)-------*/
-#define     MAX_FONT       50
-#define     MAX_WIDTH     400
-#define     MAX_HEIGHT    400
-#define     FONT_FULL      'f'       /* [a-z][0-9] */
-#define     FONT_ALPHA     'a'       /* [a-z]      */
-#define     FONT_NUMS      'n'       /* [0-9]      */
-#define     FONT_BINARY    'b'       /* [0-1]      */
 
 
 typedef const char       cchar;
@@ -202,22 +134,6 @@ void             /* [------] receive signals ---------------------------------*/
 PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada);
 
 
-/*---(fonts)------------------------------------------------------------------*/
-struct cFONT {
-   char        name        [20];       /* name for lookup                     */
-   char        active;                 /* font displays correctly             */
-   char        beauty;                 /* how nicely it displays              */
-   char        range;                  /* type of symbols, alpha, nums, ...   */
-   char       *ptr;                    /* pointer to font structure           */
-   char        tall;                   /* height of standard symbol           */
-   char        wide;                   /* width of standard symbol            */
-   char        yoff;                   /* space after a row, before next      */
-   char        xoff;                   /* space after a col, before next      */
-   char        gap;                    /* horizontal gap in data structure    */
-   char        empty;                  /* character used for empty space      */
-};
-
-extern char        hosties     [MAX_HOST][20];
 
 extern int         s_butter;
 extern char        butterfly   [MAX_BFLY] [MAX_ROW] [MAX_COL];
@@ -227,16 +143,9 @@ extern char        g_bfly_sml  [MAX_BFLY] [MAX_ROW] [MAX_COL];
 
 
 
-struct cFONT       g_fonts     [50];
-extern int         g_nfont;
-extern int         g_cfont;
-
-
 
 
 extern int         logger;
-extern char        dev         [30];
-extern char        shell       [30];
 extern int         veil_rpid;
 extern int         bottom;
 extern int         center;
@@ -255,9 +164,19 @@ extern char        ntitle;
 #define     G_TYPE_PASS      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-?!,.%'~^;/:()=|{}[]#&_<>$+ "
 #define     G_TYPE_ESCAPE    "\x1B"
 
+#define     PART_KNOCK       'k'
+#define     PART_PREFIX      'p'
+#define     PART_USERNAME    'u'
+#define     PART_INFIX       'i'
+#define     PART_PASSWORD    'c'
+#define     PART_SUFFIX      's'
+#define     PART_DONE        'd'
+#define     PART_TRAILING    't'
 
 /*---(run modes)------------*/
 char        g_modes     [20];  /* valid run modes                            */
+#define     RUN_AS_SHOW      's'    /* show veil only                        */
+
 #define     RUN_UNIT    'u'    /* unit test mode                             */
 #define     RUN_QUIET   'q'    /* ncurses mode, but no screen output/waits   */
 #define     RUN_FORCE   'f'    /* ncurses mode, but feed input as string     */
@@ -284,43 +203,85 @@ char        g_modes     [20];  /* valid run modes                            */
 #define     SHOW_HINTS      if (my.show_hint     == 'y')
 
 
+#define     STATUS_GOOD      'A'  /* tentatively good                         */
+#define     STATUS_FAILED    'F'  /* silent failure, allow more keys          */
+#define     STATUS_SUCCESS   'S'  /* evaluated as a success                   */
+#define     STATUS_NEWLINE   'N'  /* used return, immediately fail            */
+#define     STATUS_TIMEOUT   'Z'  /* ran out of time                          */
+#define     STATUS_REFRESH   'R'  /* esed C-r, immediately refresh            */
+#define     STATUS_BREAK     'B'  /* used C-c, immediately give-up            */
+
+#define     STATUSES_CONT    "AF"
+#define     STATUSES_STOP    "SNZB"
+#define     STATUSES_FAIL    "NZB"
+
+
+#define     COLORS_OFF       attrset (0);
+#define     COLORS_WHITE     attron (COLOR_PAIR( 1))
+#define     COLORS_RED       attron (COLOR_PAIR( 9))
+#define     COLORS_GREEN     attron (COLOR_PAIR(10))
+#define     COLORS_CYAN      attron (COLOR_PAIR(11))
+#define     COLORS_YELLOW    attron (COLOR_PAIR(12))
+#define     COLORS_BLUE      attron (COLOR_PAIR(14))
+#define     COLORS_MAGENTA   attron (COLOR_PAIR(18))
+
+
+
 struct cACCESSOR {
    /*---(mode)-------------------*/
    char        run_mode;               /* indicate test vs real               */
-   char        entry_text  [LEN_DESC]; /* actual text entered                 */
+   int         pid;                         /* hearths pid                    */
+   int         ppid;                        /* hearths parent pid             */
+   int         uid;                         /* hearths user id                */
+   int         who         [LEN_LABEL];     /* hearths user name              */
+   /*---(command line)-----------*/
+   int         language;                    /* language number                */
+   int         cluster;                     /* number of cluster              */
+   int         host;                        /* number of host                 */
+   char        dev         [LEN_LABEL];     /* tty device                     */
+   /*---(looping)----------------*/
+   char        status;                      /* current login status           */
+   char        part;                        /* current login part             */
+   int         loops;                       /* number of getch's              */
+   int         secs;                        /* elapsed seconds                */
+   int         chars;                       /* entered characters             */
+   uchar       curr;                        /* current character              */
+   char        entry_text  [LEN_DESC];      /* actual text entered            */
+   char        phase;
+   char        result;
+   char        judgement;
+   char        position;  
+   int         offset;                      /* username/password spacing      */
+   /*---(locations)--------------*/
+   int         top;
+   int         mid;
+   int         bot;
+   int         lef;
+   int         cen;
+   int         rig;
+   int         topplus;
+   int         lefplus;
+   int         rigminus;
    /*---(fake)-------------------*/
-   char        use_fake;               /* display and use fake (y/-)          */
-   int         dev_num;                /* terminal device number              */
-   char        host_name   [50];       /* host number and name string         */
-   int         cluster;
    char        tty_type;
-   char        tty_num;
    char        fake_user   [50];
    /*---(veil)-------------------*/
-   char        language;
-   char        magic_num    [20];      /* magic number used on this getty     */
+   char        magic_num   [LEN_DESC];      /* magic number used              */
+   char        username    [LEN_LABEL];     /* entered username               */
+   char        user_fix    [LEN_LABEL];     /* unrotated username             */
+   tPASSWD    *pass;                        /* password entry                 */
+   tSHADOW    *shad;                        /* shadow entry                   */
+   char        password    [LEN_LABEL];     /* entry password                 */
+   int         rot;                         /* username rotation              */
+   int         pointer;                     /* right side pointer             */
+   char        shell       [LEN_PATH];      /* entry password                 */
    /*---(timer)------------------*/
-   char        show_timer;
-   char        show_timeout;           /* display timeout limit               */
-   char        timeout;                /* actual timeout period               */
-   char        infinite;
-   /*---(visual)-----------------*/
-   char        show_butterfly;
-   char        show_status;
-   char        show_knock;
-   char        show_left;
-   char        show_right;
-   char        show_middle;
-   char        show_binary;
-   char        show_prompt;
-   char        show_tty;
-   char        show_external;
-   char        show_judgement;
+   int         timeout;                     /* deci-seconds timeout           */
+   int         lockout;                     /* deci-seconds lockout           */
+   char        forever;                     /* keep auto-resetting            */
+   int         after;                       /* full seconds wait after        */
    /*---(hinting)----------------*/
-   char        show_color;             /* show color on screen                */
    char        show_hint;
-   char        show_counters;          /* show counters on screen             */
-   char        show_rotpnt;
    /*---(temporary)--------------*/
    char        user_name   [30];
 };
@@ -328,65 +289,78 @@ extern    struct cACCESSOR my;
 
 
 
+#define     MAX_KNOCKS         120
+#define     MAX_LEFTS           60
+#define     MAX_RIGHTS          80
+#define     MAX_MIDS            80
+#define     MAX_TOPS            40
 
-typedef struct cENTRY tENTRY;
-struct   cENTRY {
-   char     knocks      [ 20];
-   char     prefix      [ 20];
-   char     rot         [ 20];
-   char     username    [ 20];
-   char     user_fix    [ 20];
-   char     infix       [ 20];
-   char     password    [ 20];
-   char     pointer     [ 20];
-   char     suffix      [ 20];
-   char     done        [ 20];
+typedef struct cVALS tVALS;
+struct cVALS {
+   /*---(tops)-----------------*/
+   char        tops_font   [LEN_LABEL];
+   int         tops_top;
+   int         tops_lef;
+   int         tops_len;
+   /*---(lefts)----------------*/
+   char        lefts       [MAX_LEFTS];
+   char        lefs_font   [LEN_LABEL];
+   int         lefs_top;
+   int         lefs_lef;
+   /*---(knocks)---------------*/
+   char        knocks      [MAX_KNOCKS];
+   char        noks_font   [LEN_LABEL];
+   int         noks_gap;
+   int         noks_top;
+   int         noks_lef;
+   int         noks_rig;
+   /*---(rights)---------------*/
+   char        rights      [MAX_RIGHTS];
+   char        rigs_font   [LEN_LABEL];
+   int         rigs_top;
+   int         rigs_lef;
+   /*---(middles)--------------*/
+   char        mids        [MAX_MIDS];
+   char        mids_font   [LEN_LABEL];
+   int         mids_top;
+   int         mids_bot;
+   int         mids_lef;
+   int         mids_len;
+   /*---(prompt)---------------*/
+   int         prom_top;
+   int         prom_lef;
+   /*---(timer)----------------*/
+   char        timr_font   [LEN_LABEL];
+   int         timr_cen;
+   int         timr_mid;
+   /*---(butterfly)------------*/
+   int         bfly_indx;
+   char        bfly_size;
+   /*---(done)-----------------*/
 };
-tENTRY      entry;
+extern tVALS       g_vals;
 
-typedef struct cTITLES tTITLES;
-struct    cTITLES {
-   char     language    [20];
-   char     gmt_off;
-   char     cluster     [20];
-   char     seq         [20];
-   char     date        [20];
-   char     host        [20];
-   char     user        [20];
-   char     token       [20];
-   char     password    [20];
-   char     attempt     [20];
-   char     denied      [20];
-   char     locked      [20];
-   char     timer       [20];
-   char     passed      [90];
-};
-tTITLES     g_titles    [30];
 
-char        PROG_init            (int   a_argc , char *a_argv[]);
-char        PROG_urgsmass        (char  a_set  , char a_extra);
-char        PROG_urgs            (int   a_argc , char *a_argv[]);
-char        PROG_args            (int   a_argc , char *a_argv[]);
+
+char*       PROG_version         (void);
 char        PROG_usage           (void);
+
+char        PROG_init            (void);
+char        PROG_args            (int   a_argc , char *a_argv[]);
 char        PROG_begin           (void);
 char        PROG_final           (void);
 
-char        PROG_testloud        (void);
-char        PROG_testquiet       (void);
-char        PROG_testend         (void);
+char        prog__unit_loud      (void);
+char        prog__unit_quiet     (void);
+char        prog__unit_end       (void);
 char        PROG_testuserdel     (cchar *a_name);
 char        PROG_testuseradd     (cchar *a_name, cchar *a_pass);
 
 char        CURS_init            (void);
 char        CURS_wrap            (void);
 
-char        VEIL_init            (void);
 char        VEIL_conf            (void);
-char        VEIL_reset           (void);
-char        VEIL_sizing          (void);
 
-char        VEIL_show            (void);
-char        VEIL_status          (void);
 char        VEIL_getchar         (void);
 char        VEIL_check_user      (void);
 char        VEIL_check_pass      (void);
@@ -402,21 +376,48 @@ char*       VEIL__unit           (char *a_question, int a_num);
 char        VEIL__unit_set       (int a_count, int a_char);
 
 
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345*/
 /*---(fake)--------------------*/
+
+char        gate_prompt             (void);
+char        gate__password          (void);
+char        gate__collect           (char *a_input);
+char        gate__check             (char *a_input, char *a_key);
+char        gate_load               (char *a_user);
+char        gate_main               (void);
+
+char        show_message            (char *a_msg);
+char        show_init               (void);
+char        show_status             (void);
+char        show_timer              (void);
+char        show_all                (void);
+char        show_sizing             (void);
+char        show_left               (void);
+char        show_right              (void);
+char        show_block              (void);
+char        show_random             (void);
+char        show_ascii              (void);
+char        show_butterfly          (void);
+char        show_rain               (void);
+char        show_getchar            (void);
+
+char        valid_init              (void);
+char        valid_reset             (void);
+char        valid__knock            (void);
+char        valid__prefix           (void);
+char        valid__user             (void);
+char        valid__infix            (void);
+char        valid__pass             (void);
+char        valid__suffix           (void);
+char        valid__done             (void);
+char        valid__getchar          (void);
+char        valid_main              (void);
+char*       valid__unit             (char *a_question, int a_num);
+
 char        FAKE_init            (char a_mode, char *a_user);
-char        FAKE_collect         (char a_mode, char *a_input, char *a_key);
 char        FAKE_check           (             char *a_input, char *a_key);
 char        FAKE_tarpit          (char a_mode, char *a_input, int  *a_pts);
-char        FAKE_door            (void);
 
-/*---(font)--------------------*/
-char        FONT_init            (void);
-char        FONT__find           (cchar *a_font);
-char        FONT__index          (char a_range, int a_letter);
-char        FONT_wide            (cchar *a_font);
-char        FONT_tall            (cchar *a_font);
-char        FONT_letter          (cchar *a_font, char a_num, int a_y, int a_x);
-char*       FONT__unit           (char *a_question, int a_num);
 
 int         audit_find         (char *a_dev, int  a_pid, int *a_pos);
 char        audit_login        (char *a_dev, char *a_user, int a_rpid);
@@ -427,8 +428,6 @@ char        audit_system       (char a_type);
 char*       unit_accessor      (char*, int);
 
 
-extern char        dev         [30];
-extern char        shell       [30];
 extern int         veil_rpid;
 extern int         rpid;
 
