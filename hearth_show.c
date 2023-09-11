@@ -16,6 +16,13 @@
 
 tVALS       g_vals;
 
+char        s_lstrip      [LEN_HUND] = "";
+char        s_lblock      [LEN_HUND] = "";
+char        s_lknock      [LEN_HUND] = "";
+char        s_rstrip      [LEN_HUND] = "";
+char        s_rblock      [LEN_HUND] = "";
+char        s_rknock      [LEN_HUND] = "";
+
 
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
@@ -40,41 +47,27 @@ tVALS       g_vals;
 
 
 
-char
-show_message            (char *a_msg)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         x_len       =    0;
-   /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_senter  (__FUNCTION__);
-   /*---(display)------------------------*/
-   COLORS_RED;
-   DEBUG_TOPS   yLOG_snote   (a_msg);
-   x_len = strlen (a_msg);
-   mvprintw (my.bot, my.cen - (x_len / 2), a_msg);
-   refresh ();
-   COLORS_OFF;
-   /*---(clear color)--------------------*/
-   DEBUG_TOPS   yLOG_snote   ("reset");
-   /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_sexit   (__FUNCTION__);
-   return 0;
-}
+
+
+/*====================------------------------------------====================*/
+/*===----                       ystr_support                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___YSTR____________o () { return; }
 
 char
-show_displayer   (int x, int y, char *a_text)
+show_displayer   (int x, int y, char *a_text, char a_mode)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_len       =    0;
    int         i           =    0;
    char        c           =  '-';
 
-   DEBUG_TOPS   yLOG_senter  (__FUNCTION__);
-   DEBUG_TOPS   yLOG_snote   (a_text);
+   DEBUG_PROG   yLOG_senter  (__FUNCTION__);
+   DEBUG_PROG   yLOG_snote   (a_text);
    x_len = strlen (a_text);
    for (i = 0; i < x_len; ++i) {
       c = a_text [i];
-      if (c == ' ')  continue;
+      if (a_mode == YASCII_MERGE && c == ' ')  continue;
       if (my.dev [5] == 't')  switch (c) {
       case 'µ' : c = '\\';   break;
       case '´' : c = '+';    break;
@@ -84,9 +77,16 @@ show_displayer   (int x, int y, char *a_text)
       }
       mvprintw (y, x + i,  "%c", c);
    }
-   DEBUG_TOPS   yLOG_sexit   (__FUNCTION__);
+   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       program level                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___PROGRAM_________o () { return; }
 
 char             /* [------] create one-time login numbers -------------------*/
 show_sizing          (void)
@@ -117,32 +117,32 @@ show_sizing          (void)
    DEBUG_GRAF   yLOG_value   ("cen"       , my.cen);
    DEBUG_GRAF   yLOG_value   ("rig"       , my.rig);
    /*---(fonts)--------------------------*/
-   if (my.rig > 180) {
-      g_vals.bfly_size = 'm';
-      strlcpy (g_vals.lefs_font, "alligator"      , LEN_LABEL);
-      strlcpy (g_vals.rigs_font, "goofy"          , LEN_LABEL);
-      strlcpy (g_vals.tops_font, "basic"          , LEN_LABEL);
-      strlcpy (g_vals.mids_font, "chunky_full"    , LEN_LABEL);
-      strlcpy (g_vals.noks_font, "dots"           , LEN_LABEL);
-      strlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
+   if (my.rig >= 180) {
+      g_vals.bfly_size = 'L';
+      ystrlcpy (g_vals.lefs_font, "alligator"      , LEN_LABEL);
+      ystrlcpy (g_vals.rigs_font, "goofy"          , LEN_LABEL);
+      ystrlcpy (g_vals.tops_font, "basic"          , LEN_LABEL);
+      ystrlcpy (g_vals.mids_font, "chunky_full"    , LEN_LABEL);
+      ystrlcpy (g_vals.noks_font, "dots"           , LEN_LABEL);
+      ystrlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
       g_vals.noks_gap = 2;
    } else if (my.rig > 100) {
       g_vals.bfly_size = 'm';
-      strlcpy (g_vals.lefs_font, "chunky"         , LEN_LABEL);
-      strlcpy (g_vals.rigs_font, "graceful"       , LEN_LABEL);
-      strlcpy (g_vals.tops_font, "fuzzy"          , LEN_LABEL);
-      strlcpy (g_vals.mids_font, "thick"          , LEN_LABEL);
-      strlcpy (g_vals.noks_font, "dots_med"       , LEN_LABEL);
-      strlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
+      ystrlcpy (g_vals.lefs_font, "chunky"         , LEN_LABEL);
+      ystrlcpy (g_vals.rigs_font, "graceful"       , LEN_LABEL);
+      ystrlcpy (g_vals.tops_font, "fuzzy"          , LEN_LABEL);
+      ystrlcpy (g_vals.mids_font, "thick"          , LEN_LABEL);
+      ystrlcpy (g_vals.noks_font, "dots_med"       , LEN_LABEL);
+      ystrlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
       g_vals.noks_gap = 2;
    } else {
       g_vals.bfly_size = 's';
-      strlcpy (g_vals.lefs_font, "tiny_dot"       , LEN_LABEL);
-      strlcpy (g_vals.rigs_font, "amc3line"       , LEN_LABEL);
-      strlcpy (g_vals.tops_font, "tiny_block"     , LEN_LABEL);
-      strlcpy (g_vals.mids_font, "rob4dots2"      , LEN_LABEL);
-      strlcpy (g_vals.noks_font, "dots_sml"       , LEN_LABEL);
-      strlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
+      ystrlcpy (g_vals.lefs_font, "tiny_dot"       , LEN_LABEL);
+      ystrlcpy (g_vals.rigs_font, "amc3line"       , LEN_LABEL);
+      ystrlcpy (g_vals.tops_font, "tiny_block"     , LEN_LABEL);
+      ystrlcpy (g_vals.mids_font, "rob4dots2"      , LEN_LABEL);
+      ystrlcpy (g_vals.noks_font, "dots_sml"       , LEN_LABEL);
+      ystrlcpy (g_vals.timr_font, "dots_rnd"       , LEN_LABEL);
       g_vals.noks_gap = 1;
    }
    DEBUG_GRAF   yLOG_value   ("noks_gap"  , g_vals.noks_gap);
@@ -151,9 +151,9 @@ show_sizing          (void)
    g_vals.lefs_top  = 0;
    g_vals.lefs_lef  = 0;
    g_vals.noks_top  = 0;
-   rc = ySTR_font (g_vals.lefs_font, &x_wide, NULL);
+   rc = yASCII_font (g_vals.lefs_font, &x_wide, NULL);
    DEBUG_GRAF   yLOG_value   ("x_wide"    , x_wide);
-   rc = ySTR_font (g_vals.noks_font , &x_wideK, NULL);
+   rc = yASCII_font (g_vals.noks_font , &x_wideK, NULL);
    DEBUG_GRAF   yLOG_value   ("x_wideK"   , x_wideK);
    my.lefplus   = my.lef + (x_wide * 2) + x_wideK;
    DEBUG_GRAF   yLOG_value   ("s_lef+"    , my.lefplus);
@@ -162,7 +162,7 @@ show_sizing          (void)
    /*---(right)--------------------------*/
    DEBUG_GRAF   yLOG_note    ("right spacing");
    g_vals.rigs_top  = 0;
-   rc = ySTR_font (g_vals.rigs_font, &x_wide, NULL);
+   rc = yASCII_font (g_vals.rigs_font, &x_wide, NULL);
    DEBUG_GRAF   yLOG_value   ("x_wide"    , x_wide);
    g_vals.rigs_lef = (my.rig - (x_wide * 3));
    DEBUG_GRAF   yLOG_value   ("rigs_lef"  , g_vals.rigs_lef);
@@ -173,7 +173,7 @@ show_sizing          (void)
    DEBUG_GRAF   yLOG_value   ("noks_rig"  , g_vals.noks_rig);
    /*---(middle)-------------------------*/
    DEBUG_GRAF   yLOG_note    ("middle spacing");
-   rc = ySTR_font (g_vals.mids_font, &x_wide, &x_tall);
+   rc = yASCII_font (g_vals.mids_font, &x_wide, &x_tall);
    DEBUG_GRAF   yLOG_value   ("x_wide"    , x_wide);
    DEBUG_GRAF   yLOG_value   ("x_tall"    , x_tall);
    g_vals.mids_lef  = my.lefplus;
@@ -191,7 +191,7 @@ show_sizing          (void)
    /*---(top spacing)--------------------*/
    DEBUG_GRAF   yLOG_note    ("top spacing");
    g_vals.tops_top  = 0;
-   rc = ySTR_font (g_vals.tops_font, &x_wide, &x_tall);
+   rc = yASCII_font (g_vals.tops_font, &x_wide, &x_tall);
    g_vals.tops_lef  = my.lefplus;
    x_right     = my.rigminus;
    x_dist      = x_right - g_vals.tops_lef;
@@ -220,21 +220,71 @@ show_init            (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;        /* loop iterator                       */
+   long        x_now       =    0;
+   tTIME      *x_broke     = NULL;
    /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
-   /*---(initialize)------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(config)----------------------*/
-   DEBUG_TOPS   yLOG_note    ("dislayer");
-   ySTR_displayer (show_displayer);
+   DEBUG_PROG   yLOG_note    ("dislayer");
+   yASCII_displayer (show_displayer);
    show_sizing    ();
-   /*> g_vals.bfly_indx = rand () % CNT_BFLY;                                         <*/
+   /*---(magic)--------------------------*/
+   srand (time(NULL));
+   ySEC_challenge (my.magic_num);
+   /*---(config)-------------------------*/
+   if (my.lang_save < 0)   my.lang_curr       = yASCII_language ("", NULL);
+   else                    my.lang_curr       = my.lang_save;
+   if (my.clus_save < 0)   my.clus_curr       = yASCII_cluster  (-1, NULL, NULL);
+   else                    my.clus_curr       = my.clus_save;
+   if (my.host_save < 0)   my.host_curr       = yASCII_host     (-1, NULL, NULL);
+   else                    my.host_curr       = my.host_save;
+   my.hexigram        = rand () % 64;
+   g_vals.bfly_indx   = rand () % CNT_BFLY;
+   g_vals.bfly_size   = 'L';
+   /*---(statuses)-----------------------*/
+   my.status          = STATUS_GOOD;
+   my.chars           =   0;
+   my.phase           = 'k';
+   my.judgement       = 'i';
+   my.position        =   0;
+   ystrlcpy (my.entry_text , "", LEN_DESC);
+   ystrlcpy (s_lstrip      , "", LEN_HUND);
+   ystrlcpy (s_lblock      , "", LEN_HUND);
+   ystrlcpy (s_lknock      , "", LEN_HUND);
+   ystrlcpy (s_rstrip      , "", LEN_HUND);
+   ystrlcpy (s_rblock      , "", LEN_HUND);
+   ystrlcpy (s_rknock      , "", LEN_HUND);
+   /*---(prepare date)-------------------*/
+   x_now     = time (NULL);
+   x_broke   = localtime (&x_now);
+   strftime (my.rundate, LEN_DESC, "%y.%m.%d.%H.%M.%S.%w.%V.%j", x_broke);
    /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
-static int         s_col       [LEN_TITLE];
-static int         s_row       [LEN_TITLE];
+char
+show_background         (void)
+{
+   clear             ();
+   /*> show_butterfly    ();                                                          <*/
+   show_rain_prep    ();
+   show_left         ();
+   show_right        ();
+   show_block        ();
+   show_prompt       ();
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                      ornamental                              ----===*/
+/*====================------------------------------------====================*/
+static void  o___ORNAMENTAL______o () { return; }
+
+static int         s_col       [LEN_HUND];
+static int         s_row       [LEN_HUND];
 
 char             /* [------] show butterfly background -----------------------*/
 show_butterfly         (void)
@@ -248,6 +298,8 @@ show_butterfly         (void)
    int         x_nrow      =   20;
    int         x_left      =    0;
    int         x_top       =    0;
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
    /*---(header)----------------------*/
    DEBUG_GRAF   yLOG_senter  (__FUNCTION__);
    /*---(output)-------------------------*/
@@ -279,21 +331,45 @@ show_butterfly         (void)
       }
    }
    COLORS_OFF;
-   for (x_col = 0; x_col < LEN_TITLE; ++x_col)    s_col [x_col] = rand () % 160 + 10;
-   for (x_row = 0; x_row < LEN_TITLE; ++x_row)    s_row [x_row] = rand () % x_nrow;
+   for (x_col = 0; x_col < LEN_HUND; ++x_col)    s_col [x_col] = rand () % 160 + 10;
+   for (x_row = 0; x_row < LEN_HUND; ++x_row)    s_row [x_row] = rand () % x_nrow;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-show_rain    (void)
+show_rain_prep   (void)
+{
+   int         x_row       = 0;               /* iterator -- rows             */
+   int         x_col       = 0;               /* iterator -- columns          */
+   int         x_ncol      =   20;
+   int         x_nrow      =   20;
+   switch (g_vals.bfly_size) {
+   case 'L' :  x_ncol = 180; x_nrow =  65;               break;
+   case 'm' :  x_ncol = 100; x_nrow =  45;               break;
+   case 's' :  x_ncol =  60; x_nrow =  30;               break;
+   }
+   for (x_col = 0; x_col < LEN_HUND; ++x_col)    s_col [x_col] = rand () % 160 + 10;
+   for (x_row = 0; x_row < LEN_HUND; ++x_row)    s_row [x_row] = rand () % x_nrow;
+}
+
+char
+show_rain        (void)
 {
    int         i, x, y;
    int         x_left, x_top;
    int         x_ncol, x_nrow;
-   char        v           [LEN_DESC] = "";
-   if (my.dev [5] == 't')  strlcpy (v, "abcdefghijklmnopqrstuvw", LEN_DESC);
-   else                    strlcpy (v, "èéêëìíîïðñòóôõö÷øùúûüýþÿ", LEN_DESC);
+   char        v           [LEN_DESC]  = "";
+   char        t           [LEN_SHORT] = "";
+   char        x_content   [LEN_DESC]  = "";
+   int         l           =    0;
+   char        b           =  '[';
+   char        e           =  ']';
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   /*---(charset)------------------------*/
+   if (my.dev [5] == 't')  ystrlcpy (v, "abcdefghijklmnopqrstuvwx", LEN_DESC);
+   else                    ystrlcpy (v, "èéêëìíîïðñòóôõö÷øùúûüýþÿ", LEN_DESC);
    switch (g_vals.bfly_size) {
    case 'L' :  x_ncol = 180; x_nrow =  65;               break;
    case 'm' :  x_ncol = 100; x_nrow =  45;               break;
@@ -301,10 +377,13 @@ show_rain    (void)
    }
    x_left  = my.cen - x_ncol / 2;
    x_top   = my.mid - x_nrow / 2;
-   for (i = 0; i < LEN_TITLE; ++i) {
+   for (i = 0; i < LEN_HUND; ++i) {
+      /*---(fill behind)-----------------*/
       x = s_col [i];
-      y = s_row [i] - 3;
+      y = s_row [i] - 2;
       if (y < 0) y = 0;
+      move   (x_top + y, x_left + x);
+      innstr (t, 1);
       if (g_bfly_lrg [g_vals.bfly_indx][y][x] != ' ') {
          COLORS_GREEN;
          mvprintw (x_top + y, x_left + x,  "%c", g_bfly_lrg [g_vals.bfly_indx][y][x]);
@@ -312,26 +391,125 @@ show_rain    (void)
       }
       ++s_row [i];
       if (s_row [i] >= x_nrow) {
-         COLORS_GREEN;
-         for (y = 0; y < x_nrow; ++y) {
-            if (g_bfly_lrg [g_vals.bfly_indx][y][x] != ' ') {
-               mvprintw (x_top + y, x_left + x,  "%c", g_bfly_lrg [g_vals.bfly_indx][y][x]);
-            }
-         }
-         COLORS_OFF;
          s_col [i] = rand () % 160 + 10;
          s_row [i] = 0;
       }
+      /*---(draw new head)---------------*/
       x = s_col [i];
       y = s_row [i];
+      move   (x_top + y, x_left + x);
+      innstr (t, 1);
       if (g_bfly_lrg [g_vals.bfly_indx][y][x] != ' ') {
          COLORS_YELLOW;
          mvprintw (x_top + y, x_left + x,  "%c", v [rand () % 24]);
          COLORS_OFF;
       }
+      /*---(done)------------------------*/
+   }
+   if (my.mute != 'y') {
+      if (my.dev [5] != 't')   { b = 'å'; e = 'æ'; }
+      mvprintw (67, my.cen - 14, "%c%s%c", b, my.rundate, e);
+      yASCII_word    (YASCII_DATE    , x_content);
+      ystrltrim (x_content, ySTR_BOTH, LEN_DESC);
+      l = strlen (x_content) / 2;
+      mvprintw (66, my.cen - l, "%s"              , x_content);
    }
    return 0;
 }
+
+char
+show_random            (int a_count)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   uchar       c           =    0;
+   char        i           =    0;
+   char        v           [LEN_HUND] = "";
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   /*---(defense)------------------------*/
+   DEBUG_LOOP   yLOG_senter (__FUNCTION__);
+   /*---(first time)---------------------*/
+   if (a_count == -1) {
+      DEBUG_LOOP   yLOG_snote  ("first run");
+      COLORS_OFF;
+      if (my.dev [5] == 't')  mvprintw (6, my.cen - 25, "--------------------------------------------------");
+      else                    mvprintw (6, my.cen - 25, "··················································");
+   }
+   /*---(first time)---------------------*/
+   if (my.dev [5] == 't')  ystrlcpy (v, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX--------------------------------------------------", LEN_HUND);
+   else                    ystrlcpy (v, "abcdefghijklmnopqrstuvwxyzèéêëìíîïðñòóôõö÷øùúûüýþÿ··················································", LEN_HUND);
+   DEBUG_LOOP   yLOG_snote  (v);
+   /*---(left side)----------------------*/
+   COLORS_CYAN;
+   c = v [rand () % 50];
+   DEBUG_LOOP   yLOG_schar  (c);
+   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, "%c", c);
+   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
+   COLORS_OFF;
+   /*---(right side)---------------------*/
+   COLORS_CYAN;
+   c = v [rand () % 50];
+   DEBUG_LOOP   yLOG_schar  (c);
+   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, "%c", c);
+   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
+   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
+   COLORS_OFF;
+   /*---(top)----------------------------*/
+   for (i = 0; i < 5; ++i) {
+      mvprintw (6, my.cen - 25 + rand () % 50, "%c", v [rand () % 100]);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexit  (__FUNCTION__);
+   return 0;
+}
+
+char
+show_prompt             (void)
+{
+   char        x_title     [LEN_LABEL] = "";
+   char        x_content   [LEN_DESC]  = "";
+   char        t           [LEN_DESC]  = "";
+   int         l           =    0;
+   char        s           [LEN_LABEL] = "";
+   char        b           =  '[';
+   char        e           =  ']';
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   COLORS_OFF;
+   if (my.dev [5] != 't')   { b = 'å'; e = 'æ'; }
+   yASCII_cluster (my.clus_curr, x_title, x_content);
+   sprintf (t, "%02d.%s", my.clus_curr, x_content);
+   ystrlpad (t, s, '_', '<', 18);
+   mvprintw ( 1,  35, "%12.12s %c%-18.18s%c", x_title, b, s, e);
+   yASCII_host    (my.host_curr, x_title, x_content);
+   sprintf (t, "%s.%02d", x_content, my.host_curr);
+   ystrlpad (t, s, '_', '>', 18);
+   mvprintw ( 1, 157, "%c%18.18s%c %-12.12s", b, s, e, x_title);
+   if (my.dev [5] == 't')  ystrlcpy (t, "____________________", LEN_LABEL);
+   else                    ystrlcpy (t, "¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬", LEN_LABEL);
+   yASCII_word    (YASCII_USERNAME, x_content);
+   mvprintw (70,  70, "%c%-12.12s%c %-12.12s"   , b, t, e, x_content);
+   yASCII_word    (YASCII_TOKEN   , x_content);
+   ystrltrim (x_content, ySTR_BOTH, LEN_DESC);
+   l = strlen (x_content) / 2;
+   mvprintw (69, my.cen - l, "%s"              , x_content);
+   mvprintw (70, my.cen - 4, "%c%-3.3s-%-3.3s%c"       , b, t, t, e);
+   yASCII_word    (YASCII_PASSWORD, x_content);
+   mvprintw (70, 130, "%12.12s %c%-12.12s%c"    , x_content, b, t, e);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                     hiding content                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___CONTENT_________o () { return; }
 
 char
 show_left              (void)
@@ -343,75 +521,76 @@ show_left              (void)
    int         h, w;
    int         a, b;
    /*---(leftmost)-----------------------*/
-   strlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
+   ystrlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
    for (i = 0; i < LEN_HUND; ++i)      t [i] = v [rand () % 36];
    for (i = 1; i < LEN_HUND; i += 2)   t [i] = '¦';
    t  [LEN_HUND - 1] = '\0';
    COLORS_YELLOW;
-   ySTR_display ("tiny_dot" , t, YSTR_GAPS, 0, 0, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("tiny_dot" , t, YASCII_GAPS, 0, 0, NULL, NULL, YASCII_CLEAR);
    COLORS_OFF;
    /*---(center left)--------------------*/
-   strlcpy (v, "1234567890", LEN_HUND);
-   for (i = 0; i < LEN_HUND; ++i)      t [i] = v [rand () % 10];
-   for (i = 2; i < LEN_HUND; i += 3)   t [i] = '¦';
-   t  [LEN_HUND - 1] = '\0';
-   t [ 0] = my.magic_num [ 6];
-   t [27] = my.magic_num [18];
-   t [13] = my.magic_num [13];
+   ystrlcpy (v, "1234567890", LEN_HUND);
+   for (i = 0; i < LEN_HUND; ++i)      s_lstrip [i] = v [rand () % 10];
+   for (i = 2; i < LEN_HUND; i += 3)   s_lstrip [i] = '¦';
+   s_lstrip  [LEN_HUND - 1] = '\0';
+   s_lstrip [ 0] = my.magic_num [ 6];
+   s_lstrip [27] = my.magic_num [18];
+   s_lstrip [13] = my.magic_num [13];
    COLORS_YELLOW;
-   ySTR_display ("alligator", t, YSTR_GAPS, 4, 0, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("alligator", s_lstrip, YASCII_GAPS, 4, 0, NULL, NULL, YASCII_CLEAR);
    COLORS_OFF;
    /*---(magic)--------------------------*/
    if (my.show_hint == 'y') {
-      ySTR_font ("alligator", &w, &h);
+      yASCII_font ("alligator", &w, &h);
       COLORS_RED;
-      sprintf (t, "%c", my.magic_num [ 6]);
-      ySTR_display ("alligator", t, YSTR_GAPS, 4    , 0    , NULL, NULL);
-      sprintf (t, "%c", my.magic_num [18]);
-      ySTR_display ("alligator", t, YSTR_GAPS, 4    , 9 * h, NULL, NULL);
-      sprintf (t, "%c", my.magic_num [13]);
-      ySTR_display ("alligator", t, YSTR_GAPS, 4 + w, 4 * h, NULL, NULL);
+      sprintf (s_lstrip, "%c", my.magic_num [ 6]);
+      if (my.mute != 'y')  yASCII_display ("alligator", s_lstrip, YASCII_GAPS, 4    , 0    , NULL, NULL, YASCII_CLEAR);
+      sprintf (s_lstrip, "%c", my.magic_num [18]);
+      if (my.mute != 'y')  yASCII_display ("alligator", s_lstrip, YASCII_GAPS, 4    , 9 * h, NULL, NULL, YASCII_CLEAR);
+      sprintf (s_lstrip, "%c", my.magic_num [13]);
+      if (my.mute != 'y')  yASCII_display ("alligator", s_lstrip, YASCII_GAPS, 4 + w, 4 * h, NULL, NULL, YASCII_CLEAR);
       COLORS_OFF;
    }
    /*---(knocks)-------------------------*/
-   strlcpy (v, "01", LEN_HUND);
-   for (i = 0; i < LEN_HUND; ++i)      t [i] = v [rand () %  2];
+   ystrlcpy (v, "01", LEN_HUND);
+   for (i = 0; i < LEN_HUND; ++i)      s_lknock [i] = v [rand () %  2];
+   g_vals.noks_gap = 2;
    switch (g_vals.noks_gap) {
    case 0 :
-      for (i = 1; i < LEN_HUND; i += 2)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 2)  s_lknock [i] = '¦';
       a =  2;
       b =  6;
       break;
    case 1 :
-      for (i = 1; i < LEN_HUND; i += 4)  t [i] = '¦';
-      for (i = 2; i < LEN_HUND; i += 4)  t [i] = ' ';
-      for (i = 3; i < LEN_HUND; i += 4)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 4)  s_lknock [i] = '¦';
+      for (i = 2; i < LEN_HUND; i += 4)  s_lknock [i] = ' ';
+      for (i = 3; i < LEN_HUND; i += 4)  s_lknock [i] = '¦';
       a =  4;
       b = 12;
       break;
    case 2 :
-      for (i = 1; i < LEN_HUND; i += 6)  t [i] = '¦';
-      for (i = 2; i < LEN_HUND; i += 6)  t [i] = ' ';
-      for (i = 3; i < LEN_HUND; i += 6)  t [i] = '¦';
-      for (i = 4; i < LEN_HUND; i += 6)  t [i] = ' ';
-      for (i = 5; i < LEN_HUND; i += 6)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 6)  s_lknock [i] = '¦';
+      for (i = 2; i < LEN_HUND; i += 6)  s_lknock [i] = ' ';
+      for (i = 3; i < LEN_HUND; i += 6)  s_lknock [i] = '¦';
+      for (i = 4; i < LEN_HUND; i += 6)  s_lknock [i] = ' ';
+      for (i = 5; i < LEN_HUND; i += 6)  s_lknock [i] = '¦';
       a =  6;
       b = 30;
       break;
    }
-   t [LEN_HUND - 1] = '\0';
-   t [ a] = (my.magic_num [ 1] == '+') ? '1' : '0';
-   t [ b] = (my.magic_num [ 4] == '+') ? '1' : '0';
+   s_lknock [LEN_HUND - 1] = '\0';
+   s_lknock [ a] = (my.magic_num [ 1] == '+') ? '1' : '0';
+   s_lknock [ b] = (my.magic_num [ 4] == '+') ? '1' : '0';
    COLORS_YELLOW;
-   ySTR_display ("dots", t, YSTR_GAPS, 25, 0, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("dots", s_lknock, YASCII_GAPS, 25, 0, NULL, NULL, YASCII_MERGE);
    /*---(magic)--------------------------*/
    if (my.show_hint == 'y') {
-      ySTR_font ("dots"     , &w, &h);
+      yASCII_font ("dots"     , &w, &h);
       COLORS_RED;
-      sprintf (t, "%c", (my.magic_num [ 1] == '+') ? '1' : '0');
-      ySTR_display ("dots"     , t, YSTR_GAPS, 25   , 3  * h, NULL, NULL);
-      sprintf (t, "%c", (my.magic_num [ 4] == '+') ? '1' : '0');
-      ySTR_display ("dots"     , t, YSTR_GAPS, 25   , 15 * h, NULL, NULL);
+      sprintf (s_lknock, "%c", (my.magic_num [ 1] == '+') ? '1' : '0');
+      if (my.mute != 'y')  yASCII_display ("dots"     , s_lknock, YASCII_GAPS, 25   , 3  * h, NULL, NULL, YASCII_MERGE);
+      sprintf (s_lknock, "%c", (my.magic_num [ 4] == '+') ? '1' : '0');
+      if (my.mute != 'y')  yASCII_display ("dots"     , s_lknock, YASCII_GAPS, 25   , 15 * h, NULL, NULL, YASCII_MERGE);
       COLORS_OFF;
    }
    /*---(complete)-----------------------*/
@@ -430,8 +609,10 @@ show_right             (void)
    int         x_off       =    0;
    int         n           =    0;
    int         a, b;
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
    /*---(prepare)------------------------*/
-   ySTR_font ("goofy"    , &w, &h);
+   yASCII_font ("goofy"    , &w, &h);
    if      (strchr ("XYZ" , my.magic_num [21]) != NULL)  x_off = my.magic_num [21] - 'X';
    else if (strchr ("xyz" , my.magic_num [21]) != NULL)  x_off = my.magic_num [21] - 'x';
    else if (strchr ("XYZ" , my.magic_num [22]) != NULL)  x_off = my.magic_num [22] - 'X';
@@ -440,62 +621,62 @@ show_right             (void)
    else if (strchr ("xyz" , my.magic_num [23]) != NULL)  x_off = my.magic_num [23] - 'x';
    n = 25 + (x_off * 4);
    /*---(rightmost)----------------------*/
-   strlcpy (v, "1234567890", LEN_HUND);
-   for (i = 0; i < LEN_HUND; ++i)      t [i] = v [rand () % 10];
-   for (i = 3; i < LEN_HUND; i += 4)   t [i] = '¦';
-   t  [LEN_HUND - 1] = '\0';
-   t [x_off * 4 + 0] = my.magic_num [n + 0];
-   t [x_off * 4 + 1] = my.magic_num [n + 1];
-   t [x_off * 4 + 2] = my.magic_num [n + 2];
+   ystrlcpy (v, "1234567890", LEN_HUND);
+   for (i = 0; i < LEN_HUND; ++i)      s_rstrip [i] = v [rand () % 10];
+   for (i = 3; i < LEN_HUND; i += 4)   s_rstrip [i] = '¦';
+   s_rstrip  [LEN_HUND - 1] = '\0';
+   s_rstrip [x_off * 4 + 0] = my.magic_num [n + 0];
+   s_rstrip [x_off * 4 + 1] = my.magic_num [n + 1];
+   s_rstrip [x_off * 4 + 2] = my.magic_num [n + 2];
    COLORS_YELLOW;
-   ySTR_display ("goofy"    , t, YSTR_GAPS, my.rig - w * 3, 0, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("goofy"    , s_rstrip, YASCII_GAPS, my.rig - w * 3, 0, NULL, NULL, YASCII_CLEAR);
    COLORS_OFF;
    /*---(magic)--------------------------*/
    if (my.show_hint == 'y') {
       COLORS_RED;
-      sprintf (t, "%c%c%c", my.magic_num [n + 0], my.magic_num [n + 1], my.magic_num [n + 2]);
-      ySTR_display ("goofy"    , t, YSTR_GAPS, my.rig - w * 3, x_off * h, NULL, NULL);
+      sprintf (s_rstrip, "%c%c%c", my.magic_num [n + 0], my.magic_num [n + 1], my.magic_num [n + 2]);
+      if (my.mute != 'y')  yASCII_display ("goofy"    , s_rstrip, YASCII_GAPS, my.rig - w * 3, x_off * h, NULL, NULL, YASCII_CLEAR);
       COLORS_OFF;
    }
    /*---(knocks)-------------------------*/
-   strlcpy (v, "01", LEN_HUND);
-   for (i = 0; i < LEN_HUND; ++i)      t [i] = v [rand () %  2];
+   ystrlcpy (v, "01", LEN_HUND);
+   for (i = 0; i < LEN_HUND; ++i)      s_rknock [i] = v [rand () %  2];
    switch (g_vals.noks_gap) {
    case 0 :
-      for (i = 1; i < LEN_HUND; i += 2)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 2)  s_rknock [i] = '¦';
       a =  2;
       b =  6;
       break;
    case 1 :
-      for (i = 1; i < LEN_HUND; i += 4)  t [i] = '¦';
-      for (i = 2; i < LEN_HUND; i += 4)  t [i] = ' ';
-      for (i = 3; i < LEN_HUND; i += 4)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 4)  s_rknock [i] = '¦';
+      for (i = 2; i < LEN_HUND; i += 4)  s_rknock [i] = ' ';
+      for (i = 3; i < LEN_HUND; i += 4)  s_rknock [i] = '¦';
       a =  4;
       b = 12;
       break;
    case 2 :
-      for (i = 1; i < LEN_HUND; i += 6)  t [i] = '¦';
-      for (i = 2; i < LEN_HUND; i += 6)  t [i] = ' ';
-      for (i = 3; i < LEN_HUND; i += 6)  t [i] = '¦';
-      for (i = 4; i < LEN_HUND; i += 6)  t [i] = ' ';
-      for (i = 5; i < LEN_HUND; i += 6)  t [i] = '¦';
+      for (i = 1; i < LEN_HUND; i += 6)  s_rknock [i] = '¦';
+      for (i = 2; i < LEN_HUND; i += 6)  s_rknock [i] = ' ';
+      for (i = 3; i < LEN_HUND; i += 6)  s_rknock [i] = '¦';
+      for (i = 4; i < LEN_HUND; i += 6)  s_rknock [i] = ' ';
+      for (i = 5; i < LEN_HUND; i += 6)  s_rknock [i] = '¦';
       a =  6;
       b = 30;
       break;
    }
-   t [LEN_HUND - 1] = '\0';
-   t [ a] = (my.magic_num [40] == '+') ? '1' : '0';
-   t [ b] = (my.magic_num [37] == '+') ? '1' : '0';
+   s_rknock [LEN_HUND - 1] = '\0';
+   s_rknock [ a] = (my.magic_num [40] == '+') ? '1' : '0';
+   s_rknock [ b] = (my.magic_num [37] == '+') ? '1' : '0';
    COLORS_YELLOW;
-   ySTR_font ("dots"     , &w2, &h2);
-   ySTR_display ("dots", t, YSTR_GAPS, my.rig - 3 * w - w2, 0, NULL, NULL);
+   yASCII_font ("dots"     , &w2, &h2);
+   if (my.mute != 'y')  yASCII_display ("dots", s_rknock, YASCII_GAPS, my.rig - 3 * w - w2, 0, NULL, NULL, YASCII_MERGE);
    /*---(magic)--------------------------*/
    if (my.show_hint == 'y') {
       COLORS_RED;
-      sprintf (t, "%c", (my.magic_num [40] == '+') ? '1' : '0');
-      ySTR_display ("dots"     , t, YSTR_GAPS, my.rig - 3 * w - w2, 3  * h2, NULL, NULL);
-      sprintf (t, "%c", (my.magic_num [37] == '+') ? '1' : '0');
-      ySTR_display ("dots"     , t, YSTR_GAPS, my.rig - 3 * w - w2, 15 * h2, NULL, NULL);
+      sprintf (s_rknock, "%c", (my.magic_num [40] == '+') ? '1' : '0');
+      if (my.mute != 'y')  yASCII_display ("dots"     , s_rknock, YASCII_GAPS, my.rig - 3 * w - w2, 3  * h2, NULL, NULL, YASCII_MERGE);
+      sprintf (s_rknock, "%c", (my.magic_num [37] == '+') ? '1' : '0');
+      if (my.mute != 'y')  yASCII_display ("dots"     , s_rknock, YASCII_GAPS, my.rig - 3 * w - w2, 15 * h2, NULL, NULL, YASCII_MERGE);
       COLORS_OFF;
    }
    return 0;
@@ -511,187 +692,67 @@ show_block             (void)
    char        x_rot       =  0;
    char        w, h;
    COLORS_OFF;
-   ySTR_font ("chunky_full", &w, &h);
+   yASCII_font ("chunky_full", &w, &h);
    if      (strchr ("ABCD" , my.magic_num [21]) != NULL)  x_rot = my.magic_num [21] - 'A';
    else if (strchr ("abcd" , my.magic_num [21]) != NULL)  x_rot = my.magic_num [21] - 'a';
    else if (strchr ("ABCD" , my.magic_num [22]) != NULL)  x_rot = my.magic_num [22] - 'A';
    else if (strchr ("abcd" , my.magic_num [22]) != NULL)  x_rot = my.magic_num [22] - 'a';
    else if (strchr ("ABCD" , my.magic_num [23]) != NULL)  x_rot = my.magic_num [23] - 'A';
    else if (strchr ("abcd" , my.magic_num [23]) != NULL)  x_rot = my.magic_num [23] - 'a';
-   strlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
-   for (i = 0; i < 15; ++i)   t [i] = v [rand () % 36];
-   t [ 3] =t [ 7] = t [11] = '¦';
-   t [ 5] =t [ 6] = t [ 9] = t [10] = ' ';
-   t [15] = '\0';
-   t [12] = x_rot + 'a';
-   ySTR_display ("chunky_full" , t, YSTR_GAPS,  35, 50, NULL, NULL);
+   ystrlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
+   for (i = 0; i < 15; ++i)   s_lblock [i] = v [rand () % 36];
+   s_lblock [ 3] = s_lblock [ 7] = s_lblock [11] = '¦';
+   s_lblock [ 5] = s_lblock [ 6] = s_lblock [ 9] = s_lblock [10] = ' ';
+   s_lblock [15] = '\0';
+   s_lblock [12] = x_rot + 'a';
+   if (my.mute != 'y')  yASCII_display ("chunky_full" , s_lblock, YASCII_GAPS,  35, 50, NULL, NULL, YASCII_MERGE);
    if (my.show_hint == 'y') {
       COLORS_RED;
-      sprintf (t, "%c", x_rot + 'a');
-      ySTR_display ("chunky_full", t, YSTR_GAPS, 35, 50 + 3 * h, NULL, NULL);
+      sprintf (s_lblock, "%c", x_rot + 'a');
+      if (my.mute != 'y')  yASCII_display ("chunky_full", s_lblock, YASCII_GAPS, 35, 50 + 3 * h, NULL, NULL, YASCII_MERGE);
       COLORS_OFF;
    }
    /*---(prepare)------------------------*/
-   ySTR_font ("chunky_full", &w, &h);
+   yASCII_font ("chunky_full", &w, &h);
    if      (strchr ("XYZ" , my.magic_num [21]) != NULL)  x_off = my.magic_num [21] - 'X';
    else if (strchr ("xyz" , my.magic_num [21]) != NULL)  x_off = my.magic_num [21] - 'x';
    else if (strchr ("XYZ" , my.magic_num [22]) != NULL)  x_off = my.magic_num [22] - 'X';
    else if (strchr ("xyz" , my.magic_num [22]) != NULL)  x_off = my.magic_num [22] - 'x';
    else if (strchr ("XYZ" , my.magic_num [23]) != NULL)  x_off = my.magic_num [23] - 'X';
    else if (strchr ("xyz" , my.magic_num [23]) != NULL)  x_off = my.magic_num [23] - 'x';
-   strlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
-   for (i = 0; i < 15; ++i)   t [i] = v [rand () % 36];
-   t [ 3] =t [ 7] = t [11] = '¦';
-   t [ 4] =t [ 5] = t [ 8] = t [ 9] = ' ';
-   t [15] = '\0';
-   t [14] = x_off + 'x';
-   ySTR_display ("chunky_full" , t, YSTR_GAPS, 170, 50, NULL, NULL);
+   ystrlcpy (v, "abcdefghijklmnopqrstuvwxyz0123456789", LEN_HUND);
+   for (i = 0; i < 15; ++i)   s_rblock [i] = v [rand () % 36];
+   s_rblock [ 3] =s_rblock [ 7] = s_rblock [11] = '¦';
+   s_rblock [ 4] =s_rblock [ 5] = s_rblock [ 8] = s_rblock [ 9] = ' ';
+   s_rblock [15] = '\0';
+   s_rblock [14] = x_off + 'x';
+   if (my.mute != 'y')  yASCII_display ("chunky_full" , s_rblock, YASCII_GAPS, 170, 50, NULL, NULL, YASCII_MERGE);
    if (my.show_hint == 'y') {
       COLORS_RED;
-      sprintf (t, "%c", x_off + 'x');
-      ySTR_display ("chunky_full", t, YSTR_GAPS, 170 + 2 * w, 50 + 3 * h, NULL, NULL);
+      sprintf (s_rblock, "%c", x_off + 'x');
+      if (my.mute != 'y')  yASCII_display ("chunky_full", s_rblock, YASCII_GAPS, 170 + 2 * w, 50 + 3 * h, NULL, NULL, YASCII_MERGE);
       COLORS_OFF;
    }
    for (i = 0; i <  3; ++i)   t [i] = rand () % 26 + 'a';
    t [ 4] = '\0';
-   ySTR_display ("horzright"   , t, YSTR_GAPS, my.cen - 9 * 3 - 2,  1, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("horzright"   , t, YASCII_GAPS, my.cen - 9 * 3 - 2,  1, NULL, NULL, YASCII_MERGE);
    for (i = 0; i <  3; ++i)   t [i] = rand () % 26 + 'a';
    t [ 4] = '\0';
-   ySTR_display ("horzleft"    , t, YSTR_GAPS, my.cen + 2        ,  1, NULL, NULL);
+   if (my.mute != 'y')  yASCII_display ("horzleft"    , t, YASCII_GAPS, my.cen + 2        ,  1, NULL, NULL, YASCII_MERGE);
    if (my.show_hint == 'y') {
       COLORS_RED;
-      mvprintw ( 0, my.cen - 21, "%s", my.magic_num);
+      if (my.mute != 'y')  mvprintw ( 0, my.cen - strlen (my.magic_num) / 2, "%s", my.magic_num);
       COLORS_OFF;
    }
-   strlcpy (v, "0123456789abcdef", LEN_HUND);
-   sprintf (t, "%c", v [g_vals.bfly_indx]);
-   ySTR_display ("computer"    , t, YSTR_GAPS, my.cen - 4,  8, NULL, NULL);
    return 0;
 }
 
-char
-show_random            (void)
-{
-   uchar       c           =    0;
-   char        i           =    0;
-   char        v           [LEN_HUND] = "";
-   if (my.dev [5] == 't')  strlcpy (v, "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwy--------------------------------------------------", LEN_HUND);
-   else                    strlcpy (v, "abcdefghijklmnopqrstuvwxyzèéêëìíîïðñòóôõö÷øùúûüýþÿ··················································", LEN_HUND);
-   COLORS_CYAN;
-   c = v [rand () % 50];
-   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, "%c", c);
-   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9,  44 + rand () %  9, " ");
-   c = v [rand () % 50];
-   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, "%c", c);
-   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
-   mvprintw ( 56 + rand () %  9, 173 + rand () %  9, " ");
-   COLORS_OFF;
-   for (i = 0; i < 5; ++i) {
-      mvprintw (6, my.cen - 25 + rand () % 50, "%c", v [rand () % 100]);
-   }
-   return 0;
-}
 
-char
-show_ascii             (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        t           [LEN_DESC];
-   /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
-   /*---(left)---------------------------*/
-   COLORS_YELLOW;
-   DEBUG_TOPS   yLOG_note    ("lefts");
-   /*> ySTR_display (g_vals.lefs_font, g_vals.lefts , YSTR_GAPS, g_vals.lefs_lef, g_vals.lefs_top, NULL, NULL);   <*/
-   ySTR_display (g_vals.lefs_font, g_vals.lefts , YSTR_GAPS, 5              , g_vals.lefs_top, NULL, NULL);
-   COLORS_OFF;
-   /*---(right)--------------------------*/
-   COLORS_YELLOW;
-   DEBUG_TOPS   yLOG_note    ("rights");
-   ySTR_display (g_vals.rigs_font, g_vals.rights, YSTR_GAPS, g_vals.rigs_lef, g_vals.rigs_top, NULL, NULL);
-   COLORS_OFF;
-   /*---(middle)-------------------------*/
-   COLORS_MAGENTA;
-   DEBUG_TOPS   yLOG_note    ("mid top");
-   strncpy (t, g_vals.mids, g_vals.mids_len);
-   DEBUG_TOPS   yLOG_info    ("t"         , t);
-   ySTR_display (g_vals.mids_font, t, YSTR_GAPS, g_vals.mids_lef, g_vals.mids_top, NULL, NULL);
-   DEBUG_TOPS   yLOG_note    ("mid bot");
-   strncpy (t, g_vals.mids + (MAX_MIDS / 2), g_vals.mids_len);
-   DEBUG_TOPS   yLOG_info    ("t"         , t);
-   ySTR_display (g_vals.mids_font, t, YSTR_GAPS, g_vals.mids_lef, g_vals.mids_bot, NULL, NULL);
-   COLORS_OFF;
-   /*---(knock)--------------------------*/
-   COLORS_YELLOW;
-   DEBUG_TOPS   yLOG_note    ("knock left");
-   strncpy (t, g_vals.knocks, MAX_KNOCKS / 2 - 1);
-   DEBUG_TOPS   yLOG_info    ("t"         , t);
-   /*> ySTR_display (g_vals.noks_font, t, YSTR_GAPS, g_vals.noks_lef, g_vals.noks_top, NULL, NULL);   <*/
-   DEBUG_TOPS   yLOG_note    ("knock right");
-   strcpy  (t, g_vals.knocks + (MAX_KNOCKS / 2));
-   DEBUG_TOPS   yLOG_info    ("t"         , t);
-   ySTR_display (g_vals.noks_font, t, YSTR_GAPS, g_vals.noks_rig, g_vals.noks_top, NULL, NULL);
-   COLORS_OFF;
-   /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
 
-char
-show_status             (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        t           [LEN_DESC];
-   int         i           = 0;
-   int         x_count     = 0;
-   char        x_valid     [LEN_DESC] = "cdeghijklmnopqtuvwxy";
-   /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
-   /*---(status)-------------------------*/
-   DEBUG_TOPS   yLOG_note    ("top");
-   for (i = 0; i < g_vals.tops_len; ++i)    t [i] = x_valid [rand () % 20];
-   t [i] = '\0';
-   x_count = my.chars % g_vals.tops_len;
-   t [x_count] = my.status;
-   DEBUG_TOPS   yLOG_info    ("t"         , t);
-   COLORS_YELLOW;
-   ySTR_display (g_vals.tops_font, t, YSTR_GAPS, g_vals.tops_lef, g_vals.tops_top, NULL, NULL);
-   COLORS_OFF;
-   /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-show_prompt             (void)
-{
-   char        x_text      [LEN_DESC] = "";
-   int         x_left      = 0;
-   int         x_right     = 0;
-   int         x_row       = 0;
-   int         x_col       = 0;
-   int         x_gmt_off   = 0;
-   int         i           = 0;
-   x_right   = my.rigminus;
-   x_left    = x_right - 35;
-   yLOG_value  ("x_right"     , x_right);
-   DEBUG_LOOP   yLOG_value  ("x_left"      , x_left );
-   /*---(fake input)------------------*/
-   COLORS_RED;
-   x_col = g_vals.prom_lef + 12 + 2;
-   for (i = 0; i < my.chars; ++i) {
-      if      (i < 12)    mvprintw (g_vals.prom_top + 4, x_col + i -  0, "*");
-      else if (i < 18)    mvprintw (g_vals.prom_top + 5, x_col + i - 12, "*");
-      else if (i < 35)    mvprintw (g_vals.prom_top + 6, x_col + i - 18, "*");
-   }
-   COLORS_OFF;
-   return 0;
-}
+/*====================------------------------------------====================*/
+/*===----                      gathering input                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___INPUT___________o () { return; }
 
 char         /*-> get character from ncurses ---------------------------------*/
 show_getchar           (void)
@@ -711,127 +772,290 @@ show_getchar           (void)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   ++my.chars;
    /*---(special keys)----------------*/
    switch (x_ch) {
-   case 27 :
+   case '¬': case '·':
+      DEBUG_USER   yLOG_note    ("unit testing spaces");
+      x_ch = ' ';
+      break;
+   case 27 : case '¥' :
       DEBUG_USER   yLOG_note    ("escape when done");
       x_ch = '¥';
       break;
-   case '\n' :
+   case '\n' : case '¦' :
       DEBUG_USER   yLOG_note    ("return, mark failed and break out");
       x_ch = '¦';
       my.status = STATUS_NEWLINE;
       break;
    case  3   :
       DEBUG_USER   yLOG_note    ("<C-c>, mark break and break out");
-      x_ch = 'Ô';
+      x_ch = '³';
       my.status = STATUS_BREAK;
       break;
    case  18  :
       DEBUG_USER   yLOG_note    ("<C-r>, mark refresh and break out");
-      x_ch = 'Ó';
+      x_ch = 'ª';
       my.status = STATUS_REFRESH;
       break;
    case 32 ... 126 :
       DEBUG_USER   yLOG_note    ("normal character, append");
       break;
    default :
-      DEBUG_USER   yLOG_note    ("weird character, mark failed and break out");
+      DEBUG_USER   yLOG_note    ("weird character, save a placeholder");
       x_ch = '¤';
-      my.status = STATUS_FAILED;
       break;
    }
    DEBUG_USER   yLOG_char    ("my.status"  , my.status);
+   /*---(deafness)-----------------------*/
+   if (my.deaf == 'y')    return 0;
    /*---(add text)-----------------------*/
-   sprintf (t, "%c", x_ch);
-   strlcat (my.entry_text, t, LEN_DESC);
-   DEBUG_USER   yLOG_info    ("text"      , my.entry_text);
-   /*---(check)--------------------------*/
-   my.result = yEXEC_response (my.entry_text, &(my.phase), &(my.judgement), &(my.position));
-   if (my.show_hint == 'y') {
-      COLORS_RED;
-      mvprintw ( 8, my.cen - 19, "          ");
-      mvprintw ( 9, my.cen - 19, "          ");
-      mvprintw (10, my.cen - 19, "          ");
-      mvprintw (11, my.cen - 19, "          ");
-      sprintf (t, "%c", rand () % 10 + '0');
-      ySTR_display ("thick"       , t, YSTR_GAPS, my.cen - 19,  8, NULL, NULL);
-      sprintf (t, "%c", rand () % 10 + '0');
-      ySTR_display ("thick"       , t, YSTR_GAPS, my.cen - 14,  8, NULL, NULL);
-      sprintf (t, "%c", my.phase);
-      ySTR_display ("thick"       , t, YSTR_GAPS, my.cen -  9,  8, NULL, NULL);
-      sprintf (t, "%c", my.judgement);
-      ySTR_display ("thick"       , t, YSTR_GAPS, my.cen +  5,  8, NULL, NULL);
-      mvprintw ( 8, my.cen + 10, "          ");
-      mvprintw ( 9, my.cen + 10, "          ");
-      mvprintw (10, my.cen + 10, "          ");
-      mvprintw (11, my.cen + 10, "          ");
-      sprintf (t, "%02d", my.position);  
-      ySTR_display ("thick"       , t, YSTR_GAPS, my.cen + 10,  8, NULL, NULL);
-      sprintf (t, "%2d[%s]", strlen (my.entry_text), my.entry_text);
-      mvprintw (7, my.cen - 15, "%s", t);
-      COLORS_OFF;
+   ++my.chars;
+   DEBUG_USER   yLOG_value   ("my.chars"  , my.chars);
+   if (my.chars <= 40)  {
+      DEBUG_USER   yLOG_note    ("appending character");
+      sprintf (t, "%c", x_ch);
+      ystrlcat (my.entry_text, t, LEN_DESC);
    }
+   DEBUG_USER   yLOG_complex ("text"      , "%2d[%s]", strlen (my.entry_text), my.entry_text);
+   /*---(check)--------------------------*/
+   DEBUG_USER   yLOG_complex ("magic"     , "%2d[%s]", strlen (my.magic_num), my.magic_num);
+   my.result = ySEC_full (my.entry_text, &(my.phase), &(my.judgement), &(my.position), my.user_fix);
+   DEBUG_USER   yLOG_value   ("result"     , my.result);
+   DEBUG_USER   yLOG_char    ("phase"      , my.phase);
+   DEBUG_USER   yLOG_char    ("judgement"  , my.judgement);
+   DEBUG_USER   yLOG_value   ("position"   , my.position);
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
-char             /* [------] print the /etc/issue file and login prompt ------*/
-show_all             (void)
+char
+show__getstring      (void)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rc          = 0;
-   char        x_date      [LEN_DESC] = "";
-   /*---(header)----------------------*/
-   DEBUG_LOOP   yLOG_enter  (__FUNCTION__);
-   /*---(set positions)---------------*/
-   show_sizing ();
-   clear       ();
-   mvprintw    (0, 0,  "                                                                            ");
-   /*---(show sections)------------------*/
-   rc = show_butterfly ();
-   rc = show_ascii     ();
-   strl4time (time (NULL), x_date, 0, 'T', LEN_DESC);
-   COLORS_BLUE;
-   ySTR_prompt_box (my.language, my.cluster, my.host, x_date, g_vals.prom_lef, g_vals.prom_top);
-   COLORS_OFF;
-   /*---(complete)-----------------------*/
-   DEBUG_LOOP   yLOG_note   ("printed issue");
-   DEBUG_LOOP   yLOG_exit   (__FUNCTION__);
+   char        rc          =    0;
+   while (rc >= 0)  rc = show_getchar ();
    return 0;
 }
 
-static int s_x  [32] = {  0,  2,  4,  6,  7,  8,  9, 10, 10, 10,  9,  8,  7,  6,  4,  2,  0, -2, -4, -6, -7, -8, -9,-10,-10,-10, -9, -8, -7, -6, -4, -2 };
-static int s_y  [32] = {  5,  5,  5,  4,  4,  3,  2,  1,  0, -1, -2, -3, -4, -4, -5, -5, -5, -5, -5, -4, -4, -3, -2, -1,  0,  1,  2,  3,  4,  4,  5,  5 };
+
+
+/*====================------------------------------------====================*/
+/*===----                       providing feedback                     ----===*/
+/*====================------------------------------------====================*/
+static void  o___FEEDBACK________o () { return; }
 
 char
-show_timer           (void)
+show_results         (void)
+{
+   char        t           [LEN_DESC]  = "";
+   char        v           [LEN_DESC]  = "";
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   if (my.show_hint == 'y') {
+      COLORS_RED;
+      sprintf (t, "%c", my.phase);
+      if (my.mute != 'y')  yASCII_display ("thick"       , t, YASCII_GAPS, my.cen - 14,  8, NULL, NULL, YASCII_CLEAR);
+      sprintf (t, "%c", my.judgement);
+      if (my.mute != 'y')  yASCII_display ("thick"       , t, YASCII_GAPS, my.cen -  9,  8, NULL, NULL, YASCII_CLEAR);
+      sprintf (t, "%02d", my.position);  
+      if (my.mute != 'y')  yASCII_display ("thick"       , t, YASCII_GAPS, my.cen + 5,  8, NULL, NULL, YASCII_CLEAR);
+      sprintf (t, "%2d[%s]", strlen (my.entry_text), my.entry_text);
+      mvprintw (7, my.cen - 15, "%s", t);
+      COLORS_OFF;
+   }
+   ystrlcpy (v, "0123456789abcdef", LEN_HUND);
+   sprintf (t, "%c", v [g_vals.bfly_indx]);
+   if (my.mute != 'y')  yASCII_display ("computer"    , t, YASCII_GAPS, my.cen - 4,  8, NULL, NULL, YASCII_CLEAR);
+   sprintf (t, "%02d", my.hexigram);
+   if (my.mute != 'y')  yASCII_display ("thick"       , t, YASCII_GAPS, my.cen - 5, 15, NULL, NULL, YASCII_CLEAR);
+}
+
+char
+show_timer              (int *a_count)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_secs      =    0;
-   int         x, y;
-   /*---(assign pass)--------------------*/
-   if      (my.secs <=  32)   COLORS_GREEN;
-   else if (my.secs <=  64)   COLORS_MAGENTA;
-   else if (my.secs <=  98)   COLORS_YELLOW;
-   else                       COLORS_RED;
-   /*---(clear marker)-------------------*/
-   if (my.secs > 0) {
-      x_secs = (my.secs - 1) % 32;
-      x = g_vals.timr_cen + s_x [x_secs];
-      y = g_vals.timr_mid + s_y [x_secs];
-      ySTR_display (g_vals.timr_font, " ", YSTR_NOGAPS, x, y, NULL, NULL);
+   char        rce         =  -10;
+   int         n           =    0;
+   char        v           [LEN_LABEL] = "";
+   int         q           =    0;
+   int         h           =    0;
+   uchar       c           =  '-';
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   /*---(defense)------------------------*/
+   DEBUG_LOOP   yLOG_senter (__FUNCTION__);
+   DEBUG_LOOP   yLOG_spoint (a_count);
+   --rce;  if (a_count == NULL) {
+      DEBUG_LOOP   yLOG_sexitr (__FUNCTION__, rce);
+      return rce;
    }
-   /*---(show marker)--------------------*/
-   x_secs = my.secs % 32;
-   x = g_vals.timr_cen + s_x [x_secs];
-   y = g_vals.timr_mid + s_y [x_secs];
-   ySTR_display (g_vals.timr_font, "1", YSTR_NOGAPS, x, y, NULL, NULL);
+   n = *a_count;
+   DEBUG_LOOP   yLOG_sint   (n);
+   /*---(prepare)------------------------*/
+   q = my.timeout / 4;
+   h = my.timeout / 2;
+   /*---(charset to use)-----------------*/
+   if (my.dev [5] == 't')  ystrlcpy (v, "#----+----", LEN_LABEL);
+   else                    ystrlcpy (v, "Ï····+····", LEN_LABEL);
+   DEBUG_LOOP   yLOG_snote  (v);
+   /*---(update trail)-------------------*/
+   COLORS_OFF;
+   c = v [n % 10];
+   DEBUG_LOOP   yLOG_schar  (c);
+   if (my.mute != 'y')   {
+      if      (n ==  0)   mvprintw (73, my.cen -  q        ,  "%c", c);
+      else if (n <   h)   mvprintw (72, my.cen -  q + n    ,  "%c", c);
+      else if (n ==  h)   mvprintw (73, my.cen -  q + n    ,  "%c", c);
+      else if (n < h * 2) mvprintw (74, my.cen +  h + q - n,  "%c", c);
+   }
+   /*---(update seconds)-----------------*/
+   if (my.mute != 'y')  mvprintw (73, my.cen - 3,  "%2d sec", n / 10);
+   /*---(check on forever)---------------*/
+   if (n == my.timeout && my.forever == 'y') {
+      DEBUG_LOOP   yLOG_snote  ("forever hit");
+      n = -1;
+      if (my.mute != 'y')  mvprintw (72, my.cen - q, "%*.*s", h + 1, h + 1, "                                                                                                                                      ");
+      if (my.mute != 'y')  mvprintw (73, my.cen - q, "%*.*s", h + 1, h + 1, "                                                                                                                                      ");
+      if (my.mute != 'y')  mvprintw (74, my.cen - q, "%*.*s", h + 1, h + 1, "                                                                                                                                      ");
+      *a_count = n;
+      DEBUG_LOOP   yLOG_sint   (n);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexit  (__FUNCTION__);
+   return 0;
+}
+
+char
+show_lockout            (int a_count)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =    0;
+   char        v           [LEN_LABEL] = "";
+   uchar       c           =  '-';
+   /*---(quick-out)----------------------*/
+   if (my.mute == 'y')  return 0;
+   /*---(defense)------------------------*/
+   DEBUG_LOOP   yLOG_senter (__FUNCTION__);
+   n = a_count;
+   DEBUG_LOOP   yLOG_sint   (n);
+   /*---(charset to use)-----------------*/
+   if (my.dev [5] == 't')  ystrlcpy (v, " + + + + #", LEN_LABEL);
+   else                    ystrlcpy (v, " · · · · ³", LEN_LABEL);
+   DEBUG_LOOP   yLOG_snote  (v);
+   /*---(show title)---------------------*/
+   if (n == 0) {
+      COLORS_RED;
+      if (my.mute != 'y')  mvprintw (72, my.cen - 3,  "LOCKOUT");
+      if (my.mute != 'y')  mvprintw (73, my.cen - 3,  "       ");
+      COLORS_OFF;
+   }
+   /*---(update trail)-------------------*/
+   COLORS_RED;
+   c = v [n % 10];
+   if (my.mute != 'y')  mvprintw (73, my.cen - (my.lockout / 10) + 1 + (n / 10) * 2, "%c", c);
    COLORS_OFF;
    /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexit  (__FUNCTION__);
    return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         unit testing                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNITTEST________o () { return; }
+
+char*        /*-> tbd --------------------------------[ light  [us.JC0.271.X1]*/ /*-[01.0000.00#.!]-*/ /*-[--.---.---.--]-*/
+show__unit              (char *a_question)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   char        s           [LEN_HUND]  = "";
+   char        t           [LEN_RECD]  = " 0[]";
+   /*---(defense)------------------------*/
+   snprintf (unit_answer, LEN_RECD, "PROG unit        : question unknown");
+   /*---(simple)-------------------------*/
+   if      (strcmp (a_question, "lstrip"    )     == 0) {
+      if (strlen (s_lstrip) > 60) {
+         ystrlcpy (t, "", LEN_RECD);
+         sprintf (s, "%2d [%c] " , strlen (s_lstrip), s_lstrip [0]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-12.12s]" , s_lstrip + 1);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_lstrip [13]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-13.13s]" , s_lstrip + 14);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_lstrip [27]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-16.16s]" , s_lstrip + 28);
+         ystrlcat (t, s, LEN_RECD);
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW lstrip      : %s", t);
+   }
+   else if (strcmp (a_question, "lknock"    )     == 0) {
+      if (strlen (s_lknock) > 60) {
+         ystrlcpy (t, "", LEN_RECD);
+         sprintf (s, "%2d [%-6.6s]", strlen (s_lknock) , s_lknock);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_lknock [6]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-23.23s]" , s_lknock + 7);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_lknock [30]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-16.16s]" , s_lknock + 31);
+         ystrlcat (t, s, LEN_RECD);
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW lknock      : %s", t);
+   }
+   else if (strcmp (a_question, "rstrip"    )     == 0) {
+      if (strlen (s_rstrip) > 60) {
+         sprintf (t, "%2d [%3.3s] · [%3.3s] · [%3.3s] · [%35.35s]" ,
+               strlen (s_rstrip), s_rstrip, s_rstrip + 4, s_rstrip + 8, s_rstrip +12); 
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW rstrip      : %s", t);
+   }
+   else if (strcmp (a_question, "rknock"    )     == 0) {
+      if (strlen (s_rknock) > 60) {
+         ystrlcpy (t, "", LEN_RECD);
+         sprintf (s, "%2d [%-6.6s]", strlen (s_rknock) , s_rknock);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_rknock [6]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-23.23s]" , s_rknock + 7);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, " [%c] " , s_rknock [30]);
+         ystrlcat (t, s, LEN_RECD);
+         sprintf (s, "[%-16.16s]" , s_rknock + 31);
+         ystrlcat (t, s, LEN_RECD);
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW rknock      : %s", t);
+   }
+   else if (strcmp (a_question, "lblock"    )     == 0) {
+      if (strlen (s_lblock) > 10) {
+         sprintf (t, "%2d [%12.12s] [%c] [%2.2s]" ,
+               strlen (s_lblock), s_lblock, s_lblock [12], s_lblock + 13); 
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW lblock      : %s", t);
+   }
+   else if (strcmp (a_question, "rblock"    )     == 0) {
+      if (strlen (s_rblock) > 10) {
+         sprintf (t, "%2d [%14.14s] [%c]" ,
+               strlen (s_rblock), s_rblock, s_rblock [14]); 
+         ystrldchg (t, '¦', '·', LEN_RECD);
+      }
+      snprintf (unit_answer, LEN_RECD, "SHOW rblock      : %s", t);
+   }
+   /*---(complete)-----------------------*/
+   return unit_answer;
 }
 
 

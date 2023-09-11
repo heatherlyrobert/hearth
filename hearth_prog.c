@@ -4,8 +4,6 @@
 
 
 struct cACCESSOR my;
-char          unit_answer [LEN_UNIT];
-
 
 
 char        g_modes     [20] = "uqfih";   /* valid fake_door modes                 */
@@ -60,11 +58,14 @@ PROG_version       (void)
 char      /* [------] display usage help information ------------------*/
 PROG_usage         (void)
 {
+   printf ("%s\n", P_ONELINE);
+   printf ("   usage   : hearth [URGENTS] [OPTIONS] dev_file\n");
+   printf ("   version : %s, %s, %s\n", P_VERNUM, __DATE__, P_VERTXT);
    printf ("\n");
-   printf ("usage   : hearth [URGENTS] [OPTIONS] dev_file\n");
-   printf ("\n");
-   printf ("version : %s, %s, %s\n", P_VERNUM, __DATE__, P_VERTXT);
-   printf ("\n");
+   printf ("can be called from terminal for demonstration\n");
+   printf ("   hearth --nolock --forever\n");
+   printf ("   use <C-c> to exit to command prompt\n");
+   exit (0);
    printf ("----------------------------------------------------------------------------------\n");
    printf ("\n");
    printf ("purpose : clean, maintainable, reliable, and secure terminal manager dispatched\n");
@@ -122,7 +123,45 @@ PROG_usage         (void)
    printf("   @p               verbosely traces interactive/crontab logic\n");
    printf("\n");
    exit (0);
+   return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       pre-initialization                     ----===*/
+/*====================------------------------------------====================*/
+static void      o___PREINIT________o (void) {;}
+
+char
+PROG_urgents            (int a_argc, char *a_argv [])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG  yLOG_enter   (__FUNCTION__);
+   /*---(set mute)-----------------------*/
+   yURG_all_mute ();
+   /*---(start logger)-------------------*/
+   rc = yURG_logger  (a_argc, a_argv);
+   DEBUG_PROG   yLOG_value    ("logger"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr    (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(process urgents)----------------*/
+   rc = yURG_urgs    (a_argc, a_argv);
+   DEBUG_PROG   yLOG_value    ("logger"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr    (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG  yLOG_exit  (__FUNCTION__);
+   return rc;
+}
+
 
 
 
@@ -132,7 +171,24 @@ PROG_usage         (void)
 static void      o___STARTUP_________________o (void) {;}
 
 char
-PROG_init            (void)
+PROG_defaults           (void)
+{
+   my.timeout         = 160;
+   my.lockout         = 210;
+   my.after           =   0;
+   my.forever         = '-';
+   my.deaf            = '-';
+   my.mute            = '-';
+   my.show_hint       = '-';
+   my.lang_save       =  -1;
+   my.clus_save       =  -1;
+   my.host_save       =  -1;
+   strcpy (my.dev, "");
+   return 0;
+}
+
+char
+PROG__init              (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -141,58 +197,44 @@ PROG_init            (void)
    int         x_len       =    0;
    int         x_sid       =    0;
    /*---(logger)-------------------------*/
-   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
-   DEBUG_TOPS   yLOG_info   ("logger"    , "logger openned successfully");
-   DEBUG_TOPS   yLOG_info   ("purpose"   , "light, clean, and customized getty replacement");
-   DEBUG_TOPS   yLOG_info   ("namesake"  , "hestia, goddess of hearth and home");
-   DEBUG_TOPS   yLOG_info   ("ver_num"   , P_VERNUM);
-   DEBUG_TOPS   yLOG_info   ("ver_txt"   , P_VERTXT);
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   DEBUG_PROG   yLOG_info   ("logger"    , "logger openned successfully");
+   DEBUG_PROG   yLOG_info   ("purpose"   , "light, clean, and customized getty replacement");
+   DEBUG_PROG   yLOG_info   ("namesake"  , "hestia, goddess of hearth and home");
+   DEBUG_PROG   yLOG_info   ("ver_num"   , P_VERNUM);
+   DEBUG_PROG   yLOG_info   ("ver_txt"   , P_VERTXT);
    /*---(signals)------------------------*/
    rc = yEXEC_signal (YEXEC_SOFT, YEXEC_NO, YEXEC_NO, NULL, "stdsig");
    /*---(call whoami)--------------------*/
    rc = yEXEC_whoami (&my.pid, &my.ppid, &my.uid, NULL, &my.who, 'n');
-   DEBUG_TOPS   yLOG_value   ("whoami"    , rc);
+   DEBUG_PROG   yLOG_value   ("whoami"    , rc);
    --rce;  if (rc < 0) {
-      DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_TOPS   yLOG_value   ("pid"       , my.pid);
-   DEBUG_TOPS   yLOG_value   ("ppid"      , my.ppid);
-   DEBUG_TOPS   yLOG_value   ("uid"       , my.uid);
-   DEBUG_TOPS   yLOG_info    ("who"       , my.who);
+   DEBUG_PROG   yLOG_value   ("pid"       , my.pid);
+   DEBUG_PROG   yLOG_value   ("ppid"      , my.ppid);
+   DEBUG_PROG   yLOG_value   ("uid"       , my.uid);
+   DEBUG_PROG   yLOG_info    ("who"       , my.who);
+   /*---(set defaults)-------------------*/
+   PROG_defaults ();
    /*---(mode)---------------------------*/
    my.run_mode        = RUN_USER;
-   my.status          = STATUS_GOOD;
-   /*---(get the terminal)---------------*/
-   strlcpy (my.dev, ttyname (STDIN_FILENO), LEN_LABEL);
    /*---(fake)---------------------------*/
-   srand (time(NULL));
-   yEXEC_challenge (time (NULL), my.magic_num);
-   my.language        = ySTR_language ();
-   my.cluster         = ySTR_cluster  (my.language, -1, NULL, NULL);
-   my.host            = ySTR_host     (my.language, -1, NULL, NULL);
-   g_vals.bfly_indx   = rand () % 16;
-   /*---(timer options)------------------*/
-   my.timeout         = 120;
-   my.lockout         = 210;
-   my.after           =   0;
-   my.forever         = '-';
-   /*---(hinting)------------------------*/
-   my.show_hint       = '-';
    show_init ();
    /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
    return 0;
 }
 
 #define    TWOARG      if (two_arg == 1)
 
 char
-PROG_args            (int a_argc, char *a_argv[])
+PROG__args              (int a_argc, char *a_argv[])
 {
    char        rce         =  -10;
    /*---(begin)------------+-----------+-*/
-   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
    /*---(locals)-------------------------*/
    int         i           = 0;             /* loop iterator -- arguments     */
    char       *a           = NULL;          /* current argument               */
@@ -212,6 +254,7 @@ PROG_args            (int a_argc, char *a_argv[])
          printf ("hearth (%s/%s) %s\n", P_VERNUM, __DATE__, P_VERTXT);
          exit (0);
       }
+      else if (strcmp (a, "--usage"       ) == 0) { PROG_usage ();  return -1; }
       /*---(timimg)----------------------*/
       else if (strcmp (a, "--flash"       ) == 0)  my.timeout    =  20;
       else if (strcmp (a, "--quick"       ) == 0)  my.timeout    =  60;
@@ -226,83 +269,127 @@ PROG_args            (int a_argc, char *a_argv[])
       else if (strcmp (a, "--forever"     ) == 0)  my.forever    = 'y';
       else if (strcmp (a, "--after"       ) == 0)  my.after      =   5;
       /*---(hinting options)-------------*/
-      else if (strcmp (a, "--show"        ) == 0)  my.run_mode   = RUN_AS_SHOW;
       else if (strcmp (a, "--hints"       ) == 0)  my.show_hint  = 'y';
-      else if (strcmp (a, "--nohint"      ) == 0)  my.show_hint  = '-';
-      /*---(usage/help)------------------*/
-      else if (strcmp (a, "-h"            ) == 0)  PROG_usage ();
-      else if (strcmp (a, "--help"        ) == 0)  PROG_usage ();
+      else if (strcmp (a, "--deaf"        ) == 0)  my.deaf       = 'y';
+      else if (strcmp (a, "--mute"        ) == 0)  my.mute       = 'y';
       /*---(complex)---------------------*/
-      else if (strcmp (a, "--language"    ) == 0)  { TWOARG  my.language = atoi (a_argv [++i]); }
-      else if (strcmp (a, "--host"        ) == 0)  { TWOARG  my.host     = atoi (a_argv [++i]); }
-      else if (strcmp (a, "--cluster"     ) == 0)  { TWOARG  my.cluster  = atoi (a_argv [++i]); }
-      else if (strcmp (a, "--user"        ) == 0)  { TWOARG  strcpy (my.fake_user, a_argv [++i]); }
+      else if (strcmp (a, "--language"    ) == 0)  { TWOARG  my.lang_save = atoi (a_argv [++i]); }
+      else if (strcmp (a, "--host"        ) == 0)  { TWOARG  my.host_save = atoi (a_argv [++i]); }
+      else if (strcmp (a, "--cluster"     ) == 0)  { TWOARG  my.clus_save = atoi (a_argv [++i]); }
       else if (strcmp (a, "--bfly"        ) == 0)  { TWOARG  g_vals.bfly_indx = atoi (a_argv [++i]); }
       /*---(device)----------------------*/
       else if (strncmp (a, "/dev/"     , 5) == 0) {
-         strlcpy (my.dev, a, LEN_LABEL);
+         ystrlcpy (my.dev, a, LEN_LABEL);
       }
       else {
          printf ("command line option <%s> not understood, FATAL\n", a);
-         DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }  /*---(done)------------------------*/
    /*---(show args)----------------------*/
    /*> printf ("bfly_indx (1) = %2d\n", g_vals.bfly_indx);                            <*/
    DEBUG_ARGS   yLOG_char    ("run_mode"  , my.run_mode);
-   DEBUG_ARGS   yLOG_value   ("language"  , my.language);
-   DEBUG_ARGS   yLOG_value   ("cluster"   , my.cluster);
-   DEBUG_ARGS   yLOG_value   ("host"      , my.host);
+   DEBUG_ARGS   yLOG_value   ("language"  , my.lang_save);
+   DEBUG_ARGS   yLOG_value   ("cluster"   , my.clus_save);
+   DEBUG_ARGS   yLOG_value   ("host"      , my.host_save);
    DEBUG_ARGS   yLOG_info    ("dev"       , my.dev);
    DEBUG_ARGS   yLOG_info    ("fake_user" , my.fake_user);
    /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
    return 0;
 }
 
 char
-PROG_begin         (void)
+PROG__begin             (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          = 0;
    /*> int         i           = 0;                                                   <*/
    /*> tSTAT       s;                                                                 <*/
-   char        x_cmd       [LEN_RECD]  = "";
    /*---(header)-------------------------*/
-   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
-   /*---(update console)---------------------*/
-   rc = yEXEC_tty_open (my.dev, NULL, YEXEC_STDALL, YEXEC_NO);
-   DEBUG_TOPS   yLOG_value   ("console"   , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_TOPS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(force correct font)-----------------*/
-   sprintf (x_cmd, "/usr/bin/setfont -C %s /usr/share/consolefonts/shrike", my.dev);
-   system (x_cmd);
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   /*---(get the terminal)---------------*/
+   if (strcmp (my.dev, "") == 0)  ystrlcpy (my.dev, ttyname (STDIN_FILENO), LEN_LABEL);
    /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
    return   0;
 }
 
 char
-PROG_final         (void)
+PROG_startup            (int a_argc, char *a_argv [])
 {
-   DEBUG_TOPS   yLOG_note    ("initscr");
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   yURG_stage_check (YURG_BEG);
+   DEBUG_PROG  yLOG_enter   (__FUNCTION__);
+   /*---(initialize)---------------------*/
+   rc = PROG__init   ();
+   DEBUG_PROG   yLOG_value    ("init"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr    (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(arguments)----------------------*/
+   rc = PROG__args   (a_argc, a_argv);
+   DEBUG_PROG   yLOG_value    ("args"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr    (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(begin)--------------------------*/
+   rc = PROG__begin  ();
+   DEBUG_PROG   yLOG_value    ("begin"     , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr    (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG  yLOG_exit  (__FUNCTION__);
+   yURG_stage_check (YURG_MID);
+   return rc;
+}
+
+char
+PROG_dawn          (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          = 0;
+   char        x_cmd       [LEN_RECD]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   /*---(update console)---------------------*/
+   rc = ySEC_open (my.dev, NULL, YEXEC_STDALL, YEXEC_NO, YEXEC_YES);
+   DEBUG_PROG   yLOG_value   ("console"   , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(report request)---------------------*/
+   rc = ySEC_request (my.dev, my.pid, my.timeout, my.lockout, my.show_hint, my.magic_num);
+   DEBUG_PROG   yLOG_value   ("request"  , rc);
+   /*---(force correct font)-----------------*/
+   sprintf (x_cmd, "/usr/bin/setfont -C %s /usr/share/consolefonts/shrike", my.dev);
+   system (x_cmd);
+   /*---(clear outstanding input)------------*/
+   tcflush (stdin, TCIFLUSH);
+   DEBUG_PROG   yLOG_note    ("initscr");
    initscr ();       /* fire up ncurses with a default screen (stdscr)         */
-   DEBUG_TOPS   yLOG_note    ("raw");
+   DEBUG_PROG   yLOG_note    ("raw");
    raw     ();           /* read key-by-key rather than waiting for \n (raw mode)  */
-   DEBUG_TOPS   yLOG_note    ("nodelay");
+   DEBUG_PROG   yLOG_note    ("nodelay");
    nodelay (stdscr, TRUE);
-   DEBUG_TOPS   yLOG_note    ("noecho");
+   DEBUG_PROG   yLOG_note    ("noecho");
    noecho  ();        /* don't automatically echo keypresses to the screen      */
    ESCDELAY = 0;    /* so escape responds immediately                         */
    /*---(colors)----------------------*/
-   DEBUG_TOPS   yLOG_note    ("cursor");
+   DEBUG_PROG   yLOG_note    ("cursor");
    curs_set (0);
-   DEBUG_TOPS   yLOG_note    ("colors");
+   DEBUG_PROG   yLOG_note    ("colors");
    start_color();
    use_default_colors();
    init_pair ( 1, COLOR_WHITE  , -1           );
@@ -324,6 +411,9 @@ PROG_final         (void)
    init_pair (17, COLOR_YELLOW , COLOR_RED    );
    init_pair (18, COLOR_MAGENTA, -1           );
    show_sizing ();
+   use_legacy_coding (2);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
    return 0;
 }
 
@@ -334,29 +424,144 @@ PROG_final         (void)
 /*====================------------------------------------====================*/
 static void      o___RUNTIME_________________o (void) {;}
 
-void             /* [------] receive signals ---------------------------------*/
-PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada)
+char
+PROG_normal             (void)
 {
-   /*---(locals)-----------+-----------+-*/
-   int         status      = 0;
-   int         xlink       = 0;
-   int         rc          = 0;
-   int         errsave     = 0;
-   switch (a_signal) {
-   case  SIGCHLD:
-   case  SIGHUP:
-   case  SIGUSR1:
-   case  SIGUSR2:
-      break;
-   case  SIGTERM:
-   case  SIGSEGV:
-      ySEC_logout (my.dev + 5,  "", rpid);
-      break;
-   default:
-      break;
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   my.t_beg  = my.t_end = time (NULL);
+   my.t_dur  = my.t_end - my.t_beg;
+   my.status = STATUS_GOOD;
+   show_background   ();
+   show_random (-1);
+   /*---(normal)-------------------------*/
+   for (i = 0; i <= my.timeout; ++i) {
+      /*---(update)----------------------*/
+      show_random  (i);
+      show_rain    ();
+      show_timer   (&i);
+      show_results ();
+      refresh      ();
+      /*---(get char)--------------------*/
+      usleep ( 100000); /* 0.1sec */
+      show_getchar ();
+      /*---(statuses)--------------------*/
+      if (my.status == STATUS_BREAK)     break;
+      if (my.status == STATUS_REFRESH)   break;
+      if (my.judgement == 'Y') {
+         my.status = STATUS_SUCCESS;
+         break;
+      }
    }
+   /*---(prevent rapid cancels)----------*/
+   if (i < 60 && my.status == STATUS_BREAK) {
+      my.status = STATUS_FAILED;
+   }
+   /*---(prevent rapid refreshes)--------*/
+   if (my.status == STATUS_REFRESH) {
+      if (i < 60)   my.status = STATUS_FAILED;
+      else          PROG_lockout ();
+   }
+   /*---(normal timeout)-----------------*/
+   else if (i > my.timeout && my.status == STATUS_GOOD) {
+      my.status = STATUS_TIMEOUT;
+   }
+   /*---(goodness)-----------------------*/
+   else if (my.status == STATUS_SUCCESS) {
+      COLORS_YELLOW;
+      if (my.mute != 'y')  mvprintw (73, my.cen - 7, "[[[ %s ]]]", "YOU WON");
+      COLORS_OFF;
+      refresh     ();
+   }
+   my.t_end  = time (NULL);
+   my.t_dur  = my.t_end - my.t_beg;
    /*---(complete)-----------------------*/
-   return;
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
+   return 0;
+}
+
+char
+PROG_lockout            (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   /*---(update times)-------------------*/
+   my.t_beg  = my.t_end = time (NULL);
+   my.t_dur  = my.t_end - my.t_beg;
+   /*---(defense)------------------------*/
+   if (my.lockout <= 0)   return 0;
+   /*---(cycle)--------------------------*/
+   for (i = 0; i <  my.lockout; ++i) {
+      show_random  (i);
+      show_rain    ();
+      show_lockout (i);
+      show_results ();
+      refresh      ();
+      usleep ( 100000); /* 0.1sec */
+      tcflush (stdin, TCIFLUSH);  /* ignore input, don't pass on */
+   }
+   /*---(update times)-------------------*/
+   my.t_end  = time (NULL);
+   my.t_dur  = my.t_end - my.t_beg;
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
+   return 0;
+}
+
+char
+PROG_launch             (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   int         x_uid       =    0;
+   char        x_dir       [LEN_RECD]  = "";
+   char        x_shell     [LEN_RECD]  = "";
+   int         x_child     =    0;
+   int         x_return    =    0;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   /*---(get user information)-----------*/
+   rc = yEXEC_userdata (my.user_fix, &x_uid, NULL, x_dir, x_shell);
+   DEBUG_PROG   yLOG_complex ("user"      , "%3d, %-15.15s, %4d, %s, %s", rc, my.user_fix, x_uid, x_dir, x_shell);
+   /*---(update device)------------------*/
+   chown  (my.dev, x_uid, 0);
+   chmod  (my.dev, 0700);
+   /*---(log with security)--------------*/
+   rc = ySEC_active (my.pid, my.entry_text, my.phase, my.judgement, my.status, my.result, my.user_fix);
+   DEBUG_PROG   yLOG_value   ("active"   , rc);
+   rc = ySEC_login  (my.dev, my.user_fix, my.pid);
+   DEBUG_PROG   yLOG_value   ("login"    , rc);
+   /*---(prepare session)----------------*/
+   ioctl  (0, TIOCNOTTY, NULL);   /* detach, from login.c                  */
+   setsid ();                     /* start new session                     */
+   ioctl  (0, TIOCSCTTY,    1);
+   /*---(end ncurses)--------------------*/
+   clear       ();
+   endwin();        /* shut down ncurses                                      */
+   printf  ("\033c");
+   /*---(launch)-------------------------*/
+   x_child = yEXEC_full ("launching tty", my.user_fix, x_shell, YEXEC_BASH, YEXEC_FULL, YEXEC_FORK, EXEC_FILE);
+   DEBUG_PROG   yLOG_value   ("x_child", x_child);
+   /*---(wait)---------------------------*/
+   while (1) {
+      ++c;
+      if ((c % 720) == 0)  DEBUG_PROG   yLOG_sync ();
+      sleep (5);
+      rc = yEXEC_verify ("wait for done", x_child, &x_return, NULL);
+      DEBUG_PROG   yLOG_complex ("check"     , "%6d, %3d, %3d, %c", x_child, c, rc, rc);
+      if (rc != YEXEC_RUNNING)   break;
+   }
+   /*---(wrapup)-------------------------*/
+   ySEC_complete (my.pid, 'y');
+   ySEC_logout   (my.dev,  "", my.pid);
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
+   return 0;
 }
 
 
@@ -367,16 +572,30 @@ PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada)
 static void      o___WRAPUP__________________o (void) {;}
 
 char
-PROG_end           (void)
+PROG__end          (void)
 {
    /*---(begin)------------+-----------+-*/
-   DEBUG_TOPS   yLOG_enter  (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter  (__FUNCTION__);
+   clear       ();
    endwin();        /* shut down ncurses                                      */
+   printf  ("\033c");
    /*---(complete)-----------------------*/
-   DEBUG_TOPS   yLOG_exit   (__FUNCTION__);
-   DEBUG_TOPS   yLOGS_end   ();
+   DEBUG_PROG   yLOGS_end ();
+   DEBUG_PROG   yLOG_exit   (__FUNCTION__);
    return 0;
 } /*======================================================*/
+
+char             /* [------] drive the program closure activities ------------*/
+PROG_shutdown           (void)
+{
+   /*---(header)-------------------------*/
+   yURG_stage_check (YURG_END);
+   DEBUG_PROG   yLOG_enter    (__FUNCTION__);
+   PROG__end ();
+   DEBUG_PROG   yLOG_exit     (__FUNCTION__);
+   DEBUG_PROG   yLOGS_end    ();
+   return 0;
+}
 
 
 
@@ -394,9 +613,9 @@ prog__unit_quiet        (void)
    /*---(run)----------------------------*/
    yURG_logger   (x_argc, x_argv);
    yURG_urgs     (x_argc, x_argv);
-   PROG_init     ();
-   PROG_args     (x_argc, x_argv);
-   PROG_begin    ();
+   PROG__init     ();
+   PROG__args     (x_argc, x_argv);
+   PROG__begin    ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -410,9 +629,9 @@ prog__unit_loud         (void)
    /*---(run)----------------------------*/
    yURG_logger   (x_argc, x_argv);
    yURG_urgs     (x_argc, x_argv);
-   PROG_init     ();
-   PROG_args     (x_argc, x_argv);
-   PROG_begin    ();
+   PROG__init     ();
+   PROG__args     (x_argc, x_argv);
+   PROG__begin    ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -420,7 +639,7 @@ prog__unit_loud         (void)
 char         /*--> complete unit testing -------------------------------------*/
 prog__unit_end          (void)
 {
-   PROG_end       ();
+   PROG_shutdown       ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -436,6 +655,13 @@ PROG_testuserdel     (cchar *a_name)
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    return 0; 
+}
+
+char
+prog_nonrandom          (void)
+{
+   srand (0);
+   return 0;
 }
 
 char
@@ -455,6 +681,52 @@ PROG_testuseradd     (cchar *a_name, cchar *a_pass)
    --rce;  if (rc < 0)   return rce;
    return 0; 
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         unit testing                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNITTEST________o () { return; }
+
+char        unit_answer [LEN_RECD];
+
+char*        /*-> tbd --------------------------------[ light  [us.JC0.271.X1]*/ /*-[01.0000.00#.!]-*/ /*-[--.---.---.--]-*/
+prog__unit              (char *a_question)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   char        s           [LEN_DESC]  = "";
+   char        t           [LEN_DESC]  = "";
+   /*---(defense)------------------------*/
+   snprintf (unit_answer, LEN_RECD, "PROG unit        : question unknown");
+   /*---(simple)-------------------------*/
+   if      (strcmp (a_question, "timing"    )     == 0) {
+      snprintf (unit_answer, LEN_RECD, "PROG timing      : %3d timeout, %3d lockout, %c forever, %3d after",
+            my.timeout, my.lockout, my.forever, my.after);
+   }
+   else if (strcmp (a_question, "config"    )     == 0) {
+      snprintf (unit_answer, LEN_RECD, "PROG config      : %2d lang, %2d clus, %2d host, %2d bfly",
+            my.lang_save, my.clus_save, my.host_save, g_vals.bfly_indx);
+   }
+   else if (strcmp (a_question, "result"    )     == 0) {
+      sprintf (s, "%2d[%.20s]", strlen (my.magic_num) , my.magic_num);
+      sprintf (t, "%2d[%.20s]", strlen (my.entry_text), my.entry_text);
+      snprintf (unit_answer, LEN_RECD, "PROG result      : %c  %c  %2d  %c  %-24.24s  %-24.24s  %c",
+            my.phase, my.judgement, my.position, my.status, s, t, my.show_hint);
+   }
+   else if (strcmp (a_question, "exec"      )     == 0) {
+      snprintf (unit_answer, LEN_RECD, "PROG exec        : %10db, %10de, %10dd",
+            my.t_beg, my.t_end, my.t_dur);
+   }
+   /*---(complete)-----------------------*/
+   return unit_answer;
+}
+
+
+
+
+
 
 
 

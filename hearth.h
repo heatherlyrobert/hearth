@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "2.-, second revision for production"
 #define     P_VERMINOR  "2.1, building up new version"
-#define     P_VERNUM    "2.2a"
-#define     P_VERTXT    "new code is messy but working, need huge cleaning"
+#define     P_VERNUM    "2.2b"
+#define     P_VERTXT    "updated for ySTR changes to ¶str¶ functions and yASCII creation"
 
 #define     P_USAGE     "hearth [OPTIONS]"
 #define     P_DEBUG     "hearth_debug [URGENTS] [OPTIONS]"
@@ -79,6 +79,7 @@
 #include    <sys/ioctl.h>
 #include    <math.h>
 
+#include <errno.h>             /* standard errors                             */
 
 #include    <ncurses.h>                /* XSI_STD   cursor optimization       */
 
@@ -94,6 +95,7 @@
 #include    <ySEC.h>         /* CUSTOM : heatherly security logging           */
 #include    <ySTR.h>         /* CUSTOM : heatherly string handling            */
 #include    <yVAR.h>         /* CUSTOM : heatherly variable testing           */
+#include    <yASCII.h>
 
 
 
@@ -129,9 +131,6 @@ typedef struct spwd      tSHADOW;
 #define     K_NULL         0
 
 
-
-void             /* [------] receive signals ---------------------------------*/
-PROG_signal        (int a_signal, siginfo_t *a_info, void *a_nada);
 
 
 
@@ -174,8 +173,7 @@ extern char        ntitle;
 #define     PART_TRAILING    't'
 
 /*---(run modes)------------*/
-char        g_modes     [20];  /* valid run modes                            */
-#define     RUN_AS_SHOW      's'    /* show veil only                        */
+extern      char        g_modes     [20];  /* valid run modes                            */
 
 #define     RUN_UNIT    'u'    /* unit test mode                             */
 #define     RUN_QUIET   'q'    /* ncurses mode, but no screen output/waits   */
@@ -218,26 +216,34 @@ char        g_modes     [20];  /* valid run modes                            */
 
 #define     COLORS_OFF       attrset (0);
 #define     COLORS_WHITE     attron (COLOR_PAIR( 1))
-#define     COLORS_RED       attron (COLOR_PAIR( 9))
-#define     COLORS_GREEN     attron (COLOR_PAIR(10))
-#define     COLORS_CYAN      attron (COLOR_PAIR(11))
-#define     COLORS_YELLOW    attron (COLOR_PAIR(12))
-#define     COLORS_BLUE      attron (COLOR_PAIR(14))
-#define     COLORS_MAGENTA   attron (COLOR_PAIR(18))
+#define     COLORS_RED       attron (COLOR_PAIR( 9)); attron (A_BOLD)
+#define     COLORS_GREEN     attron (COLOR_PAIR(10)); attron (A_BOLD)
+#define     COLORS_CYAN      attron (COLOR_PAIR(11)); attron (A_BOLD)
+#define     COLORS_YELLOW    attron (COLOR_PAIR(12)); attron (A_BOLD)
+#define     COLORS_BLUE      attron (COLOR_PAIR(14)); attron (A_BOLD)
+#define     COLORS_MAGENTA   attron (COLOR_PAIR(18)); attron (A_BOLD)
 
 
 
 struct cACCESSOR {
    /*---(mode)-------------------*/
    char        run_mode;               /* indicate test vs real               */
+   char        deaf;                   /* accepts any input                   */
+   char        mute;                   /* unit testing support                */
    int         pid;                         /* hearths pid                    */
    int         ppid;                        /* hearths parent pid             */
    int         uid;                         /* hearths user id                */
    int         who         [LEN_LABEL];     /* hearths user name              */
+   long        t_beg;
+   long        t_end;
+   long        t_dur;
    /*---(command line)-----------*/
-   int         language;                    /* language number                */
-   int         cluster;                     /* number of cluster              */
-   int         host;                        /* number of host                 */
+   char        lang_save;
+   char        lang_curr;
+   char        clus_save;
+   char        clus_curr;
+   char        host_save;
+   char        host_curr;
    char        dev         [LEN_LABEL];     /* tty device                     */
    /*---(looping)----------------*/
    char        status;                      /* current login status           */
@@ -275,6 +281,12 @@ struct cACCESSOR {
    int         rot;                         /* username rotation              */
    int         pointer;                     /* right side pointer             */
    char        shell       [LEN_PATH];      /* entry password                 */
+   /*---(timer)------------------*/
+   char        rundate     [LEN_DESC];      /* displayed date                 */
+   char        hexigram;
+   char        book;
+   char        chapter;
+   char        verse;
    /*---(timer)------------------*/
    int         timeout;                     /* deci-seconds timeout           */
    int         lockout;                     /* deci-seconds lockout           */
@@ -342,88 +354,60 @@ extern tVALS       g_vals;
 
 
 
-char*       PROG_version         (void);
-char        PROG_usage           (void);
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345*/
+/*---(support)--------------*/
+char*       PROG_version            (void);
+char        PROG_usage              (void);
+/*---(preinit)--------------*/
+char        PROG_urgents            (int a_argc, char *a_argv []);
+/*---(startup)--------------*/
+char        PROG__defaults          (void);
+char        PROG__init              (void);
+char        PROG__args              (int   a_argc , char *a_argv[]);
+char        PROG__begin             (void);
+char        PROG_startup            (int a_argc, char *a_argv []);
+/*---(runtime)--------------*/
+char        PROG_dawn               (void);
+char        PROG_normal             (void);
+char        PROG_lockout            (void);
+char        PROG_launch             (void);
+/*---(shutdown)-------------*/
+char        PROG__end               (void);
+char        PROG_shutdown           (void);
+/*---(unittest)-------------*/
+char        prog__unit_loud         (void);
+char        prog__unit_quiet        (void);
+char        prog__unit_end          (void);
+char        PROG_testuserdel        (cchar *a_name);
+char        PROG_testuseradd        (cchar *a_name, cchar *a_pass);
+char        prog_nonrandom          (void);
+char*       prog__unit              (char *a_question);
 
-char        PROG_init            (void);
-char        PROG_args            (int   a_argc , char *a_argv[]);
-char        PROG_begin           (void);
-char        PROG_final           (void);
 
-char        prog__unit_loud      (void);
-char        prog__unit_quiet     (void);
-char        prog__unit_end       (void);
-char        PROG_testuserdel     (cchar *a_name);
-char        PROG_testuseradd     (cchar *a_name, cchar *a_pass);
-
-char        CURS_init            (void);
-char        CURS_wrap            (void);
-
-char        VEIL_conf            (void);
-
-char        VEIL_getchar         (void);
-char        VEIL_check_user      (void);
-char        VEIL_check_pass      (void);
-char        VEIL_check           (char a_count, char a_ch);
-char        VEIL_getcheck        (cchar *a_input);
-
-char        VEIL_knocks          (void);
-char        VEIL_knock           (void);
-char        VEIL_butterfly       (void);
-char        VEIL_tty             (int a_x, int a_y);
-/*---(unittest)----------------*/
-char*       VEIL__unit           (char *a_question, int a_num);
-char        VEIL__unit_set       (int a_count, int a_char);
 
 
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345*/
-/*---(fake)--------------------*/
-
-char        gate_prompt             (void);
-char        gate__password          (void);
-char        gate__collect           (char *a_input);
-char        gate__check             (char *a_input, char *a_key);
-char        gate_load               (char *a_user);
-char        gate_main               (void);
-
+char        show_displayer          (int x, int y, char *a_text, char a_mode);
 char        show_message            (char *a_msg);
 char        show_init               (void);
-char        show_status             (void);
-char        show_timer              (void);
-char        show_all                (void);
 char        show_sizing             (void);
 char        show_left               (void);
 char        show_right              (void);
 char        show_block              (void);
-char        show_random             (void);
-char        show_ascii              (void);
+char        show_random             (int a_count);
 char        show_butterfly          (void);
+char        show_rain_prep          (void);
 char        show_rain               (void);
 char        show_getchar            (void);
-
-char        valid_init              (void);
-char        valid_reset             (void);
-char        valid__knock            (void);
-char        valid__prefix           (void);
-char        valid__user             (void);
-char        valid__infix            (void);
-char        valid__pass             (void);
-char        valid__suffix           (void);
-char        valid__done             (void);
-char        valid__getchar          (void);
-char        valid_main              (void);
-char*       valid__unit             (char *a_question, int a_num);
-
-char        FAKE_init            (char a_mode, char *a_user);
-char        FAKE_check           (             char *a_input, char *a_key);
-char        FAKE_tarpit          (char a_mode, char *a_input, int  *a_pts);
+char        show__getstring         (void);
+char        show_results            (void);
+char        show_prompt             (void);
+char        show_background         (void);
+char        show_timer              (int *a_count);
+char        show_lockout            (int a_count);
+char*       show__unit              (char *a_question);
 
 
-int         audit_find         (char *a_dev, int  a_pid, int *a_pos);
-char        audit_login        (char *a_dev, char *a_user, int a_rpid);
-char        audit_fail         (char *a_dev, char a_type);
-char        audit_logout       (char *a_dev, int a_rpid, int a_rc);
-char        audit_system       (char a_type);
 
 char*       unit_accessor      (char*, int);
 
@@ -433,7 +417,7 @@ extern int         rpid;
 
 
 
-extern      char          unit_answer [LEN_UNIT];
+extern      char          unit_answer [LEN_RECD];
 
 
 #endif
